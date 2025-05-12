@@ -16,6 +16,7 @@
 inline u64 get_timestamp() {
     // gets a timestamp that is synchronised between cores (ns since unix epoch)
     // cross core desync should be <400ns in the vast majority of cases
+    // overview of clock sources: http://btorpey.github.io/blog/2014/02/18/clock-sources-in-linux/
     timespec ts;
     assert(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0);
     return ts.tv_sec * 1000000000 + ts.tv_nsec; // breaks in 2554 CE
