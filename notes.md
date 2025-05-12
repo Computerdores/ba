@@ -9,3 +9,11 @@
 
 # Infos
 - "Style: Ten Lessons In Clarity And Grace" by Joseph Williams
+
+
+# Time measurement
+- `test_tsc_freq` seems to show that the tsc freq on laptop and office pc are **not** constant
+- `test_mc_sync` seems to show that the cross core synchronisation is out of sync by less than 1-2ms about 50% of the time
+  - the distribution is bimodal, with one peak at ~(1-2ms, 45%) and one smaller peak that varies more strongly between `CLOCK_MONOTONIC_RAW` and `RDTSC`
+  - imo most likely explanation is that cpu scheduling causes the smaller peak and that the 1-2ms are the actual value
+    - needs to be verified -> kernel mod to disable scheduling for some cores
