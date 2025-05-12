@@ -19,7 +19,12 @@
                 hardeningDisable = [ "all" ];
                 nativeBuildInputs = nativeBuildDeps;
 
-                buildInputs = buildDeps;
+                buildInputs = buildDeps ++ (with pkgs; [
+                    python3
+                ]) ++ (with pkgs.python3Packages; [
+                    pandas
+                    matplotlib
+                ]);
             };
         }
     );

@@ -7,8 +7,8 @@ COL2 = "CLOCK_MONOTONIC_RAW diff";
 # Load the CSV
 df = pd.read_csv("res.csv")
 
-col1 = df[COL1][df[COL1] < 0.125e6]
-col2 = df[COL2][df[COL2] < 0.125e6]
+col1 = df[COL1][df[COL1] < 0.0005e6]
+col2 = df[COL2][df[COL2] < 0.0005e6]
 
 # Create subplots
 fig, axs = plt.subplots(1, 2, figsize=(12, 5))

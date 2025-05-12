@@ -9,6 +9,10 @@
 #include "ff_queue.hpp"
 #include "utils.h"
 
+#define CPU_MAIN 5
+#define CPU_W0   0
+#define CPU_W1   2
+
 typedef struct alignas(CACHE_LINE_SIZE) {
     unsigned long long tsc;
     timespec tp;
@@ -28,8 +32,8 @@ std::optional<std::tuple<unsigned long long, long>> test_sync() {
     flag = false;
     std::thread t0(wait_and_write_timestamp, &ts0);
     std::thread t1(wait_and_write_timestamp, &ts1);
-    set_cpu_affinity(0, t0);
-    set_cpu_affinity(2, t0);
+    set_cpu_affinity(CPU_W0, t0);
+    set_cpu_affinity(CPU_W1, t1);
     flag = true;
     t0.join();
     t1.join();
