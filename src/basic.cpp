@@ -12,12 +12,14 @@ ff_queue *channel;
 volatile bool start = false;
 
 struct {
-    u64     tx_times[MSG_COUNT];
+    u64     tx_start[MSG_COUNT];
+    u64     tx_end[MSG_COUNT];
     size_t  tx_misses;
 
     u8      OFFSET[CACHE_LINE_SIZE];
 
-    u64     rx_times[MSG_COUNT];
+    u64     rx_start[MSG_COUNT];
+    u64     rx_end[MSG_COUNT];
     size_t  rx_misses;
 } state = {};
 
@@ -26,6 +28,7 @@ void sender() {
     while (!start) {}
     size_t count = 0;
     while (count < MSG_COUNT) {
+        state.tx_start[count] = get_timestamp();
         u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
         if (!slot) {
             state.tx_misses++;
@@ -33,7 +36,7 @@ void sender() {
         }
         *slot = 42;
         channel->enqueue_commit();
-        state.tx_times[count] = get_timestamp();
+        state.tx_end[count] = get_timestamp();
         count++;
     }
 }
@@ -42,6 +45,7 @@ void receiver() {
     while (!start) {}
     size_t count = 0;
     while (count < MSG_COUNT) {
+        state.rx_start[count] = get_timestamp();
         u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());
         if (!slot) {
             state.rx_misses++;
@@ -49,7 +53,7 @@ void receiver() {
         }
         assert(*slot == 42);
         channel->dequeue_commit();
-        state.rx_times[count] = get_timestamp();
+        state.rx_end[count] = get_timestamp();
         count++;
     }
 }
@@ -76,14 +80,12 @@ void reset_test() {
 }
 
 int main() {
-    std::cout << "RX,TX" << std::endl;
+    std::cout << "RX_Start,RX_End,TX_Start,TX_End" << std::endl;
 
     reset_test();
     run_test();
 
     for (int i = 0; i < MSG_COUNT; i++) {
-        std::cout << state.rx_times[i] << "," << state.tx_times[i] << std::endl;
+        std::cout << state.rx_start[i] << "," << state.rx_end[i] << "," << state.tx_start[i] << "," << state.tx_end[i] << std::endl;
     }
-
-    // TODO: store time_delta, ts_delta, and state for analysis
 }
