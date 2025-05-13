@@ -24,6 +24,12 @@
                 ]) ++ (with pkgs.python3Packages; [
                     pandas
                     matplotlib
+                    # ipynb
+                    ipykernel
+                    jupyter
+                    jupyterlab
+                    ipympl
+                    jupyterlab-widgets
                 ]);
             };
         }
