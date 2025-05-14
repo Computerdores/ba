@@ -1,8 +1,9 @@
-#include <x86intrin.h>
-#include <ctime>
 #include <unistd.h>
-#include <iostream>
+#include <x86intrin.h>
+
+#include <ctime>
 #include <iomanip>
+#include <iostream>
 #include <optional>
 #include <thread>
 
@@ -10,8 +11,8 @@
 #include "utils.h"
 
 #define CPU_MAIN 5
-#define CPU_W0   0
-#define CPU_W1   2
+#define CPU_W0 0
+#define CPU_W1 2
 
 typedef struct alignas(CACHE_LINE_SIZE) {
     unsigned long long tsc;
@@ -23,7 +24,8 @@ Timestamp ts0;
 Timestamp ts1;
 
 void wait_and_write_timestamp(Timestamp *target) {
-    while (!flag) {}
+    while (!flag) {
+    }
     target->tsc = __rdtsc();
     clock_gettime(CLOCK_MONOTONIC_RAW, &target->tp);
 }
@@ -40,7 +42,8 @@ std::optional<std::tuple<unsigned long long, long>> test_sync() {
 
     if (ts0.tp.tv_sec != ts1.tp.tv_sec) return std::nullopt;
 
-    return {{ MAX(ts0.tsc, ts1.tsc) - MIN(ts0.tsc, ts1.tsc), MAX(ts0.tp.tv_nsec, ts1.tp.tv_nsec) - MIN(ts0.tp.tv_nsec, ts1.tp.tv_nsec) }};
+    return {{MAX(ts0.tsc, ts1.tsc) - MIN(ts0.tsc, ts1.tsc),
+             MAX(ts0.tp.tv_nsec, ts1.tp.tv_nsec) - MIN(ts0.tp.tv_nsec, ts1.tp.tv_nsec)}};
 }
 
 int main() {

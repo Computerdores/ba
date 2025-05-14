@@ -1,7 +1,8 @@
-#include "queues/ff_queue.h"
-#include <thread>
-#include "utils.h"
 #include <cmath>
+#include <thread>
+
+#include "queues/ff_queue.h"
+#include "utils.h"
 
 // SO on cpusets: https://stackoverflow.com/a/9079117
 #define CPU_RX 3
@@ -17,20 +18,20 @@ ff_queue *channel;
 volatile bool start = false;
 
 struct {
-    u64     tx_start[MSG_COUNT];
-    u64     tx_end[MSG_COUNT];
-    size_t  tx_misses;
+    u64 tx_start[MSG_COUNT];
+    u64 tx_end[MSG_COUNT];
+    size_t tx_misses;
 
-    u8      OFFSET[CACHE_LINE_SIZE];
+    u8 OFFSET[CACHE_LINE_SIZE];
 
-    u64     rx_start[MSG_COUNT];
-    u64     rx_end[MSG_COUNT];
-    size_t  rx_misses;
+    u64 rx_start[MSG_COUNT];
+    u64 rx_end[MSG_COUNT];
+    size_t rx_misses;
 } state = {};
 
-
 void sender(u32 wait_time) {
-    while (!start) {}
+    while (!start) {
+    }
     size_t count = 0;
     while (count < MSG_COUNT) {
         nsleep(wait_time);
@@ -48,7 +49,8 @@ void sender(u32 wait_time) {
 }
 
 void receiver(u32 wait_time) {
-    while (!start) {}
+    while (!start) {
+    }
     size_t count = 0;
     while (count < MSG_COUNT) {
         nsleep(wait_time);
@@ -87,7 +89,8 @@ void run_test(u32 wait_time) {
     rx.join();
 
     for (int i = 0; i < MSG_COUNT; i++) {
-        std::cout << state.rx_start[i] << "," << state.rx_end[i] << "," << state.tx_start[i] << "," << state.tx_end[i] << "," << wait_time << std::endl;
+        std::cout << state.rx_start[i] << "," << state.rx_end[i] << "," << state.tx_start[i] << "," << state.tx_end[i]
+                  << "," << wait_time << std::endl;
     }
 }
 
