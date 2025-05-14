@@ -1,6 +1,7 @@
 #include <cmath>
 #include <thread>
 
+#include "queues/equeue.h"
 #include "queues/ff_queue.h"
 #include "utils.h"
 
@@ -14,7 +15,13 @@
 #define MAX_WAIT 1000000
 #define WAIT_GRANULARITY 128
 
+#define EQUEUE
+
+#ifndef EQUEUE
 queues::ff_queue *channel;
+#else
+queues::equeue *channel;
+#endif
 volatile bool start = false;
 
 struct {
@@ -36,6 +43,7 @@ void sender(u32 wait_time) {
     while (count < MSG_COUNT) {
         nsleep(wait_time);
         state.tx_start[count] = get_timestamp();
+#ifndef EQUEUE
         u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
         if (!slot) {
             state.tx_misses++;
@@ -45,6 +53,14 @@ void sender(u32 wait_time) {
         channel->enqueue_commit();
         state.tx_end[count] = get_timestamp();
         count++;
+#else
+        if (channel->enqueue(42)) {
+            state.tx_end[count] = get_timestamp();
+            count++;
+        } else {
+            state.tx_misses++;
+        }
+#endif
     }
 }
 
@@ -55,6 +71,7 @@ void receiver(u32 wait_time) {
     while (count < MSG_COUNT) {
         nsleep(wait_time);
         state.rx_start[count] = get_timestamp();
+#ifndef EQUEUE
         u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());
         if (!slot) {
             state.rx_misses++;
@@ -64,6 +81,15 @@ void receiver(u32 wait_time) {
         channel->dequeue_commit();
         state.rx_end[count] = get_timestamp();
         count++;
+#else
+        if (auto res = channel->dequeue()) {
+            assert(*res == 42);
+            state.rx_end[count] = get_timestamp();
+            count++;
+        } else {
+            state.rx_misses++;
+        }
+#endif
     }
 }
 
@@ -72,7 +98,11 @@ void reset_test() {
     if (channel) {
         delete channel;
     }
+#ifndef EQUEUE
     channel = new queues::ff_queue(1024, 10);
+#else
+    channel = new queues::equeue(16, 32);
+#endif
 }
 
 void run_test(u32 wait_time) {
@@ -100,5 +130,6 @@ int main() {
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
         double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));
         run_test(floor(wait_time));
+        std::cerr << "Test " << i << " done." << std::endl;
     }
 }
