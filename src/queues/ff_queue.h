@@ -1,50 +1,19 @@
 /* -*- Mode: C++; tab-width: 4; c-basic-offset: 4; indent-tabs-mode: nil -*- */
+#pragma once
 
-#ifndef FF_QUEUE_HPP
-#define FF_QUEUE_HPP
+// licensed under MIT from https://github.com/fastflow/fastflow/
 
-/*!
- * \file ff_queue.hpp
- * \ingroup aux_classes
- *
- * \brief Experimental. Not currently used.
- *
- */
-/* ***************************************************************************
- *  FastFlow is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU Lesser General Public License version 3 as
- *  published by the Free Software Foundation.
- *  Starting from version 3.0.1 FastFlow is dual licensed under the GNU LGPLv3
- *  or MIT License (https://github.com/ParaGroup/WindFlow/blob/vers3.x/LICENSE.MIT)
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- ****************************************************************************
- */
-#include "../utils.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <memory.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdexcept>
-#include <vector>
+#include <cassert>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <memory>
 
+#include "../utils.h"
+
 #ifdef _MSC_VER
-#   pragma warning (disable: 4200) // nonstandard extension used : zero-sized array in struct/union
-#   define abort() __debugbreak(), (abort)()
+#pragma warning(disable : 4200)  // nonstandard extension used : zero-sized array in struct/union
+#define abort() __debugbreak(), (abort)()
 #endif
 
 #define INLINE static __inline
@@ -53,193 +22,153 @@
 #define CACHE_LINE_SIZE 128
 #endif
 
-
-INLINE void* aligned_malloc(size_t sz)
-{
-    void*               mem;
-    if (posix_memalign(&mem, CACHE_LINE_SIZE, sz))
-        return 0;
+INLINE void *aligned_malloc(const size_t sz) {
+    void *mem;
+    if (posix_memalign(&mem, CACHE_LINE_SIZE, sz)) {
+        return nullptr;
+    }
     return mem;
 }
 
-INLINE void aligned_free(void* mem)
-{
-    free(mem);
-}
+INLINE void aligned_free(void *mem) { free(mem); }
 
-
-INLINE void atomic_addr_store_release(void* volatile* addr, void* val)
-{
-    __asm __volatile ("" ::: "memory");
+INLINE void atomic_addr_store_release(void *volatile *addr, void *val) {
+    __asm __volatile("" ::: "memory");
     addr[0] = val;
 }
 
-
-INLINE void* atomic_addr_load_acquire(void* volatile* addr)
-{
-    void* val;
+INLINE void *atomic_addr_load_acquire(void *volatile *addr) {
+    void *val;
     val = addr[0];
-    __asm __volatile ("" ::: "memory");
+    __asm __volatile("" ::: "memory");
     return val;
 }
 
-class ff_queue
-{
-public:
+class ff_queue {
+  public:
+    ff_queue(ff_queue const &) = delete;
 
-    ff_queue (size_t bucket_size, size_t max_bucket_count)
-        : bucket_size_ (bucket_size)
-        , max_bucket_count_ (max_bucket_count)
-    {
+    ff_queue(const size_t bucket_size, const size_t max_bucket_count)
+        : bucket_size_(bucket_size), max_bucket_count_(max_bucket_count) {
         bucket_count_ = 0;
-        bucket_t* bucket = alloc_bucket(bucket_size_);
+        bucket_t *bucket = alloc_bucket(bucket_size_);
         head_pos_ = bucket->data;
         tail_pos_ = bucket->data;
         tail_end_ = bucket->data + bucket_size_;
-        tail_next_ = 0;
+        tail_next_ = nullptr;
         tail_bucket_ = bucket;
         last_bucket_ = bucket;
-        *(void**)head_pos_ = (void*)1;
-        pad_[0] = 0;
+        *reinterpret_cast<void **>(head_pos_) = reinterpret_cast<void *>(1);
     }
 
+    void operator=(ff_queue const &) = delete;
 
-    ~ff_queue ()
-    {
-        bucket_t* bucket = last_bucket_;
-        while (bucket != 0)
-        {
-            bucket_t* next_bucket = bucket->next;
+    ~ff_queue() {
+        bucket_t *bucket = last_bucket_;
+        while (bucket != nullptr) {
+            bucket_t *next_bucket = bucket->next;
             aligned_free(bucket);
             bucket = next_bucket;
         }
     }
 
-    void* enqueue_prepare (size_t sz)
-    {
-        assert(((uintptr_t)tail_pos_ % sizeof(void*)) == 0);
-        size_t msg_size = ((uintptr_t)(sz + sizeof(void*) - 1) & ~(sizeof(void*) - 1)) + sizeof(void*);
-        if ((size_t)(tail_end_ - tail_pos_) >= msg_size + sizeof(void*))
-        {
+    void *enqueue_prepare(const size_t sz) {
+        assert(reinterpret_cast<uintptr_t>(tail_pos_) % sizeof(void *) == 0);
+        if (const size_t msg_size = (sz + sizeof(void *) - 1 & ~(sizeof(void *) - 1)) + sizeof(void *);
+            static_cast<size_t>(tail_end_ - tail_pos_) >= msg_size + sizeof(void *)) {
             tail_next_ = tail_pos_ + msg_size;
-            return tail_pos_ + sizeof(void*);
+            return tail_pos_ + sizeof(void *);
         }
-        else
-        {
-            return enqueue_prepare_slow(sz);
-        }
+        return enqueue_prepare_slow(sz);
     }
 
-    void enqueue_commit ()
-    {
-        *(char* volatile*)tail_next_ = (char*)1;
-        atomic_addr_store_release((void* volatile*)tail_pos_, tail_next_);
+    void enqueue_commit() {
+        *reinterpret_cast<std::uint8_t *volatile *>(tail_next_) = reinterpret_cast<std::uint8_t *>(1);
+        atomic_addr_store_release(reinterpret_cast<void *volatile *>(tail_pos_), tail_next_);
         tail_pos_ = tail_next_;
     }
 
-
-    void* dequeue_prepare ()
-    {
-        assert(((uintptr_t)head_pos_ % sizeof(void*)) == 0);
-        void* next = atomic_addr_load_acquire((void* volatile*)head_pos_);
-        if (((uintptr_t)next & 1) == 0)
-        {
-            char* msg = head_pos_ + sizeof(void*);
+    void *dequeue_prepare() {
+        assert(reinterpret_cast<uintptr_t>(head_pos_) % sizeof(void *) == 0);
+        void *next = atomic_addr_load_acquire(reinterpret_cast<void *volatile *>(head_pos_));
+        if ((reinterpret_cast<uintptr_t>(next) & 1) == 0) {
+            u8 *msg = head_pos_ + sizeof(void *);
             return msg;
         }
-        else if (((uintptr_t)next & ~1) == 0)
-        {
-            return 0;
+        if ((reinterpret_cast<uintptr_t>(next) & ~1) == 0) {
+            return nullptr;
         }
-        else
-        {
-            atomic_addr_store_release((void* volatile*)&head_pos_, (char*)((uintptr_t)next & ~1));
-            return dequeue_prepare();
-        }
+        atomic_addr_store_release(reinterpret_cast<void *volatile *>(&head_pos_),
+                                  reinterpret_cast<std::uint8_t *>(reinterpret_cast<uintptr_t>(next) & ~1));
+        return dequeue_prepare();
     }
 
- 
-    void dequeue_commit ()
-    {
-        char* next = *(char* volatile*)head_pos_;
-        assert(next != 0);
-        atomic_addr_store_release((void* volatile*)&head_pos_, next);
+    void dequeue_commit() {
+        u8 *next = *reinterpret_cast<std::uint8_t *volatile *>(head_pos_);
+        assert(next != nullptr);
+        atomic_addr_store_release(reinterpret_cast<void *volatile *>(&head_pos_), next);
     }
 
-private:
-    struct bucket_t
-    {
-        bucket_t*               next;
-        size_t                  size;
-        char                    data [0];
+  private:
+    struct bucket_t {
+        bucket_t *next;
+        size_t size;
+        u8 data[0];
     };
 
-    char* volatile              head_pos_;
+    u8 *volatile head_pos_;
 
-    char                        pad_ [CACHE_LINE_SIZE];
+    u8 pad_[CACHE_LINE_SIZE] = {};
 
-    char*                       tail_pos_;
-    char*                       tail_end_;
-    char*                       tail_next_;
-    bucket_t*                   tail_bucket_;
-    bucket_t*                   last_bucket_;
-    size_t const                bucket_size_;
-    size_t const                max_bucket_count_;
-    size_t                      bucket_count_;
+    u8 *tail_pos_;
+    u8 *tail_end_;
+    u8 *tail_next_;
+    bucket_t *tail_bucket_;
+    bucket_t *last_bucket_;
+    size_t const bucket_size_;
+    size_t const max_bucket_count_;
+    size_t bucket_count_;
 
-
-    bucket_t* alloc_bucket (size_t sz)
-    {
-        bucket_t* bucket = (bucket_t*)aligned_malloc(sizeof(bucket_t) + sz);
-        if (bucket == 0)
-            throw std::bad_alloc();
-        bucket->next = 0;
+    bucket_t *alloc_bucket(const size_t sz) {
+        const auto bucket = static_cast<bucket_t *>(aligned_malloc(sizeof(bucket_t) + sz));
+        if (bucket == nullptr) throw std::bad_alloc();
+        bucket->next = nullptr;
         bucket->size = sz;
         bucket_count_ += 1;
         return bucket;
     }
 
-
-    NOINLINE
-    char* enqueue_prepare_slow (size_t sz)
-    {
+    NOINLINE void *enqueue_prepare_slow(const size_t sz) {
         size_t bucket_size = bucket_size_;
-        if (bucket_size < sz + 2 * sizeof(void*))
-            bucket_size = sz + 2 * sizeof(void*);
+        if (bucket_size < sz + 2 * sizeof(void *)) bucket_size = sz + 2 * sizeof(void *);
 
-        bucket_t* bucket = 0;
-        char* head_pos = (char*)atomic_addr_load_acquire((void* volatile*)&head_pos_);
-        while (head_pos < last_bucket_->data || head_pos >= last_bucket_->data + last_bucket_->size)
-        {
+        bucket_t *bucket = nullptr;
+        u8 *head_pos =
+            static_cast<std::uint8_t *>(atomic_addr_load_acquire(reinterpret_cast<void *volatile *>(&head_pos_)));
+        while (head_pos < last_bucket_->data || head_pos >= last_bucket_->data + last_bucket_->size) {
             bucket = last_bucket_;
             last_bucket_ = bucket->next;
-            bucket->next = 0;
-            assert(last_bucket_ != 0);
+            bucket->next = nullptr;
+            assert(last_bucket_ != nullptr);
 
-            if ((bucket->size < bucket_size)
-                || (bucket_count_ > max_bucket_count_
-                    && (head_pos < last_bucket_->data || head_pos >= last_bucket_->data + last_bucket_->size)))
-            {
+            if (bucket->size < bucket_size ||
+                bucket_count_ > max_bucket_count_ &&
+                    (head_pos < last_bucket_->data || head_pos >= last_bucket_->data + last_bucket_->size)) {
                 aligned_free(bucket);
-                bucket = 0;
+                bucket = nullptr;
                 continue;
             }
             break;
         }
 
-        if (bucket == 0)
-            bucket = alloc_bucket(bucket_size);
-        *(void* volatile*)bucket->data = (void*)1;
-        atomic_addr_store_release((void* volatile*)tail_pos_, (void*)((uintptr_t)bucket->data | 1));
+        if (bucket == nullptr) bucket = alloc_bucket(bucket_size);
+        *reinterpret_cast<void *volatile *>(bucket->data) = reinterpret_cast<void *>(1);
+        atomic_addr_store_release(reinterpret_cast<void *volatile *>(tail_pos_),
+                                  reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(bucket->data) | 1));
         tail_pos_ = bucket->data;
         tail_end_ = tail_pos_ + bucket_size;
         tail_bucket_->next = bucket;
         tail_bucket_ = bucket;
-        return static_cast<char *>(enqueue_prepare(sz));
+        return enqueue_prepare(sz);
     }
-
-    ff_queue (ff_queue const&);
-    void operator = (ff_queue const&);
 };
-
-#endif /* FF_QUEUE_HPP */
