@@ -1,9 +1,7 @@
 #include <unistd.h>
 #include <x86intrin.h>
 
-#include <cassert>
 #include <ctime>
-#include <iomanip>
 #include <iostream>
 #include <thread>
 

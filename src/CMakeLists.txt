@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 project(queue_benchmarks)
 
-set(LIB_SRC_FILES utils.h queues/ff_queue.h)
+set(LIB_SRC_FILES utils.h queues/ff_queue.h queues/equeue.h)
 
 add_executable(basic basic.cpp ${LIB_SRC_FILES})
 

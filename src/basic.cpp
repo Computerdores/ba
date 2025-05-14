@@ -14,7 +14,7 @@
 #define MAX_WAIT 1000000
 #define WAIT_GRANULARITY 128
 
-ff_queue *channel;
+queues::ff_queue *channel;
 volatile bool start = false;
 
 struct {
@@ -72,7 +72,7 @@ void reset_test() {
     if (channel) {
         delete channel;
     }
-    channel = new ff_queue(1024, 10);
+    channel = new queues::ff_queue(1024, 10);
 }
 
 void run_test(u32 wait_time) {

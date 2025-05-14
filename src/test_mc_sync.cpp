@@ -7,7 +7,6 @@
 #include <optional>
 #include <thread>
 
-#include "queues/ff_queue.h"
 #include "utils.h"
 
 #define CPU_MAIN 5

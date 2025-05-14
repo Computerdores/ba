@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <memory>
 
@@ -44,6 +43,7 @@ INLINE void *atomic_addr_load_acquire(void *volatile *addr) {
     return val;
 }
 
+namespace queues {
 class ff_queue {
   public:
     ff_queue(ff_queue const &) = delete;
@@ -172,3 +172,4 @@ class ff_queue {
         return enqueue_prepare(sz);
     }
 };
+}  // namespace queues
