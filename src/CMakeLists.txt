@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.30.5)
 project(queue_benchmarks)
 
-add_executable(basic basic.cpp utils.h)
+set(LIB_SRC_FILES utils.h queues/ff_queue.h)
 
-add_executable(test_tsc_freq test_tsc_freq.cpp)
-add_executable(test_mc_sync test_mc_sync.cpp)
+add_executable(basic basic.cpp ${LIB_SRC_FILES})
+
+add_executable(test_tsc_freq test_tsc_freq.cpp ${LIB_SRC_FILES})
+add_executable(test_mc_sync test_mc_sync.cpp ${LIB_SRC_FILES})
 
 set(CMAKE_CXX_FLAGS "-Wno-interference-size")
 

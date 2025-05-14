@@ -6,7 +6,7 @@
 #include <optional>
 #include <thread>
 
-#include "ff_queue.hpp"
+#include "queues/ff_queue.h"
 #include "utils.h"
 
 #define CPU_MAIN 5
@@ -40,17 +40,10 @@ std::optional<std::tuple<unsigned long long, long>> test_sync() {
 
     if (ts0.tp.tv_sec != ts1.tp.tv_sec) return std::nullopt;
 
-    return std::optional(std::tuple{MAX(ts0.tsc, ts1.tsc) - MIN(ts0.tsc, ts1.tsc), MAX(ts0.tp.tv_nsec, ts1.tp.tv_nsec) - MIN(ts0.tp.tv_nsec, ts1.tp.tv_nsec)});
+    return {{ MAX(ts0.tsc, ts1.tsc) - MIN(ts0.tsc, ts1.tsc), MAX(ts0.tp.tv_nsec, ts1.tp.tv_nsec) - MIN(ts0.tp.tv_nsec, ts1.tp.tv_nsec) }};
 }
 
 int main() {
-    /*
-    auto res = test_sync();
-    if (!res) return -1;
-    const auto [tsc_diff, clock_diff] = res.value();
-    std::cout << "TSC Diff: " << tsc_diff << std::endl;
-    std::cout << "CLOCK_MONOTONIC_RAW Diff (ns): " << clock_diff << std::endl;
-    */
     std::cout << "tsc diff,CLOCK_MONOTONIC_RAW diff" << std::endl;
     for (int i = 0; i < 10000; i++) {
         auto res = test_sync();

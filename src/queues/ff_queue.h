@@ -7,7 +7,7 @@
  * \file ff_queue.hpp
  * \ingroup aux_classes
  *
- * \brief Experimental. Not currently used. 
+ * \brief Experimental. Not currently used.
  *
  */
 /* ***************************************************************************
@@ -29,7 +29,7 @@
  *
  ****************************************************************************
  */
-
+#include "../utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

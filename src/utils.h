@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cstdint>
 #include <thread>
 #include <pthread.h>
@@ -12,6 +13,8 @@
 
 #define MIN(A, B) (A > B ? B : A)
 #define MAX(A, B) (A < B ? B : A)
+
+#define CACHE_LINE_SIZE std::hardware_destructive_interference_size
 
 inline u64 get_timestamp() {
     // gets a timestamp that is synchronised between cores (ns since unix epoch)
