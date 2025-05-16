@@ -6,8 +6,8 @@
 #include "utils.h"
 
 // SO on cpusets: https://stackoverflow.com/a/9079117
-#define CPU_RX 3
-#define CPU_TX 4
+#define CPU_RX 2
+#define CPU_TX 3
 
 #define MSG_COUNT 1024
 
