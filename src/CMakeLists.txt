@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30.5)
+cmake_minimum_required(VERSION 3.27.0)
 project(queue_benchmarks)
 
 set(LIB_SRC_FILES utils.h queues/ff_queue.h queues/equeue.h)
