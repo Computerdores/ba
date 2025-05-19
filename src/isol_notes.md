@@ -1,0 +1,3 @@
+- guide: https://www.suse.com/c/cpu-isolation-practical-example-part-5/
+- hold SHIFT to enter GRUB
+- check whether kernel parameters are enabled via `/sys/devices/system/cpu/nohz_full` or `/sys/devices/system/cpu/isolated`
