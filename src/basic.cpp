@@ -41,7 +41,7 @@ void sender(u32 wait_time) {
     }
     size_t count = 0;
     while (count < MSG_COUNT) {
-        nsleep(wait_time);
+        busy_wait(wait_time);
         state.tx_start[count] = get_timestamp();
 #ifndef EQUEUE
         u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
@@ -69,7 +69,7 @@ void receiver(u32 wait_time) {
     }
     size_t count = 0;
     while (count < MSG_COUNT) {
-        nsleep(wait_time);
+        busy_wait(wait_time);
         state.rx_start[count] = get_timestamp();
 #ifndef EQUEUE
         u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());

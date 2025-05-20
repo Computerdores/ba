@@ -1,8 +1,0 @@
-- guide: https://www.suse.com/c/cpu-isolation-practical-example-part-5/
-- hold SHIFT to enter GRUB
-  - add to cmdline: `isolcpus=2,3 nohz_full=2,3`
-- check whether kernel parameters are enabled via `/sys/devices/system/cpu/nohz_full` or `/sys/devices/system/cpu/isolated`
-- for cpu freq setting, add to cmdline: `intel_pstate=passive`
-  - then use `modprobe cpufreq_userspace` to load kmod
-  - and `cpufreq-set` to set cpu freq
-- setting cpu freq higher seems to lead to cleaner results with less spikes and jitter

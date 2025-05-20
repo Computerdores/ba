@@ -26,9 +26,9 @@ inline u64 get_timestamp() {
     return ts.tv_sec * 1000000000 + ts.tv_nsec;  // breaks in 2554 CE
 }
 
-inline void nsleep(const u32 duration) {
-    const timespec spec {0, duration};
-    nanosleep(&spec, nullptr);
+inline void busy_wait(const u32 duration) {
+    u64 end = get_timestamp() + duration;
+    while (get_timestamp() < end) {}
 }
 
 inline void set_cpu_affinity(const int cpu, std::thread &thread) {

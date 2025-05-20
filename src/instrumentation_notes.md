@@ -1,0 +1,17 @@
+- guide: https://www.suse.com/c/cpu-isolation-practical-example-part-5/
+- hold SHIFT to enter GRUB
+  - add to cmdline: `isolcpus=2,3 nohz_full=2,3`
+- check whether kernel parameters are enabled via `/sys/devices/system/cpu/nohz_full` or `/sys/devices/system/cpu/isolated`
+- for cpu freq setting, add to cmdline: `intel_pstate=passive`
+  - then use `modprobe cpufreq_userspace` to load kmod
+  - and `cpufreq-set` to set cpu freq
+- setting cpu freq higher seems to lead to cleaner results with less spikes and jitter
+- `turbostat` still shows IRQs on the isolated cores (2,3)
+  - use `sudo find /proc/irq/ -type f -name smp_affinity -exec bash -c 'echo 3 > {}' \;` to set IRQ affinity to cpus 1,2
+  - `turbostat` confirms this works
+  - scheint etwas weniger jitter zu haben? aus wenigen runs nicht eindeutig erkennbar
+- Neue Erkenntnis: das waiting war kein busy waiting sondern Interrupt basiert
+  - austauschen durch busy waiting hat dazu geführt dass die wait time fast keinen Einfluss auf RX und TX zeit mehr hat
+  - RX und TX sind jetzt bei jeweils ca. 50ns bzw. 45ns
+  - latenz ist auch leicht gesunken
+
