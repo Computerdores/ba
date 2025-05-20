@@ -5,12 +5,14 @@
 #include <iostream>
 #include <thread>
 
+#include "utils.h"
+
 int main() {
     timespec start_time;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start_time);
     auto start_tsc = __rdtsc();
 
-    sleep(2);
+    busy_wait(2 * 1000 * 1000 * 1000);
 
     timespec end_time;
     clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
