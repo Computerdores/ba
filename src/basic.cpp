@@ -16,7 +16,7 @@
 #define WAIT_GRANULARITY 128
 
 template <bool EQueue>
-class TestRunner {  // NOLINT(*-pro-type-member-init)
+class TestRunner {
   public:
     TestRunner() = default;
 
@@ -41,25 +41,25 @@ class TestRunner {  // NOLINT(*-pro-type-member-init)
     }
 
   private:
-    std::conditional_t<EQueue, queues::equeue, queues::ff_queue> *channel;
+    std::conditional_t<EQueue, queues::equeue, queues::ff_queue> *channel = nullptr;
 
-    volatile bool start;
+    volatile bool start = false;
 
     u64 tx_start[MSG_COUNT] = {};
     u64 tx_end[MSG_COUNT] = {};
-    size_t tx_misses;
+    size_t tx_misses = 0;
 
     u8 OFFSET[CACHE_LINE_SIZE] = {};
 
     u64 rx_start[MSG_COUNT] = {};
     u64 rx_end[MSG_COUNT] = {};
-    size_t rx_misses;
+    size_t rx_misses = 0;
 
     void reset() {
         start = false;
         rx_misses = 0;
         tx_misses = 0;
-        if (channel) {
+        if (channel) {  // NOLINT(*-delete-null-pointer)
             delete channel;
         }
         if constexpr (EQueue) {
@@ -69,7 +69,7 @@ class TestRunner {  // NOLINT(*-pro-type-member-init)
         }
     }
 
-    void sender(u32 wait_time) {
+    void sender(const u32 wait_time) {
         while (!start) {
         }
         size_t count = 0;
@@ -95,7 +95,7 @@ class TestRunner {  // NOLINT(*-pro-type-member-init)
         }
     }
 
-    void receiver(u32 wait_time) {
+    void receiver(const u32 wait_time) {
         while (!start) {
         }
         size_t count = 0;
@@ -130,7 +130,7 @@ int main() {
     TestRunner<true> runner {};
 
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
-        double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));
+        const double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));
         runner.run(floor(wait_time));
         std::cerr << "Test " << i << " done." << std::endl;
     }
