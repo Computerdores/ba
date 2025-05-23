@@ -15,120 +15,123 @@
 #define MAX_WAIT 1000000
 #define WAIT_GRANULARITY 128
 
-#define EQUEUE
+template <bool EQueue>
+class TestRunner {  // NOLINT(*-pro-type-member-init)
+  public:
+    TestRunner() = default;
 
-#ifndef EQUEUE
-queues::ff_queue *channel;
-#else
-queues::equeue *channel;
-#endif
+    void run(u32 wait_time) {
+        reset();
 
-volatile bool start = false;
+        std::thread tx(&TestRunner::sender, this, wait_time);
+        std::thread rx(&TestRunner::receiver, this, wait_time);
 
-struct {
-    u64 tx_start[MSG_COUNT];
-    u64 tx_end[MSG_COUNT];
+        set_cpu_affinity(CPU_RX, rx);
+        set_cpu_affinity(CPU_TX, tx);
+
+        start = true;
+
+        tx.join();
+        rx.join();
+
+        for (int i = 0; i < MSG_COUNT; i++) {
+            std::cout << rx_start[i] << "," << rx_end[i] << "," << tx_start[i] << "," << tx_end[i] << "," << wait_time
+                      << std::endl;
+        }
+    }
+
+  private:
+    std::conditional_t<EQueue, queues::equeue, queues::ff_queue> *channel;
+
+    volatile bool start;
+
+    u64 tx_start[MSG_COUNT] = {};
+    u64 tx_end[MSG_COUNT] = {};
     size_t tx_misses;
 
-    u8 OFFSET[CACHE_LINE_SIZE];
+    u8 OFFSET[CACHE_LINE_SIZE] = {};
 
-    u64 rx_start[MSG_COUNT];
-    u64 rx_end[MSG_COUNT];
+    u64 rx_start[MSG_COUNT] = {};
+    u64 rx_end[MSG_COUNT] = {};
     size_t rx_misses;
-} state = {};
 
-void sender(u32 wait_time) {
-    while (!start) {
-    }
-    size_t count = 0;
-    while (count < MSG_COUNT) {
-        busy_wait(wait_time);
-        state.tx_start[count] = get_timestamp();
-#ifndef EQUEUE
-        u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
-        if (!slot) {
-            state.tx_misses++;
-            continue;
+    void reset() {
+        start = false;
+        rx_misses = 0;
+        tx_misses = 0;
+        if (channel) {
+            delete channel;
         }
-        *slot = 42;
-        channel->enqueue_commit();
-#else
-        if (!channel->enqueue(42)) {
-            state.tx_misses++;
-            continue;
+        if constexpr (EQueue) {
+            channel = new queues::equeue(16, 32);
+        } else {
+            channel = new queues::ff_queue(1024, 10);
         }
-#endif
-        state.tx_end[count] = get_timestamp();
-        count++;
     }
-}
 
-void receiver(u32 wait_time) {
-    while (!start) {
-    }
-    size_t count = 0;
-    while (count < MSG_COUNT) {
-        busy_wait(wait_time);
-        state.rx_start[count] = get_timestamp();
-#ifndef EQUEUE
-        u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());
-        if (!slot) {
-            state.rx_misses++;
-            continue;
+    void sender(u32 wait_time) {
+        while (!start) {
         }
-        assert(*slot == 42);
-        channel->dequeue_commit();
-#else
-        auto res = channel->dequeue();
-        if (!res) {
-            state.rx_misses++;
-            continue;
+        size_t count = 0;
+        while (count < MSG_COUNT) {
+            busy_wait(wait_time);
+            tx_start[count] = get_timestamp();
+            if constexpr (EQueue) {
+                if (!channel->enqueue(42)) [[unlikely]] {
+                    tx_misses++;
+                    continue;
+                }
+            } else {
+                u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
+                if (!slot) [[unlikely]] {
+                    tx_misses++;
+                    continue;
+                }
+                *slot = 42;
+                channel->enqueue_commit();
+            }
+            tx_end[count] = get_timestamp();
+            count++;
         }
-        assert(*res == 42);
-#endif
-        state.rx_end[count] = get_timestamp();
-        count++;
     }
-}
 
-void reset_test() {
-    start = false;
-    if (channel) {
-        delete channel;
-        channel = nullptr;
+    void receiver(u32 wait_time) {
+        while (!start) {
+        }
+        size_t count = 0;
+        while (count < MSG_COUNT) {
+            busy_wait(wait_time);
+            rx_start[count] = get_timestamp();
+            if constexpr (EQueue) {
+                auto res = channel->dequeue();
+                if (!res) [[unlikely]] {
+                    rx_misses++;
+                    continue;
+                }
+                assert(*res == 42);
+            } else {
+                u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());
+                if (!slot) [[unlikely]] {
+                    rx_misses++;
+                    continue;
+                }
+                assert(*slot == 42);
+                channel->dequeue_commit();
+            }
+            rx_end[count] = get_timestamp();
+            count++;
+        }
     }
-#ifndef EQUEUE
-    channel = new queues::ff_queue(1024, 10);
-#else
-    channel = new queues::equeue(16, 32);
-#endif
-}
-
-void run_test(u32 wait_time) {
-    reset_test();
-    std::thread tx(sender, wait_time);
-    std::thread rx(receiver, wait_time);
-
-    set_cpu_affinity(CPU_RX, rx);
-    set_cpu_affinity(CPU_TX, tx);
-
-    start = true;
-
-    tx.join();
-    rx.join();
-
-    for (int i = 0; i < MSG_COUNT; i++) {
-        std::cout << state.rx_start[i] << "," << state.rx_end[i] << "," << state.tx_start[i] << "," << state.tx_end[i]
-                  << "," << wait_time << std::endl;
-    }
-}
+};
 
 int main() {
     std::cout << "RX_Start,RX_End,TX_Start,TX_End,Wait_Time" << std::endl;
 
+    TestRunner<true> runner {};
+
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
         double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));
-        run_test(floor(wait_time));
+        runner.run(floor(wait_time));
         std::cerr << "Test " << i << " done." << std::endl;
     }
 }
