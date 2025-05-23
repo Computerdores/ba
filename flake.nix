@@ -21,6 +21,7 @@
 
                 buildInputs = buildDeps ++ (with pkgs; [
                     python3
+                    nbstripout
                 ]) ++ (with pkgs.python3Packages; [
                     pandas
                     matplotlib
@@ -31,6 +32,10 @@
                     ipympl
                     jupyterlab-widgets
                 ]);
+
+                shellHook = ''
+                    nbstripout --install
+                '';
             };
         }
     );
