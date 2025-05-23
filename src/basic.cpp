@@ -22,6 +22,7 @@ queues::ff_queue *channel;
 #else
 queues::equeue *channel;
 #endif
+
 volatile bool start = false;
 
 struct {
@@ -51,16 +52,14 @@ void sender(u32 wait_time) {
         }
         *slot = 42;
         channel->enqueue_commit();
-        state.tx_end[count] = get_timestamp();
-        count++;
 #else
-        if (channel->enqueue(42)) {
-            state.tx_end[count] = get_timestamp();
-            count++;
-        } else {
+        if (!channel->enqueue(42)) {
             state.tx_misses++;
+            continue;
         }
 #endif
+        state.tx_end[count] = get_timestamp();
+        count++;
     }
 }
 
@@ -79,17 +78,16 @@ void receiver(u32 wait_time) {
         }
         assert(*slot == 42);
         channel->dequeue_commit();
+#else
+        auto res = channel->dequeue();
+        if (!res) {
+            state.rx_misses++;
+            continue;
+        }
+        assert(*res == 42);
+#endif
         state.rx_end[count] = get_timestamp();
         count++;
-#else
-        if (auto res = channel->dequeue()) {
-            assert(*res == 42);
-            state.rx_end[count] = get_timestamp();
-            count++;
-        } else {
-            state.rx_misses++;
-        }
-#endif
     }
 }
 
@@ -97,6 +95,7 @@ void reset_test() {
     start = false;
     if (channel) {
         delete channel;
+        channel = nullptr;
     }
 #ifndef EQUEUE
     channel = new queues::ff_queue(1024, 10);
