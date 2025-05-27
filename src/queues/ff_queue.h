@@ -113,7 +113,7 @@ class ff_queue {
     struct bucket_t {
         bucket_t *next;
         size_t size;
-        u8 data[0];
+        u8 *data;
     };
 
     u8 *volatile head_pos_;

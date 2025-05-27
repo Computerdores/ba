@@ -47,18 +47,14 @@ class TestRunner {
 
     u64 tx_start[MSG_COUNT] = {};
     u64 tx_end[MSG_COUNT] = {};
-    size_t tx_misses = 0;
 
     u8 OFFSET[CACHE_LINE_SIZE] = {};
 
     u64 rx_start[MSG_COUNT] = {};
     u64 rx_end[MSG_COUNT] = {};
-    size_t rx_misses = 0;
 
     void reset() {
         start = false;
-        rx_misses = 0;
-        tx_misses = 0;
         if (channel) {  // NOLINT(*-delete-null-pointer)
             delete channel;
         }
@@ -78,13 +74,11 @@ class TestRunner {
             tx_start[count] = get_timestamp();
             if constexpr (EQueue) {
                 if (!channel->enqueue(42)) [[unlikely]] {
-                    tx_misses++;
                     continue;
                 }
             } else {
                 u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
                 if (!slot) [[unlikely]] {
-                    tx_misses++;
                     continue;
                 }
                 *slot = 42;
@@ -105,14 +99,12 @@ class TestRunner {
             if constexpr (EQueue) {
                 auto res = channel->dequeue();
                 if (!res) [[unlikely]] {
-                    rx_misses++;
                     continue;
                 }
                 assert(*res == 42);
             } else {
                 u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());
                 if (!slot) [[unlikely]] {
-                    rx_misses++;
                     continue;
                 }
                 assert(*slot == 42);
