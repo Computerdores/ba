@@ -20,3 +20,9 @@
     - ~~needs to be verified -> kernel mod to disable scheduling for some cores (cpusets would be a good tool for this)~~
   - cpu affinity was being set incorrectly
   - actual result: in almost all cases the difference is below 300-400ns for TSC even below 200ns (values are spotty for TSC though)
+- further testing (changing cpu freq between runs) seems to show that tsc is independent of cpu freq
+- will use clock\_gettime with CLOCK\_MONOTONIC\_RAW
+  - RDTSC measured to take ~12ns
+  - clock\_gettime measured to take ~18s
+  - thus cost is quite similar (clock\_gettime seems to vary less in its cost)
+  - and clock\_gettime gives actual time, while TSC runs at some (varying?) rate
