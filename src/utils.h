@@ -28,7 +28,8 @@ inline u64 get_timestamp() {
 
 inline void busy_wait(const u32 duration) {
     u64 end = get_timestamp() + duration;
-    while (get_timestamp() < end) {}
+    while (get_timestamp() < end) {
+    }
 }
 
 inline void set_cpu_affinity(const int cpu, std::thread &thread) {

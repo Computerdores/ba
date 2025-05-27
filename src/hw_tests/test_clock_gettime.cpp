@@ -5,7 +5,7 @@
 int main() {
     timespec ts0 = {};
     timespec ts1 = {};
-    for (int i= 0; i < 1000; i++) {
+    for (int i = 0; i < 1000; i++) {
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts0);
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
