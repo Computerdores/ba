@@ -1,9 +1,9 @@
 #include <cmath>
 #include <thread>
 
-#include "queues/equeue.h"
-#include "queues/ff_queue.h"
-#include "utils.h"
+#include "../queues/equeue.h"
+#include "../queues/ff_queue.h"
+#include "../utils.h"
 
 // SO on cpusets: https://stackoverflow.com/a/9079117
 #define CPU_RX 2
