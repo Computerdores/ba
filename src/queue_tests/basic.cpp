@@ -1,6 +1,8 @@
 #include <cmath>
 #include <thread>
+#include <utility>
 
+#include "generic_factory.h"
 #include "queues/equeue.h"
 #include "queues/ff_queue.h"
 #include "utils.h"
@@ -15,10 +17,13 @@
 #define MAX_WAIT 1000000
 #define WAIT_GRANULARITY 128
 
-template <bool EQueue>
+template <typename Factory>
+    requires IsQueue<typename Factory::Object>
 class TestRunner {
   public:
-    TestRunner() = default;
+    using Queue = typename Factory::Object;
+
+    explicit TestRunner(Factory factory) : _queue_factory(std::move(factory)) {}
 
     void run(u32 wait_time) {
         reset();
@@ -41,7 +46,8 @@ class TestRunner {
     }
 
   private:
-    std::conditional_t<EQueue, queues::equeue, queues::ff_queue<>> *channel = nullptr;
+    Factory _queue_factory;
+    Queue *channel = nullptr;
 
     volatile bool start = false;
 
@@ -58,11 +64,7 @@ class TestRunner {
         if (channel) {  // NOLINT(*-delete-null-pointer)
             delete channel;
         }
-        if constexpr (EQueue) {
-            channel = new queues::equeue(16, 32);
-        } else {
-            channel = new queues::ff_queue(1024, 10);
-        }
+        channel = _queue_factory.build();
     }
 
     void sender(const u32 wait_time) {
@@ -93,10 +95,15 @@ class TestRunner {
     }
 };
 
+#define EQueue false
+
 int main() {
     std::cout << "RX_Start,RX_End,TX_Start,TX_End,Wait_Time" << std::endl;
 
-    TestRunner<false> runner {};
+    TestRunner eq_runner {GenericFactory<queues::equeue, u64, u64>(16, 32)};
+    TestRunner ffq_runner {GenericFactory<queues::ff_queue<>, u64, u64>(1024, 10)};
+
+    auto runner = eq_runner;
 
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
         const double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));
