@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <memory>
 
+#include "queues/abstract.h"
 #include "utils.h"
 
 #ifdef _MSC_VER
@@ -44,7 +45,7 @@ INLINE void *atomic_addr_load_acquire(void *volatile *addr) {
 
 namespace queues {
 template <typename T = u64>
-class ff_queue {
+class ff_queue final : public Queue<T> {
   public:
     ff_queue(ff_queue const &) = delete;
 
@@ -63,7 +64,7 @@ class ff_queue {
 
     void operator=(ff_queue const &) = delete;
 
-    ~ff_queue() {
+    ~ff_queue() override {
         bucket_t *bucket = last_bucket_;
         while (bucket != nullptr) {
             bucket_t *next_bucket = bucket->next;
@@ -72,7 +73,7 @@ class ff_queue {
         }
     }
 
-    bool enqueue(T item) {
+    bool enqueue(T item) override {
         T *slot = static_cast<T *>(enqueue_prepare(sizeof(T)));
         if (!slot) return false;
         *slot = item;
@@ -96,7 +97,7 @@ class ff_queue {
         tail_pos_ = tail_next_;
     }
 
-    std::optional<T> dequeue() {
+    std::optional<T> dequeue() override {
         T *slot = static_cast<T *>(dequeue_prepare());
         if (!slot) return std::nullopt;
         T out = *slot;

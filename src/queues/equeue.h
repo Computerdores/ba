@@ -8,11 +8,12 @@
 #include <memory>
 #include <optional>
 
+#include "queues/abstract.h"
 #include "utils.h"
 
 namespace queues {
 
-class equeue {
+class equeue final : public Queue<u64> {
   public:
     equeue() = delete;
 
@@ -29,7 +30,7 @@ class equeue {
         _SHRINK_THRESHOLD = shrink_threshold;
     }
 
-    bool enqueue(const u64 value) {
+    bool enqueue(const u64 value) override {
         assert(value != 0);
         if (_data[_info.head] != 0) {
             _traffic_full++;
@@ -49,7 +50,7 @@ class equeue {
         return true;
     }
 
-    std::optional<u64> dequeue() {
+    std::optional<u64> dequeue() override {
         if (_data[_tail] == 0) {
             _traffic_empty++;
             return std::nullopt;
