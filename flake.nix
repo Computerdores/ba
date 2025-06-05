@@ -35,6 +35,7 @@
 
                 shellHook = ''
                     nbstripout --install
+                    PS1="''${PS1/\\n/(devenv) }"
                 '';
             };
         }
