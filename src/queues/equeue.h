@@ -2,14 +2,13 @@
 
 // implements https://doi.org/10.1109/ACCESS.2020.2997071
 // parts taken from https://github.com/junchangwang/EQueue/ under GPL-3.0
-// didn't use above implementation verbatim because it doesn't seem to be correct (traffic_full and traffic_empty are
-// never changed, even though that is required according to the paper)
+// didn't use above implementation verbatim because it doesn't seem to be entirely match the paper
 
 #include <atomic>
 #include <memory>
 #include <optional>
 
-#include "../utils.h"
+#include "utils.h"
 
 namespace queues {
 

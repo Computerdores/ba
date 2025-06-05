@@ -1,6 +1,6 @@
 #include <x86intrin.h>
 
-#include "../utils.h"
+#include "utils.h"
 
 int main() {
     const u64 ITERS = 100000;

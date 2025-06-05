@@ -7,7 +7,7 @@
 #include <optional>
 #include <thread>
 
-#include "../utils.h"
+#include "utils.h"
 
 #define CPU_MAIN 5
 #define CPU_W0 0

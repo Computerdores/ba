@@ -3,6 +3,8 @@ project(queue_benchmarks)
 
 set(LIB_SRC_FILES utils.h queues/ff_queue.h queues/equeue.h)
 
+include_directories(BEFORE SYSTEM ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(basic queue_tests/basic.cpp ${LIB_SRC_FILES})
 
 add_executable(test_tsc_freq hw_tests/test_tsc_freq.cpp ${LIB_SRC_FILES})

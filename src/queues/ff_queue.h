@@ -5,10 +5,9 @@
 
 #include <cassert>
 #include <cstdint>
-#include <cstdlib>
 #include <memory>
 
-#include "../utils.h"
+#include "utils.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4200)  // nonstandard extension used : zero-sized array in struct/union
