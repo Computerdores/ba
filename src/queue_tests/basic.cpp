@@ -41,7 +41,7 @@ class TestRunner {
     }
 
   private:
-    std::conditional_t<EQueue, queues::equeue, queues::ff_queue> *channel = nullptr;
+    std::conditional_t<EQueue, queues::equeue, queues::ff_queue<>> *channel = nullptr;
 
     volatile bool start = false;
 
@@ -72,20 +72,9 @@ class TestRunner {
         while (count < MSG_COUNT) {
             busy_wait(wait_time);
             tx_start[count] = get_timestamp();
-            if constexpr (EQueue) {
-                if (!channel->enqueue(42)) [[unlikely]] {
-                    continue;
-                }
-            } else {
-                u64 *slot = static_cast<u64 *>(channel->enqueue_prepare(sizeof(u64)));
-                if (!slot) [[unlikely]] {
-                    continue;
-                }
-                *slot = 42;
-                channel->enqueue_commit();
-            }
-            tx_end[count] = get_timestamp();
-            count++;
+            auto success = channel->enqueue(42);
+            tx_end[count] = get_timestamp();  // TODO: check if making this conditional on success is faster
+            count += success;
         }
     }
 
@@ -96,22 +85,10 @@ class TestRunner {
         while (count < MSG_COUNT) {
             busy_wait(wait_time);
             rx_start[count] = get_timestamp();
-            if constexpr (EQueue) {
-                auto res = channel->dequeue();
-                if (!res) [[unlikely]] {
-                    continue;
-                }
-                assert(*res == 42);
-            } else {
-                u64 *slot = static_cast<u64 *>(channel->dequeue_prepare());
-                if (!slot) [[unlikely]] {
-                    continue;
-                }
-                assert(*slot == 42);
-                channel->dequeue_commit();
-            }
-            rx_end[count] = get_timestamp();
-            count++;
+            auto res = channel->dequeue();
+            assert(res.has_value() == (res == std::optional(42)));
+            rx_end[count] = get_timestamp();  // TODO: check if making this conditional on success is faster
+            count += res.has_value();
         }
     }
 };
@@ -119,7 +96,7 @@ class TestRunner {
 int main() {
     std::cout << "RX_Start,RX_End,TX_Start,TX_End,Wait_Time" << std::endl;
 
-    TestRunner<true> runner {};
+    TestRunner<false> runner {};
 
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
         const double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));

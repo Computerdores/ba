@@ -43,6 +43,7 @@ INLINE void *atomic_addr_load_acquire(void *volatile *addr) {
 }
 
 namespace queues {
+template <typename T = u64>
 class ff_queue {
   public:
     ff_queue(ff_queue const &) = delete;
@@ -71,6 +72,14 @@ class ff_queue {
         }
     }
 
+    bool enqueue(T item) {
+        T *slot = static_cast<T *>(enqueue_prepare(sizeof(T)));
+        if (!slot) return false;
+        *slot = item;
+        enqueue_commit();
+        return true;
+    }
+
     void *enqueue_prepare(const size_t sz) {
         assert(reinterpret_cast<uintptr_t>(tail_pos_) % sizeof(void *) == 0);
         if (const size_t msg_size = (sz + sizeof(void *) - 1 & ~(sizeof(void *) - 1)) + sizeof(void *);
@@ -85,6 +94,14 @@ class ff_queue {
         *reinterpret_cast<std::uint8_t *volatile *>(tail_next_) = reinterpret_cast<std::uint8_t *>(1);
         atomic_addr_store_release(reinterpret_cast<void *volatile *>(tail_pos_), tail_next_);
         tail_pos_ = tail_next_;
+    }
+
+    std::optional<T> dequeue() {
+        T *slot = static_cast<T *>(dequeue_prepare());
+        if (!slot) return std::nullopt;
+        T out = *slot;
+        dequeue_commit();
+        return out;
     }
 
     void *dequeue_prepare() {
