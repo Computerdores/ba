@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "generic_factory.h"
+#include "queues/b_queue.h"
 #include "queues/equeue.h"
 #include "queues/ff_queue.h"
 #include "utils.h"
@@ -101,9 +102,11 @@ int main() {
     std::cout << "RX_Start,RX_End,TX_Start,TX_End,Wait_Time" << std::endl;
 
     TestRunner eq_runner {GenericFactory<queues::equeue, u64, u64>(16, 32)};
+    TestRunner bq_runner {
+        GenericFactory<queues::b_queue<>, usize, usize, u32>(128, 64, 50)};  // TODO: what is a sensible wait time?
     TestRunner ffq_runner {GenericFactory<queues::ff_queue<>, u64, u64>(1024, 10)};
 
-    auto runner = eq_runner;
+    auto runner = bq_runner;
 
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
         const double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));

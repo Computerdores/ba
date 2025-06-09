@@ -4,6 +4,7 @@
 - https://doc.dpdk.org/guides/prog_guide/ring_lib.html
 - https://link.springer.com/chapter/10.1007/978-3-642-23397-5_17
 - [EQueue](https://doi.org/10.1109/ACCESS.2020.2997071)
+- [B-Queue](https://doi.org/10.1007/s10766-012-0213-x)
 
 # Queue Candidates
 - CFCLF
