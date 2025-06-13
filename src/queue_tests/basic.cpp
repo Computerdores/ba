@@ -101,12 +101,13 @@ class TestRunner {
 int main() {
     std::cout << "RX_Start,RX_End,TX_Start,TX_End,Wait_Time" << std::endl;
 
-    TestRunner eq_runner {GenericFactory<queues::equeue, u64, u64>(16, 32)};
+    TestRunner eq_runner {
+        GenericFactory<queues::equeue<>, u64, u64, u32>(16, 32, 50)};  // TODO: what is a sensible wait time?
     TestRunner bq_runner {GenericFactory<queues::b_queue<>, usize, usize, usize, u32>(
         128, 64, 16, 50)};  // TODO: what is a sensible wait time?
     TestRunner ffq_runner {GenericFactory<queues::ff_queue<>, u64, u64>(1024, 10)};
 
-    auto runner = bq_runner;
+    auto runner = eq_runner;
 
     for (int i = 0; i < WAIT_GRANULARITY; i++) {
         const double wait_time = MIN_WAIT + (MAX_WAIT - MIN_WAIT) * (static_cast<double>(i) / (WAIT_GRANULARITY - 1));

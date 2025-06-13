@@ -4,6 +4,8 @@
 - https://doc.dpdk.org/guides/prog_guide/ring_lib.html
 - [FastFlow](https://link.springer.com/chapter/10.1007/978-3-642-23397-5_17)
 - [EQueue](https://doi.org/10.1109/ACCESS.2020.2997071)
+    - associated github repository was taken down after I wrote an email to the authors asking about some discrepancies
+      between paper and repo
 - [B-Queue](https://doi.org/10.1007/s10766-012-0213-x)
     - Sourceforge Repo is dead, [other implementation](https://github.com/olibre/B-Queue) exists
     - pseudo code from papers seems to be incorrect as I had to fix two bugs in it to stop deadlocks
