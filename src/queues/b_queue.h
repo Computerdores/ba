@@ -6,17 +6,28 @@
 
 namespace queues {
 
+/**
+ * State of this implementation:
+ * - complete implementation of B-Queue with self-adaptive backtracking
+ * - enqueue and dequeue differ from the paper in order to fix two bugs (wtf?!)
+ */
 template <typename T = u64>
 class b_queue final : public Queue<T> {
     // TODO: investigate whether the buffer being optionals has a significant performance impact,
     //       because that could introduce bias
   public:
-    explicit b_queue(const usize size, const usize batch_size, const u32 wait_time)
-        : _SIZE(size), _BATCH_SIZE(batch_size), _WAIT_TIME(wait_time), _buffer(new std::optional<T>[size]) {
+    explicit b_queue(const usize size, const usize batch_size, const usize batch_increment, const u32 wait_time)
+        : _SIZE(size),
+          _BATCH_SIZE(batch_size),
+          _BATCH_INCREMENT(batch_increment),
+          _WAIT_TIME(wait_time),
+          _buffer(new std::optional<T>[size]),
+          _batch_history(batch_size) {
         assert(batch_size < size);
     }
 
     bool enqueue(T item) override {
+        if (mod(_head + 1) == _tail) return false;  // NOTE: this line differs from the paper
         if (_head == _batch_head) {
             auto new_batch_head = mod(_head + _BATCH_SIZE);
             if (_buffer[new_batch_head]) return false;
@@ -33,7 +44,7 @@ class b_queue final : public Queue<T> {
         }
         auto out = _buffer[_tail];
         _buffer[_tail] = std::nullopt;
-        _tail = mod(_tail + 1);
+        if (_tail != _batch_tail) _tail = mod(_tail + 1);  // NOTE: this line differs from the paper
         return out;
     }
 
@@ -42,6 +53,7 @@ class b_queue final : public Queue<T> {
   private:
     usize _SIZE;
     usize _BATCH_SIZE;
+    usize _BATCH_INCREMENT;
     u32 _WAIT_TIME;
     std::optional<T> *_buffer;
 
@@ -50,9 +62,13 @@ class b_queue final : public Queue<T> {
 
     CACHE_ALIGNED usize _tail = 0;
     CACHE_ALIGNED usize _batch_tail = 0;
+    CACHE_ALIGNED usize _batch_history;
 
     bool _backtrack_deq() {
-        auto batch_size = _BATCH_SIZE;
+        if (_batch_history < _BATCH_SIZE) {
+            _batch_history = std::min(_BATCH_SIZE, _batch_history + _BATCH_INCREMENT);
+        }
+        auto batch_size = _batch_history;
         _batch_tail = mod(_tail + batch_size - 1);
 
         while (!_buffer[_batch_tail]) {
@@ -63,6 +79,7 @@ class b_queue final : public Queue<T> {
             } else
                 return false;
         }
+        _batch_history = batch_size;
         return true;
     }
 
