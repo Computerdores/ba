@@ -36,6 +36,7 @@
                 shellHook = ''
                     nbstripout --install
                     PS1="''${PS1/\\n/\\n(devenv) }"
+                    alias clion="nohup clion . >/dev/null 2>/dev/null &"
                 '';
             };
         }
