@@ -8,6 +8,7 @@
       between paper and repo
 - [B-Queue](https://doi.org/10.1007/s10766-012-0213-x)
     - Sourceforge Repo is dead, [other implementation](https://github.com/olibre/B-Queue) exists
+      - https://psy-lob-saw.blogspot.com/2013/11/spsc-iv-look-at-bqueue.html
     - pseudo code from papers seems to be incorrect as I had to fix two bugs in it to stop deadlocks
 - [CFCLF Queue](https://doi.org/10.1109/ICCSN.2017.8230170)
 
