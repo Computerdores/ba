@@ -31,14 +31,16 @@ inline u64 get_timestamp() {
 }
 
 /**
+ * Busy waits until the target time has been reached.
+ * @param target_time A point in time that (presumably) lies in the future.
+ */
+inline void busy_wait_for(const u32 target_time) { while (get_timestamp() < target_time); }
+
+/**
  * @brief Busy waits for a given duration using @ref get_timestamp.
  * @param duration Wait duration in nanoseconds.
  */
-inline void busy_wait(const u32 duration) {
-    const u64 end = get_timestamp() + duration;
-    while (get_timestamp() < end) {
-    }
-}
+inline void busy_wait(const u32 duration) { busy_wait_for(get_timestamp() + duration); }
 
 /**
  * @brief Sets the cpu affinity of a thread.
