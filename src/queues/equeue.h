@@ -21,7 +21,6 @@ namespace queues {
  *   - enqueue method increments traffic_full when batching even-though paper pseudocode doesn't because dynamic
  *     resizing would otherwise not work
  */
-template <const bool batching = true>
 class equeue final : public Queue<u64> {
     // TODO: switch to optionals?
   public:
@@ -44,23 +43,17 @@ class equeue final : public Queue<u64> {
 
     bool enqueue(const u64 value) override {
         assert(value != 0);
-        if constexpr (batching) {
-            if (_info.head == _batch_head) {
-                if (!_enqueue_detect_batching_size()) {
-                    ++_traffic_full;  // NOTE: this line differs from the paper
-                    return false;
-                }
-            }
-        } else {
-            if (_data[_info.head] != 0) {
-                ++_traffic_full;
+        if (_info.head == _batch_head) {
+            if (!_enqueue_detect_batching_size()) {
+                ++_traffic_full;  // NOTE: this line differs from the paper
                 return false;
             }
         }
         const auto temp = _info.head;
         ++_info.head;
         if (_info.head >= _info.size) {
-            if (_traffic_full - _traffic_empty >= _ENLARGE_THRESHOLD && _info.size * 2 <= _MAX_SIZE) {
+            if (_traffic_full - _traffic_empty >= _ENLARGE_THRESHOLD &&
+                _info.size * 2 <= _MAX_SIZE) {  // NOTE: this line differs from the paper
                 _info.size *= 2;
                 _traffic_full = _traffic_empty = 0;
             } else {
@@ -113,7 +106,7 @@ class equeue final : public Queue<u64> {
         u32 head;
         u32 size;
     };
-    static_assert(sizeof(cas_info) == 8);  // make sure cas_info is same size as u64
+    static_assert(sizeof(cas_info) == sizeof(u64));
 
     union {
         cas_info _info;

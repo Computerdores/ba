@@ -102,7 +102,7 @@ int main() {
     std::cout << "RX_Start,RX_End,TX_Start,TX_End,Wait_Time" << std::endl;
 
     TestRunner eq_runner {
-        GenericFactory<queues::equeue<>, u64, u64, u32>(16, 32, 50)};  // TODO: what is a sensible wait time?
+        GenericFactory<queues::equeue, u64, u64, u32>(16, 32, 50)};  // TODO: what is a sensible wait time?
     TestRunner bq_runner {GenericFactory<queues::b_queue<>, usize, usize, usize, u32>(
         128, 64, 16, 50)};  // TODO: what is a sensible wait time?
     TestRunner ffq_runner {GenericFactory<queues::ff_queue<>, u64, u64>(1024, 10)};
