@@ -27,14 +27,14 @@ inline u64 get_timestamp() {
     // overview of clock sources: http://btorpey.github.io/blog/2014/02/18/clock-sources-in-linux/
     timespec ts {};
     assert(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0);
-    return ts.tv_sec * 1000000000 + ts.tv_nsec;  // breaks in 2554 CE
+    return ts.tv_sec * 1'000'000'000 + ts.tv_nsec;  // breaks in 2554 CE
 }
 
 /**
  * Busy waits until the target time has been reached.
  * @param target_time A point in time that (presumably) lies in the future.
  */
-inline void busy_wait_for(const u32 target_time) { while (get_timestamp() < target_time); }
+inline void busy_wait_for(const u64 target_time) { while (get_timestamp() < target_time); }
 
 /**
  * @brief Busy waits for a given duration using @ref get_timestamp.
