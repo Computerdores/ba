@@ -1,5 +1,9 @@
+
+#include "bursty.h"
+
 #include "queues/b_queue.h"
 #include "queues/equeue.h"
+#include "queues/ff_queue.h"
 #include "utils.h"
 
 #define CPU_RX 2
@@ -52,21 +56,16 @@ void consumer(T* queue, u64* start_times, u64* end_times, const usize count, con
     }
 }
 
-int main() {
-    usize MSG_COUNT = 1'000'000;
-    usize CONSUMER_RATE = 1'000'000;
-    usize PRODUCER_RATE = 1'000'000;
-    usize BURST_SIZE = 2048;
+template <typename Q>
+void run_test(Q& q, test_parameters params) {
+    auto tx_start = new u64[params.msg_count];
+    auto tx_end = new u64[params.msg_count];
+    auto rx_start = new u64[params.msg_count];
+    auto rx_end = new u64[params.msg_count];
 
-    auto tx_start = new u64[MSG_COUNT];
-    auto tx_end = new u64[MSG_COUNT];
-    auto rx_start = new u64[MSG_COUNT];
-    auto rx_end = new u64[MSG_COUNT];
-
-    queues::b_queue q(16384, 8192, 64, 50);
-
-    std::thread tx(&producer<decltype(q)>, &q, tx_start, tx_end, MSG_COUNT, PRODUCER_RATE, BURST_SIZE);
-    std::thread rx(&consumer<decltype(q)>, &q, rx_start, rx_end, MSG_COUNT, CONSUMER_RATE);
+    std::thread tx(&producer<decltype(q)>, &q, tx_start, tx_end, params.msg_count, params.producer_rate,
+                   params.burst_size);
+    std::thread rx(&consumer<decltype(q)>, &q, rx_start, rx_end, params.msg_count, params.consumer_rate);
 
     set_cpu_affinity(CPU_RX, rx);
     set_cpu_affinity(CPU_TX, tx);
@@ -77,7 +76,7 @@ int main() {
     rx.join();
 
     std::cout << "TX_Start,TX_End,RX_Start,RX_End" << std::endl;
-    for (usize i = 0; i < MSG_COUNT; i++) {
+    for (usize i = 0; i < params.msg_count; i++) {
         std::cout << tx_start[i] << "," << tx_end[i] << "," << rx_start[i] << "," << rx_end[i] << std::endl;
     }
 
@@ -85,4 +84,14 @@ int main() {
     delete tx_end;
     delete rx_start;
     delete rx_end;
+}
+
+int main() {
+    test_parameters params = {};
+
+    queues::b_queue bq(16384, 8192, 64, 50);
+    queues::equeue eq(4096, 16384, 50);
+    queues::ff_queue ffq(1024, 16);
+
+    run_test(ffq, params);
 }
