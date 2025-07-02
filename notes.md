@@ -6,6 +6,7 @@
 - [EQueue](https://doi.org/10.1109/ACCESS.2020.2997071)
     - associated github repository was taken down after I wrote an email to the authors asking about some discrepancies
       between paper and repo
+      - since repo was licensed under GPLv3, I reuploaded it: https://github.com/Computerdores/equeue
 - [B-Queue](https://doi.org/10.1007/s10766-012-0213-x)
     - Sourceforge Repo is dead, [other implementation](https://github.com/olibre/B-Queue) exists
       - https://psy-lob-saw.blogspot.com/2013/11/spsc-iv-look-at-bqueue.html

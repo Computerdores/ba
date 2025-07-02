@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/home/jann/uni/ba/repo/src"
+    "cmake.sourceDirectory": "/home/jann/uni/ba/repo/src",
+    "cmake.ignoreCMakeListsMissing": true
 }
