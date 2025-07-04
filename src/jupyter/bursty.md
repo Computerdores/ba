@@ -20,23 +20,20 @@ jupyter:
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
+import seaborn as sns
 ```
 
 ```python
-from pathlib import Path
 BASE_DIR = Path("../")
 
 FILES = [
-    #"flugzeug_bq_s16384_bs8192_bi64_wt50.csv",
-    #"flugzeug_bq_s16384_bs2048_bi64_wt50.csv",
-    #"flugzeug_bq_s16384_bs1024_bi64_wt50.csv",
-    #"flugzeug_bq_s16384_bs32_bi64_wt50.csv",
-    #"flugzeug_bq_s16384_bs8_bi64_wt50.csv",
-    #"flugzeug_bq_s16384_bs8192_bi64_wt200.csv",
-    #"flugzeug_bq_s16384_bs8192_bi64_wt500.csv",
-    "data_eq_8192_16384_50.csv",
-    "data_bq_16384_8192_64_50.csv",
-    "data_ffq_1024_16.csv",
+    #"flugzeug_nowarmup_bq_16384_8192_64_50.csv",
+    #"flugzeug_nowarmup_eq_8192_16384_50.csv",
+    "flugzeug_nowarmup_ffq_1024_16.csv",
+    #"flugzeug_warmup_bq_16364_8192_64_50.csv",
+    #"flugzeug_warmup_eq_4096_16384_50.csv",
+    "flugzeug_warmup_ffq_1024_16.csv",
 ]
 
 def load_results(path: str):
@@ -59,14 +56,12 @@ for res in results:
 ```
 
 ```python
-import seaborn as sns
-
 # Plot RX_TIME
 plt.figure(figsize=(10, 6))
 for df, filename in results:
     filtered_rx = df["RX_TIME"][df["RX_TIME"] <= 200]
     sns.histplot(filtered_rx, bins=50, label=filename, element="step")
-plt.title("RX_TIME Histogram (≤100)")
+plt.title("RX_TIME Histogram")
 plt.xlabel("RX_TIME")
 plt.ylabel("Density")
 plt.xlim(0, 200)
@@ -79,12 +74,37 @@ plt.figure(figsize=(10, 6))
 for df, filename in results:
     filtered_tx = df["TX_TIME"][df["TX_TIME"] <= 200]
     sns.histplot(filtered_tx, bins=50, label=filename, element="step")
-plt.title("TX_TIME Histogram (≤100)")
+plt.title("TX_TIME Histogram")
 plt.xlabel("TX_TIME")
 plt.ylabel("Density")
 plt.xlim(0, 200)
 plt.legend()
 plt.tight_layout()
 plt.show()
+```
 
+```python
+# Plot RX_TIME
+plt.figure(figsize=(10, 6))
+for df, filename in results:
+    filtered_rx = df["RX_TIME"][df["RX_TIME"] <= 200]
+    sns.lineplot(x=filtered_rx.index, y=filtered_rx, label=filename)
+plt.title("RX_TIME over Time")
+plt.xlabel("Message Index")
+plt.ylabel("RX_TIME")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Plot TX_TIME
+plt.figure(figsize=(10, 6))
+for df, filename in results:
+    filtered_tx = df["TX_TIME"][df["TX_TIME"] <= 200]
+    sns.lineplot(x=filtered_tx.index, y=filtered_tx, label=filename)
+plt.title("TX_TIME over Time")
+plt.xlabel("Message Index")
+plt.ylabel("TX_TIME")
+plt.legend()
+plt.tight_layout()
+plt.show()
 ```

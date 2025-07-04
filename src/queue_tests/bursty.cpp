@@ -16,6 +16,19 @@ volatile bool start = false;
 template <typename Q>
 void producer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate, const usize burst_size) {
     const u32 burst_wait_duration = (1'000'000'000 * burst_size) / rate;
+    // warmup
+    for (usize i = 0; i < 10'000; i++) {
+        get_timestamp();
+        while (!queue->enqueue(get_timestamp())) {
+            get_timestamp();
+        }
+        const auto end = get_timestamp();
+
+        start_times[i] = 0;
+        end_times[i] = 0;
+
+        busy_wait_for(end + 100);
+    }
     // wait for start
     while (!start) {
     }
@@ -42,6 +55,19 @@ void producer(Q* queue, u64* start_times, u64* end_times, const usize count, con
 template <typename Q>
 void consumer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate) {
     const u32 wait_duration = 1'000'000'000 / rate;
+    // warmup
+    for (usize i = 0; i < 10'000; i++) {
+        get_timestamp();
+        while (!queue->dequeue()) {
+            get_timestamp();
+        }
+        const auto end = get_timestamp();
+
+        start_times[i] = 0;
+        end_times[i] = 0;
+
+        busy_wait_for(end + 100);
+    }
     // wait for start
     while (!start) {
     }
