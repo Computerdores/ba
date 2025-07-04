@@ -1,6 +1,8 @@
 
 #include "bursty.h"
 
+#include <thread>
+
 #include "queues/b_queue.h"
 #include "queues/equeue.h"
 #include "queues/ff_queue.h"
@@ -11,11 +13,13 @@
 
 volatile bool start = false;
 
-template <typename T>
-void producer(T* queue, u64* start_times, u64* end_times, const usize count, const usize rate, const usize burst_size) {
+template <typename Q>
+void producer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate, const usize burst_size) {
     const u32 burst_wait_duration = (1'000'000'000 * burst_size) / rate;
+    // wait for start
     while (!start) {
     }
+    // do test
     auto next_time = get_timestamp();
     for (usize i = 0; i < count; i++) {
         auto start_tx = get_timestamp();
@@ -35,11 +39,13 @@ void producer(T* queue, u64* start_times, u64* end_times, const usize count, con
     }
 }
 
-template <typename T>
-void consumer(T* queue, u64* start_times, u64* end_times, const usize count, const usize rate) {
+template <typename Q>
+void consumer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate) {
     const u32 wait_duration = 1'000'000'000 / rate;
+    // wait for start
     while (!start) {
     }
+    // do test
     auto next_time = get_timestamp();
     for (usize i = 0; i < count; i++) {
         auto rx_start = get_timestamp();
@@ -63,9 +69,8 @@ void run_test(Q& q, test_parameters params) {
     auto rx_start = new u64[params.msg_count];
     auto rx_end = new u64[params.msg_count];
 
-    std::thread tx(&producer<decltype(q)>, &q, tx_start, tx_end, params.msg_count, params.producer_rate,
-                   params.burst_size);
-    std::thread rx(&consumer<decltype(q)>, &q, rx_start, rx_end, params.msg_count, params.consumer_rate);
+    std::thread tx(&producer<Q>, &q, tx_start, tx_end, params.msg_count, params.producer_rate, params.burst_size);
+    std::thread rx(&consumer<Q>, &q, rx_start, rx_end, params.msg_count, params.consumer_rate);
 
     set_cpu_affinity(CPU_RX, rx);
     set_cpu_affinity(CPU_TX, tx);
