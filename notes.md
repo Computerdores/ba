@@ -12,6 +12,9 @@
       - https://psy-lob-saw.blogspot.com/2013/11/spsc-iv-look-at-bqueue.html
     - pseudo code from papers seems to be incorrect as I had to fix two bugs in it to stop deadlocks
 - [CFCLF Queue](https://doi.org/10.1109/ICCSN.2017.8230170)
+- [MCRingBuffer](https://doi.org/10.1145/1882486.1882508)
+  - number of elements enqueued has to be divisible by the batch size,
+    otherwise deadlock occurs when consumer waits for producer to finish its batch
 
 # Queue Candidates
 

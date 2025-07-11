@@ -6,6 +6,7 @@
 #include "queues/b_queue.h"
 #include "queues/equeue.h"
 #include "queues/ff_queue.h"
+#include "queues/mc_ring_buffer.h"
 #include "utils.h"
 
 #define CPU_RX 2
@@ -13,7 +14,7 @@
 
 volatile bool start = false;
 
-template <typename Q>
+template <IsQueueWith<u64> Q>
 void producer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate, const usize burst_size) {
     const u32 burst_wait_duration = (1'000'000'000 * burst_size) / rate;
     // warmup
@@ -52,7 +53,7 @@ void producer(Q* queue, u64* start_times, u64* end_times, const usize count, con
     }
 }
 
-template <typename Q>
+template <IsQueueWith<u64> Q>
 void consumer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate) {
     const u32 wait_duration = 1'000'000'000 / rate;
     // warmup
@@ -88,7 +89,7 @@ void consumer(Q* queue, u64* start_times, u64* end_times, const usize count, con
     }
 }
 
-template <typename Q>
+template <IsQueueWith<u64> Q>
 void run_test(Q& q, test_parameters params) {
     auto tx_start = new u64[params.msg_count];
     auto tx_end = new u64[params.msg_count];
@@ -123,6 +124,7 @@ int main() {
     queues::b_queue bq(16384, 8192, 64, 50);
     queues::equeue eq(4096, 16384, 50);
     queues::ff_queue ffq(1024, 16);
+    queues::mc_ring_buffer mcrb(16384, 5000);
 
-    run_test(ffq, params);
+    run_test(mcrb, params);
 }

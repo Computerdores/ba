@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 3.27.0)
 set(CMAKE_CXX_STANDARD 23)
 project(queue_benchmarks)
 
-set(LIB_SRC_FILES utils.h queues/ff_queue.h queues/equeue.h queues/b_queue.h)
+set(LIB_SRC_FILES
+        queues/b_queue.h
+        queues/equeue.h
+        queues/ff_queue.h
+        queues/mc_ring_buffer.h
+        utils.h
+)
 
 include_directories(BEFORE SYSTEM ${CMAKE_CURRENT_SOURCE_DIR})
 
