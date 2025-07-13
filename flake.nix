@@ -31,6 +31,8 @@
                     jupyterlab
                     ipympl
                     jupyterlab-widgets
+                    jupytext
+                    seaborn
                 ]);
 
                 shellHook = ''

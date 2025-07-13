@@ -28,12 +28,15 @@ import seaborn as sns
 BASE_DIR = Path("../")
 
 FILES = [
-    #"flugzeug_nowarmup_bq_16384_8192_64_50.csv",
+    "flugzeug_nowarmup_bq_16384_8192_64_50.csv",
     #"flugzeug_nowarmup_eq_8192_16384_50.csv",
-    "flugzeug_nowarmup_ffq_1024_16.csv",
+    #"flugzeug_nowarmup_ffq_1024_16.csv",
+    "flugzeug_nowarmup_bq_16384_8192_64_50_new.csv",
+    #"flugzeug_nowarmup_eq_8192_16384_50_new.csv",
+    #"flugzeug_nowarmup_ffq_1024_16_new.csv",
     #"flugzeug_warmup_bq_16364_8192_64_50.csv",
     #"flugzeug_warmup_eq_4096_16384_50.csv",
-    "flugzeug_warmup_ffq_1024_16.csv",
+    #"flugzeug_warmup_ffq_1024_16.csv",
 ]
 
 def load_results(path: str):
