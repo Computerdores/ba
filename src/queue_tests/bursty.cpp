@@ -14,109 +14,131 @@
 
 volatile bool start = false;
 
+class Test {
+  public:
+    explicit Test(const test_parameters& params)
+        : _msg_count(params.msg_count),
+          _tx_start(new u64[params.msg_count]),
+          _tx_end(new u64[params.msg_count]),
+          _rx_start(new u64[params.msg_count]),
+          _rx_end(new u64[params.msg_count]) {}
+
+    ~Test() {
+        delete _tx_start;
+        delete _tx_end;
+        delete _rx_start;
+        delete _rx_end;
+    }
+
+    void print_results() const {
+        std::cout << "TX_Start,TX_End,RX_Start,RX_End" << std::endl;
+        for (usize i = 0; i < _msg_count; i++) {
+            std::cout << _tx_start[i] << "," << _tx_end[i] << "," << _rx_start[i] << "," << _rx_end[i] << std::endl;
+        }
+    }
+
+    inline void pre_rx() { _rx_data.pre_val = get_timestamp(); }
+    inline void post_rx() {
+        const auto post_val = get_timestamp();
+        _rx_start[_rx_data.index] = _rx_data.pre_val;
+        _rx_end[_rx_data.index] = post_val;
+        _rx_data.index++;
+    }
+
+    inline void pre_tx() { _tx_data.pre_val = get_timestamp(); }
+    inline void post_tx() {
+        const auto post_val = get_timestamp();
+        _tx_start[_tx_data.index] = _tx_data.pre_val;
+        _tx_end[_tx_data.index] = post_val;
+        _tx_data.index++;
+    }
+
+  private:
+    usize _msg_count;
+    u64* _tx_start;
+    u64* _tx_end;
+    u64* _rx_start;
+    u64* _rx_end;
+
+    CACHE_ALIGNED
+    struct {
+        usize index;
+        usize pre_val;
+    } _rx_data = {};
+
+    CACHE_ALIGNED
+    struct {
+        usize index;
+        usize pre_val;
+    } _tx_data = {};
+};
+
 template <IsQueueWith<u64> Q>
-void producer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate, const usize burst_size) {
-    const u32 burst_wait_duration = (1'000'000'000 * burst_size) / rate;
-    // warmup
-    for (usize i = 0; i < 10'000; i++) {
-        get_timestamp();
-        while (!queue->enqueue(get_timestamp())) {
-            get_timestamp();
-        }
-        const auto end = get_timestamp();
+class Runner {
+  public:
+    explicit Runner(Q* queue, test_parameters& params) : _queue(queue), _test(Test(params)), _params(params) {}
 
-        start_times[i] = 0;
-        end_times[i] = 0;
+    void run() {
+        std::thread tx([&] { producer(); });
+        std::thread rx([&] { consumer(); });
 
-        busy_wait_for(end + 100);
+        set_cpu_affinity(CPU_RX, rx);
+        set_cpu_affinity(CPU_TX, tx);
+
+        start = true;
+
+        tx.join();
+        rx.join();
+
+        _test.print_results();
     }
-    // wait for start
-    while (!start) {
-    }
-    // do test
-    auto next_time = get_timestamp();
-    for (usize i = 0; i < count; i++) {
-        auto start_tx = get_timestamp();
-        while (!queue->enqueue(get_timestamp())) {
-            start_tx = get_timestamp();
+
+  private:
+    Q* _queue;
+    Test _test;
+    test_parameters& _params;
+
+    void producer() {
+        const u32 burst_wait_duration = NS_PER_S * _params.burst_size / _params.producer_rate;
+        // wait for start
+        while (!start) {
         }
-        const auto end_tx = get_timestamp();
+        // do test
+        auto next_time = get_timestamp();
+        for (usize i = 0; i < _params.msg_count; i++) {
+            _test.pre_tx();
+            while (!_queue->enqueue(get_timestamp())) {
+                _test.pre_tx();
+            }
+            _test.post_tx();
 
-        start_times[i] = start_tx;
-        end_times[i] = end_tx;
+            // transmit `burst_size` elements before waiting
+            if (i % _params.burst_size == 0) {
+                busy_wait_for(next_time);
+                next_time += burst_wait_duration;
+            }
+        }
+    }
 
-        // transmit `burst_size` elements before waiting
-        if (i % burst_size == 0) {
+    void consumer() {
+        const u32 wait_duration = 1'000'000'000 / _params.consumer_rate;
+        // wait for start
+        while (!start) {
+        }
+        // do test
+        auto next_time = get_timestamp();
+        for (usize i = 0; i < _params.msg_count; i++) {
+            _test.pre_rx();
+            while (!_queue->dequeue()) {
+                _test.pre_rx();
+            }
+            _test.post_rx();
+
+            next_time += wait_duration;
             busy_wait_for(next_time);
-            next_time += burst_wait_duration;
         }
     }
-}
-
-template <IsQueueWith<u64> Q>
-void consumer(Q* queue, u64* start_times, u64* end_times, const usize count, const usize rate) {
-    const u32 wait_duration = 1'000'000'000 / rate;
-    // warmup
-    for (usize i = 0; i < 10'000; i++) {
-        get_timestamp();
-        while (!queue->dequeue()) {
-            get_timestamp();
-        }
-        const auto end = get_timestamp();
-
-        start_times[i] = 0;
-        end_times[i] = 0;
-
-        busy_wait_for(end + 100);
-    }
-    // wait for start
-    while (!start) {
-    }
-    // do test
-    auto next_time = get_timestamp();
-    for (usize i = 0; i < count; i++) {
-        auto rx_start = get_timestamp();
-        while (!queue->dequeue()) {
-            rx_start = get_timestamp();
-        }
-        const auto rx_end = get_timestamp();
-
-        start_times[i] = rx_start;
-        end_times[i] = rx_end;
-
-        next_time += wait_duration;
-        busy_wait_for(next_time);
-    }
-}
-
-template <IsQueueWith<u64> Q>
-void run_test(Q& q, test_parameters params) {
-    auto tx_start = new u64[params.msg_count];
-    auto tx_end = new u64[params.msg_count];
-    auto rx_start = new u64[params.msg_count];
-    auto rx_end = new u64[params.msg_count];
-
-    std::thread tx(&producer<Q>, &q, tx_start, tx_end, params.msg_count, params.producer_rate, params.burst_size);
-    std::thread rx(&consumer<Q>, &q, rx_start, rx_end, params.msg_count, params.consumer_rate);
-
-    set_cpu_affinity(CPU_RX, rx);
-    set_cpu_affinity(CPU_TX, tx);
-
-    start = true;
-
-    tx.join();
-    rx.join();
-
-    std::cout << "TX_Start,TX_End,RX_Start,RX_End" << std::endl;
-    for (usize i = 0; i < params.msg_count; i++) {
-        std::cout << tx_start[i] << "," << tx_end[i] << "," << rx_start[i] << "," << rx_end[i] << std::endl;
-    }
-
-    delete tx_start;
-    delete tx_end;
-    delete rx_start;
-    delete rx_end;
-}
+};
 
 int main() {
     test_parameters params = {};
@@ -126,5 +148,6 @@ int main() {
     queues::ff_queue ffq(1024, 16);
     queues::mc_ring_buffer mcrb(16384, 5000);
 
-    run_test(mcrb, params);
+    Runner r(&mcrb, params);
+    r.run();
 }
