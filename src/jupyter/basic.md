@@ -46,6 +46,7 @@ for res in results:
     print(f"Mean for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].median()}")
     print(f"Std. Deriv. for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].std()}")
 
+plt.close("all")
 ```
 
 ```python
