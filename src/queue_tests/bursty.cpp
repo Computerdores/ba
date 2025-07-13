@@ -1,5 +1,6 @@
 
-#include "bursty.h"
+
+#include "waiter/bursty.h"
 
 #include "measurer/fine_grained.h"
 #include "queues/b_queue.h"
@@ -7,10 +8,14 @@
 #include "queues/ff_queue.h"
 #include "queues/mc_ring_buffer.h"
 #include "runner.h"
-#include "waiter/bursty.h"
 
 int main() {
-    test_parameters params = {};
+    struct {
+        usize msg_count = 1'000'000;
+        usize consumer_rate = 1'000'000;
+        usize producer_rate = 1'000'000;
+        usize burst_size = 2048;
+    } params;
 
     queues::b_queue bq(16384, 8192, 64, 50);
     queues::equeue eq(4096, 16384, 50);
