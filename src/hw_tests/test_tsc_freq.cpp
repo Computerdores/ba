@@ -8,16 +8,16 @@
 #include "utils.h"
 
 int main() {
-    u64 start_time0 = get_timestamp();
+    u64 start_time0 = get_clock_timestamp();
     auto start_tsc = __rdtsc();
-    u64 start_time1 = get_timestamp();
+    u64 start_time1 = get_clock_timestamp();
     u64 start_time = (start_time0 + start_time1) / 2;
 
     busy_wait(2 * 1000 * 1000 * 1000);
 
-    u64 end_time0 = get_timestamp();
+    u64 end_time0 = get_clock_timestamp();
     auto end_tsc = __rdtsc();
-    u64 end_time1 = get_timestamp();
+    u64 end_time1 = get_clock_timestamp();
     u64 end_time = (end_time0 + end_time1) / 2;
 
     double time_delta = static_cast<double>(end_time - start_time) / 1000000000.0;

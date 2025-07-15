@@ -1,5 +1,6 @@
 #pragma once
 #include <pthread.h>
+#include <x86intrin.h>
 
 #include <cassert>
 #include <ctime>
@@ -25,12 +26,17 @@
  *        This timestamp is synchronised between cores (desync should be <400ns in vast the majority of cases).
  * @return The timestamp in nanoseconds.
  */
-inline u64 get_timestamp() {
+inline u64 get_clock_timestamp() {
     // overview of clock sources: http://btorpey.github.io/blog/2014/02/18/clock-sources-in-linux/
     timespec ts {};
     assert(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0);
     return ts.tv_sec * 1'000'000'000 + ts.tv_nsec;  // breaks in 2554 CE
 }
+
+#define TSC_FACTOR 2.8  // TODO: determine this dynamically
+inline u64 get_tsc_timestamp() { return __rdtsc() / TSC_FACTOR; }
+
+#define get_timestamp get_clock_timestamp
 
 /**
  * Busy waits until the target time has been reached.
