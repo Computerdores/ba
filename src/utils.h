@@ -33,8 +33,9 @@ inline u64 get_clock_timestamp() {
     return ts.tv_sec * 1'000'000'000 + ts.tv_nsec;  // breaks in 2554 CE
 }
 
-#define TSC_FACTOR 2.8  // TODO: determine this dynamically
-inline u64 get_tsc_timestamp() { return __rdtsc() / TSC_FACTOR; }
+#define TSC_FAC 10
+#define TSC_DIV 28  // TODO: determine this dynamically; current value is for bp-flugzeug machine
+inline u64 get_tsc_timestamp() { return (__rdtsc() * TSC_FAC) / TSC_DIV; }
 
 #define get_timestamp get_clock_timestamp
 
