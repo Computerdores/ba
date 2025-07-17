@@ -5,6 +5,7 @@
 - for cpu freq setting, add to cmdline: `intel_pstate=passive`
   - then use `modprobe cpufreq_userspace` to load kmod
   - and `cpufreq-set` to set cpu freq
+    - easier is e.g. `cpupower frequency-set -f 2.8G`
 - setting cpu freq higher seems to lead to cleaner results with less spikes and jitter
 - `turbostat` still shows IRQs on the isolated cores (2,3)
   - use `sudo find /proc/irq/ -type f -name smp_affinity -exec bash -c 'echo 3 > {}' \;` to set IRQ affinity to cpus 1,2
