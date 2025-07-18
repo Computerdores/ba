@@ -25,14 +25,24 @@ import seaborn as sns
 ```
 
 ```python
+plt.close("all")
+
 BASE_DIR = Path("../")
 
 FILES = [
-    "flugzeug_nowarmup_bq_16384_8192_64_50.csv",
-    "flugzeug_nowarmup_eq_8192_16384_50.csv",
-    "flugzeug_nowarmup_ffq_1024_16.csv",
+    #"flugzeug_bursty_bq_old1.csv",
+    #"flugzeug_bursty_bq_new1.csv",
+    #"flugzeug_bursty_eq_old1.csv",
+    #"flugzeug_bursty_eq_new1.csv",
+    #"flugzeug_bursty_ffq_old1.csv",
+    #"flugzeug_bursty_ffq_new1.csv",
+    #"flugzeug_basic_bq_old1.csv",
+    #"flugzeug_basic_bq_new1.csv",
+    #"flugzeug_basic_eq_old1.csv",
+    #"flugzeug_basic_eq_new1.csv",
+    "flugzeug_basic_ffq_old1.csv",
+    "flugzeug_basic_ffq_new1.csv",
 ]
-
 
 def load_results(path: str):
     df = pd.read_csv(BASE_DIR.joinpath(path))
@@ -43,16 +53,13 @@ def load_results(path: str):
 
     return df
 
-
 results = [(load_results(f), f) for f in FILES]
 
 for res in results:
     print(f"Mean for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].mean()}")
     print(f"Median for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].median()}")
-    print(f"Std. Deriv. for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].std()}")
+    print(f"Std. Dev. for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].std()}")
     print("---------------------------------------------")
-
-plt.close("all")
 ```
 
 ```python
@@ -92,6 +99,7 @@ for df, filename in results:
 plt.title("RX_TIME over Time")
 plt.xlabel("Message Index")
 plt.ylabel("RX_TIME")
+plt.xlim(400000, 600000)
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -104,6 +112,7 @@ for df, filename in results:
 plt.title("TX_TIME over Time")
 plt.xlabel("Message Index")
 plt.ylabel("TX_TIME")
+plt.xlim(400000, 600000)
 plt.legend()
 plt.tight_layout()
 plt.show()
