@@ -21,7 +21,7 @@
 
                 buildInputs = buildDeps ++ (with pkgs; [
                     python3
-                    nbstripout
+                    unzip
                 ]) ++ (with pkgs.python3Packages; [
                     pandas
                     matplotlib
@@ -36,7 +36,6 @@
                 ]);
 
                 shellHook = ''
-                    nbstripout --install
                     PS1="''${PS1/\\n/\\n(devenv) }"
                     alias clion="nohup clion . >/dev/null 2>/dev/null &"
                 '';
