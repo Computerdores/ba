@@ -37,7 +37,7 @@ inline u64 get_clock_timestamp() {
 #define TSC_DIV 28  // TODO: determine this dynamically; current value is for bp-flugzeug machine
 inline u64 get_tsc_timestamp() { return (__rdtsc() * TSC_FAC) / TSC_DIV; }
 
-#define get_timestamp get_clock_timestamp
+#define get_timestamp get_tsc_timestamp
 
 /**
  * Busy waits until the target time has been reached.
