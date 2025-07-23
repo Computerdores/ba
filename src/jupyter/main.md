@@ -8,7 +8,7 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.17.2
   kernelspec:
-    display_name: .venv
+    display_name: .venv (3.12.3)
     language: python
     name: python3
 ---
@@ -30,18 +30,19 @@ plt.close("all")
 BASE_DIR = Path("../")
 
 FILES = [
-    #"flugzeug_bursty_bq_old1.csv",
-    #"flugzeug_bursty_bq_new1.csv",
-    #"flugzeug_bursty_eq_old1.csv",
-    #"flugzeug_bursty_eq_new1.csv",
-    #"flugzeug_bursty_ffq_old1.csv",
-    #"flugzeug_bursty_ffq_new1.csv",
-    #"flugzeug_basic_bq_old1.csv",
-    #"flugzeug_basic_bq_new1.csv",
-    #"flugzeug_basic_eq_old1.csv",
-    #"flugzeug_basic_eq_new1.csv",
-    "flugzeug_basic_ffq_old1.csv",
-    "flugzeug_basic_ffq_new1.csv",
+    "flugzeug_basic_bq_main.csv",
+    "flugzeug_basic_eq_main.csv",
+    "flugzeug_basic_ffq_main.csv",
+    "flugzeug_bursty_bq_main.csv",
+    "flugzeug_bursty_eq_main.csv",
+    "flugzeug_bursty_ffq_main.csv",
+
+    "flugzeug_basic_bq_main2.csv",
+    "flugzeug_basic_eq_main2.csv",
+    "flugzeug_basic_ffq_main2.csv",
+    "flugzeug_bursty_bq_main2.csv",
+    "flugzeug_bursty_eq_main2.csv",
+    "flugzeug_bursty_ffq_main2.csv",
 ]
 
 def load_results(path: str):
@@ -53,7 +54,9 @@ def load_results(path: str):
 
     return df
 
-results = [(load_results(f), f) for f in FILES]
+MOD = 6
+OFF = 5
+results = [(load_results(f), f) for i, f in enumerate(FILES) if i % MOD == OFF]
 
 for res in results:
     print(f"Mean for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].mean()}")
@@ -63,6 +66,7 @@ for res in results:
 ```
 
 ```python
+#raise RuntimeError
 # Plot RX_TIME
 plt.figure(figsize=(10, 6))
 for df, filename in results:
@@ -99,7 +103,7 @@ for df, filename in results:
 plt.title("RX_TIME over Time")
 plt.xlabel("Message Index")
 plt.ylabel("RX_TIME")
-plt.xlim(400000, 600000)
+#plt.xlim(400000, 600000)
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -112,7 +116,7 @@ for df, filename in results:
 plt.title("TX_TIME over Time")
 plt.xlabel("Message Index")
 plt.ylabel("TX_TIME")
-plt.xlim(400000, 600000)
+#plt.xlim(400000, 600000)
 plt.legend()
 plt.tight_layout()
 plt.show()
