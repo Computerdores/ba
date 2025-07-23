@@ -1,6 +1,8 @@
 #pragma once
 #include <concepts>
 
+#include "utils.h"
+
 template <typename _RX, typename _TX>
 class RXTXPair {
   public:
