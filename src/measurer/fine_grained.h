@@ -10,60 +10,37 @@ namespace measurer {
 class FineGrained final : public Abstract {
   public:
     explicit FineGrained(const usize msg_count)
-        : _msg_count(msg_count),
-          _tx_start(new u64[msg_count]),
-          _tx_end(new u64[msg_count]),
-          _rx_start(new u64[msg_count]),
-          _rx_end(new u64[msg_count]) {}
+        : _msg_count(msg_count), _start(new u64[msg_count]), _end(new u64[msg_count]) {}
 
     ~FineGrained() override {
-        delete _tx_start;
-        delete _tx_end;
-        delete _rx_start;
-        delete _rx_end;
+        delete _start;
+        delete _end;
     }
 
-    inline void print_results() override {
-        std::cout << "TX_Start,TX_End,RX_Start,RX_End" << std::endl;
-        for (usize i = 0; i < _msg_count; i++) {
-            std::cout << _tx_start[i] << "," << _tx_end[i] << "," << _rx_start[i] << "," << _rx_end[i] << std::endl;
-        }
+    inline std::string format_header(std::string prefix) override {
+        return std::format("{}_Start,{}_End", prefix, prefix);
     }
 
-    inline void pre_rx() override { _rx_data.pre_val = get_timestamp(); }
-    inline void post_rx() override {
+    inline std::string row_to_string(const usize index) override {
+        return std::format("{},{}", _start[index], _end[index]);
+    }
+
+    inline void pre() override { _pre_val = get_timestamp(); }
+    inline void post() override {
         const auto post_val = get_timestamp();
-        _rx_start[_rx_data.index] = _rx_data.pre_val;
-        _rx_end[_rx_data.index] = post_val;
-        ++_rx_data.index;
-    }
-
-    inline void pre_tx() override { _tx_data.pre_val = get_timestamp(); }
-    inline void post_tx() override {
-        const auto post_val = get_timestamp();
-        _tx_start[_tx_data.index] = _tx_data.pre_val;
-        _tx_end[_tx_data.index] = post_val;
-        ++_tx_data.index;
+        _start[_index] = _pre_val;
+        _end[_index] = post_val;
+        ++_index;
     }
 
   private:
     usize _msg_count;
-    u64* _tx_start;
-    u64* _tx_end;
-    u64* _rx_start;
-    u64* _rx_end;
+    u64* _start;
+    u64* _end;
 
     CACHE_ALIGNED
-    struct {
-        usize index;
-        usize pre_val;
-    } _rx_data = {};
-
-    CACHE_ALIGNED
-    struct {
-        usize index;
-        usize pre_val;
-    } _tx_data = {};
+    usize _index = 0;
+    usize _pre_val = 0;
 };
 
 }  // namespace measurer

@@ -17,7 +17,8 @@ struct {
 
 template <typename Q>
 void run_test(Q *queue) {
-    Runner<std::remove_pointer_t<Q>, measurer::FineGrained, waiter::ConstantRate> r(queue, params);
+    Runner<std::remove_pointer_t<Q>, SimplePair<measurer::FineGrained>, SimplePair<waiter::ConstantRate>> r(queue,
+                                                                                                            params);
     r.run();
 }
 

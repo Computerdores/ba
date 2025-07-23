@@ -6,11 +6,11 @@
 #include "utils.h"
 #include "waiter/abstract.h"
 
-using measurer::IsMeasurer;
+using measurer::IsMeasurerPair;
 using queues::IsQueueWith;
-using waiter::IsWaiter;
+using waiter::IsWaiterPair;
 
-template <IsQueueWith<u64> Q, IsMeasurer M, IsWaiter W, int CPU_RX = 2, int CPU_TX = 3>
+template <IsQueueWith<u64> Q, IsMeasurerPair M, IsWaiterPair W, int CPU_RX = 2, int CPU_TX = 3>
 class Runner {
   public:
     template <typename P>
@@ -29,7 +29,10 @@ class Runner {
         tx.join();
         rx.join();
 
-        _measurer.print_results();
+        std::cout << _measurer.tx.format_header("TX") << "," << _measurer.rx.format_header("RX") << std::endl;
+        for (usize i = 0; i < _msg_count; i++) {
+            std::cout << _measurer.tx.row_to_string(i) << "," << _measurer.rx.row_to_string(i) << std::endl;
+        }
     }
 
   private:
@@ -44,14 +47,14 @@ class Runner {
         while (!_start) {
         }
         // do test
-        _waiter.tx_start();
+        _waiter.tx.start();
         for (usize i = 0; i < _msg_count; i++) {
-            _measurer.pre_tx();
+            _measurer.tx.pre();
             while (!_queue->enqueue(get_timestamp())) {
-                _measurer.pre_tx();
+                _measurer.tx.pre();
             }
-            _measurer.post_tx();
-            _waiter.tx_wait();
+            _measurer.tx.post();
+            _waiter.tx.wait();
         }
     }
 
@@ -60,14 +63,14 @@ class Runner {
         while (!_start) {
         }
         // do test
-        _waiter.rx_start();
+        _waiter.rx.start();
         for (usize i = 0; i < _msg_count; i++) {
-            _measurer.pre_rx();
+            _measurer.rx.pre();
             while (!_queue->dequeue()) {
-                _measurer.pre_rx();
+                _measurer.rx.pre();
             }
-            _measurer.post_rx();
-            _waiter.rx_wait();
+            _measurer.rx.post();
+            _waiter.rx.wait();
         }
     }
 };

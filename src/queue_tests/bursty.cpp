@@ -8,6 +8,7 @@
 #include "queues/ff_queue.h"
 #include "queues/mc_ring_buffer.h"
 #include "runner.h"
+#include "waiter/constant_rate.h"
 
 struct {
     usize msg_count = 1'000'000;
@@ -18,7 +19,8 @@ struct {
 
 template <typename Q>
 void run_test(Q *queue) {
-    Runner<std::remove_pointer_t<Q>, measurer::FineGrained, waiter::Bursty> r(queue, params);
+    Runner<std::remove_pointer_t<Q>, SimplePair<measurer::FineGrained>, RXTXPair<waiter::ConstantRate, waiter::Bursty>>
+        r(queue, params);
     r.run();
 }
 

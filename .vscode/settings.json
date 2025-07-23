@@ -1,4 +1,11 @@
 {
     "cmake.sourceDirectory": "/home/jann/uni/ba/repo/src",
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "python-envs.pythonProjects": [
+        {
+            "path": "src",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ]
 }

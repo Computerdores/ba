@@ -9,41 +9,23 @@ class Bursty final : public Abstract {
   public:
     template <typename P>
     explicit Bursty(const P& params)
-        : _tx_wait(NS_PER_S * params.burst_size / params.producer_rate),
-          _rx_wait(NS_PER_S / params.consumer_rate),
-          _burst_size(params.burst_size) {}
+        : _wait_time(NS_PER_S * params.burst_size / params.producer_rate), _burst_size(params.burst_size) {}
 
-    inline void tx_start() override { _tx_data.next_time = get_timestamp(); }
-    inline void tx_wait() override {
+    inline void start() override { _next_time = get_timestamp(); }
+    inline void wait() override {
         // transmit `burst_size` elements before waiting
-        if (_tx_data.index % _burst_size == 0) {
-            busy_wait_for(_tx_data.next_time);
-            _tx_data.next_time += _tx_wait;
+        if (_index % _burst_size == 0) {
+            busy_wait_for(_next_time);
+            _next_time += _wait_time;
         }
-        ++_tx_data.index;
-    }
-
-    inline void rx_start() override { _rx_data.next_time = get_timestamp(); }
-    inline void rx_wait() override {
-        _rx_data.next_time += _rx_wait;
-        busy_wait_for(_rx_data.next_time);
+        ++_index;
     }
 
   private:
-    usize _tx_wait;
-    usize _rx_wait;
+    usize _wait_time;
     usize _burst_size;
-
-    CACHE_ALIGNED
-    struct {
-        usize next_time;
-        usize index;
-    } _tx_data = {};
-
-    CACHE_ALIGNED
-    struct {
-        usize next_time;
-    } _rx_data = {};
+    usize _next_time = 0;
+    usize _index = 0;
 };
 
 }  // namespace waiter

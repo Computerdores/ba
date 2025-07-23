@@ -7,30 +7,17 @@ namespace waiter {
 class ConstantRate final : public Abstract {
   public:
     template <typename P>
-    explicit ConstantRate(const P& params)
-        : _tx_wait(NS_PER_S / params.producer_rate), _rx_wait(NS_PER_S / params.consumer_rate) {}
+    explicit ConstantRate(const P& params) : _wait_time(NS_PER_S / params.producer_rate) {}
 
-    inline void tx_start() override { _tx_next_time = get_timestamp(); }
-    inline void tx_wait() override {
-        _tx_next_time += _tx_wait;
-        busy_wait_for(_tx_next_time);
-    }
-
-    inline void rx_start() override { _rx_next_time = get_timestamp(); }
-    inline void rx_wait() override {
-        _rx_next_time += _rx_wait;
-        busy_wait_for(_rx_next_time);
+    inline void start() override { _next_time = get_timestamp(); }
+    inline void wait() override {
+        _next_time += _wait_time;
+        busy_wait_for(_next_time);
     }
 
   private:
-    usize _tx_wait;
-    usize _rx_wait;
-
-    CACHE_ALIGNED
-    usize _tx_next_time = 0;
-
-    CACHE_ALIGNED
-    usize _rx_next_time = 0;
+    usize _wait_time;
+    usize _next_time = 0;
 };
 
 }  // namespace waiter
