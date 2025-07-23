@@ -4,10 +4,10 @@
 
 namespace waiter {
 
-class Continuous final : public Abstract {
+class ConstantRate final : public Abstract {
   public:
     template <typename P>
-    explicit Continuous(const P& params)
+    explicit ConstantRate(const P& params)
         : _tx_wait(NS_PER_S / params.producer_rate), _rx_wait(NS_PER_S / params.consumer_rate) {}
 
     inline void tx_start() override { _tx_next_time = get_timestamp(); }
