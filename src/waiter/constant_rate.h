@@ -7,7 +7,7 @@ namespace waiter {
 class ConstantRate final : public Abstract {
   public:
     template <typename P>
-    explicit ConstantRate(const P& params) : _wait_time(NS_PER_S / params.producer_rate) {}
+    explicit ConstantRate(const P& params) : _wait_time(NS_PER_S / params.rate) {}
 
     inline void start() override { _next_time = get_timestamp(); }
     inline void wait() override {

@@ -12,9 +12,13 @@
 
 struct {
     usize msg_count = 1'000'000;
-    usize consumer_rate = 1'000'000;
-    usize producer_rate = 1'000'000;
-    usize burst_size = 2048;
+    struct rx {
+        usize rate = 1'000'000;
+    } rx;
+    struct tx {
+        usize rate = 1'000'000;
+        usize burst_size = 2048;
+    } tx;
 } params;
 
 template <typename Q>

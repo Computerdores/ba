@@ -9,8 +9,8 @@ class RXTXPair {
     using RX = _RX;
     using TX = _TX;
 
-    template <typename... Args>
-    explicit RXTXPair(Args&&... args) : rx(std::forward<Args>(args)...), tx(std::forward<Args>(args)...) {}
+    template <typename P>
+    explicit RXTXPair(P& params) : rx(params.rx), tx(params.tx) {}
 
     CACHE_ALIGNED
     RX rx;
@@ -20,7 +20,21 @@ class RXTXPair {
 };
 
 template <typename T>
-using SimplePair = RXTXPair<T, T>;
+class SimplePair {
+  public:
+    using RX = T;
+    using TX = RX;
+
+    template <typename... Args>
+    explicit SimplePair(Args&&... args) : rx(std::forward<Args>(args)...), tx(std::forward<Args>(args)...) {}
+
+    CACHE_ALIGNED
+    RX rx;
+
+    CACHE_ALIGNED
+    TX tx;
+};
 
 template <typename T>
-concept IsRXTXPair = std::derived_from<T, RXTXPair<typename T::RX, typename T::TX>>;
+concept IsRXTXPair =
+    std::derived_from<T, RXTXPair<typename T::RX, typename T::TX>> || std::derived_from<T, SimplePair<typename T::RX>>;

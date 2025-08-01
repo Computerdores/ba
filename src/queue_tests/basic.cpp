@@ -11,14 +11,19 @@
 
 struct {
     usize msg_count = 1'000'000;
-    usize consumer_rate = 1'000'000;
-    usize producer_rate = 1'000'000;
+    struct rx {
+        usize rate = 1'000'000;
+    } rx;
+    struct tx {
+        usize rate = 1'000'000;
+    } tx;
 } params;
 
 template <typename Q>
 void run_test(Q *queue) {
-    Runner<std::remove_pointer_t<Q>, SimplePair<measurer::FineGrained>, SimplePair<waiter::ConstantWait>> r(queue,
-                                                                                                            params);
+    Runner<std::remove_pointer_t<Q>, SimplePair<measurer::FineGrained>,
+           RXTXPair<waiter::ConstantWait, waiter::ConstantWait>>
+        r(queue, params);
     r.run();
 }
 

@@ -9,7 +9,7 @@ class Bursty final : public Abstract {
   public:
     template <typename P>
     explicit Bursty(const P& params)
-        : _wait_time(NS_PER_S * params.burst_size / params.producer_rate), _burst_size(params.burst_size) {}
+        : _wait_time(NS_PER_S * params.burst_size / params.rate), _burst_size(params.burst_size) {}
 
     inline void start() override { _next_time = get_timestamp(); }
     inline void wait() override {
