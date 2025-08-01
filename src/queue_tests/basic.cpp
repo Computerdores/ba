@@ -22,7 +22,7 @@ struct {
 template <typename Q>
 void run_test(Q *queue) {
     Runner<std::remove_pointer_t<Q>, SimplePair<measurer::FineGrained>,
-           RXTXPair<waiter::ConstantWait, waiter::ConstantWait>>
+           RXTXPair<waiter::ConstantWait, waiter::ConstantRate>>
         r(queue, params);
     r.run();
 }
