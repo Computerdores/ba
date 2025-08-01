@@ -59,9 +59,15 @@ OFF = 5
 results = [(load_results(f), f) for i, f in enumerate(FILES) if i % MOD == OFF]
 
 for res in results:
-    print(f"Mean for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].mean()}")
-    print(f"Median for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].median()}")
-    print(f"Std. Dev. for {res[1]}:\n{res[0][["RX_TIME", "TX_TIME"]].std()}")
+    print(res[1])
+    avg_rx_diff, avg_tx_diff = res[0]["RX_Start"].diff().dropna().mean(), res[0]["TX_Start"].diff().dropna().mean()
+    print(f"TX Wait: {avg_tx_diff:.2f}, RX Wait: {avg_rx_diff:.2f}")
+    rx_rate, tx_rate = 1000000000 / avg_rx_diff, 1000000000 / avg_tx_diff
+    print(f"TX Rate: {tx_rate:.2f}, RX_Rate: {rx_rate:.2f}"),
+    print(f"Rate Diff: {tx_rate - rx_rate:.2f}")
+    print(f"Mean:\n{res[0][["RX_TIME", "TX_TIME"]].mean()}")
+    print(f"Median:\n{res[0][["RX_TIME", "TX_TIME"]].median()}")
+    print(f"Standard Deviation:\n{res[0][["RX_TIME", "TX_TIME"]].std()}")
     print("---------------------------------------------")
 ```
 
