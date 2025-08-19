@@ -15,8 +15,8 @@ class Bursty final : public Abstract {
     inline void wait() override {
         // transmit `burst_size` elements before waiting
         if (_index % _burst_size == 0) {
-            busy_wait_for(_next_time);
             _next_time += _wait_time;
+            busy_wait_for(_next_time);
         }
         ++_index;
     }
