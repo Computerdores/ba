@@ -12,7 +12,7 @@ sudo cpupower frequency-set -f "2.8G" >/dev/null
 for _test in basic bursty; do
     echo "Now running $_test tests"
     for queue in bq eq ffq; do
-        "build/$_test" "$queue" > "flugzeug_${_test}_${queue}_$1.csv"
+        "build/$_test" "$queue" > "flugzeug_${_test}_${queue}_$(git rev-parse --short HEAD)_$1.csv"
     done
 done
 
