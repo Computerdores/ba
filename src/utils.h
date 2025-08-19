@@ -15,6 +15,11 @@
 #define u64 std::uint64_t
 #define usize std::size_t
 
+#define s8 std::int8_t
+#define s16 std::int16_t
+#define s32 std::int32_t
+#define s64 std::int64_t
+
 #define MIN(A, B) (A > B ? B : A)
 #define MAX(A, B) (A < B ? B : A)
 
