@@ -26,9 +26,14 @@ class equeue final : public Queue<u64> {
   public:
     equeue() = delete;
 
-    explicit equeue(const u64 size, const u64 max_size, const u32 wait_time, const u64 enlarge_threshold = 1024,
-                    const u64 shrink_threshold = 1, const u64 max_batch_size = -1, const u64 min_batch_size = -1)
-        : _MAX_SIZE(max_size),
+    // paper: "SHRINK_THRESHOLD is by default set to 128."
+    // default values for ENLARGE_THRESHOLD and BATCH_SLICE are not defined in the paper, took them from ref impl
+    // instead
+    explicit equeue(const u64 size, const u64 min_size, const u64 max_size, const u32 wait_time,
+                    const u64 enlarge_threshold = 1024, const u64 shrink_threshold = 128, const u64 max_batch_size = -1,
+                    const u64 min_batch_size = 128)
+        : _MIN_SIZE(min_size),
+          _MAX_SIZE(max_size),
           _ENLARGE_THRESHOLD(enlarge_threshold),
           _SHRINK_THRESHOLD(shrink_threshold),
           _WAIT_TIME(wait_time) {
@@ -37,8 +42,9 @@ class equeue final : public Queue<u64> {
         // TODO: test whether cache line alignment makes a difference here
         _data = static_cast<std::uint64_t *>(calloc(_MAX_SIZE, sizeof(u64)));
 
+        // paper: "[_MAX_BATCH_SIZE] is set by default to one-quarter of the queue size"
         _MAX_BATCH_SIZE = max_batch_size != -1 ? max_batch_size : size >> 2;
-        _MIN_BATCH_SIZE = min_batch_size != -1 ? min_batch_size : 1;
+        _MIN_BATCH_SIZE = min_batch_size;
     }
 
     bool enqueue(const u64 value) override {
@@ -84,7 +90,10 @@ class equeue final : public Queue<u64> {
                     u64 info_temp_new_data;
                 };
                 info_temp = info_temp_new = _info;
-                if (info_temp.head <= info_temp.size / 2) {
+                // Note: The following _MIN_SIZE check differs from the ref impl (and is missing in the paper).
+                //       Afaict, the check in the ref impl is wrong since it would allow the size to fall below
+                //       the minimum allowed size (checks the previous size not the new one).
+                if (info_temp.head <= info_temp.size / 2 && info_temp.size / 2 >= _MIN_SIZE) {
                     info_temp_new.size = info_temp.size / 2;
                     if (__sync_bool_compare_and_swap(&_info_data, info_temp_data, info_temp_new_data)) {
                         _traffic_empty = _traffic_full = 0;
@@ -121,6 +130,7 @@ class equeue final : public Queue<u64> {
 
     // config values
     CACHE_ALIGNED
+    u64 _MIN_SIZE;
     u64 _MAX_SIZE;
     u64 _ENLARGE_THRESHOLD;
     u64 _SHRINK_THRESHOLD;
@@ -129,20 +139,24 @@ class equeue final : public Queue<u64> {
     u32 _WAIT_TIME;
 
     bool _enqueue_detect_batching_size() {
+        // NOTE: This function is structured somewhat differently between ref impl and paper.
+        //       This implementation is closer to the ref impl.
         auto size = _MAX_BATCH_SIZE;
-        auto head = mod(_info.head + size);
-        while (_data[head] && size > _MIN_BATCH_SIZE) {
+        auto head = _mod(_info.head + size);
+        while (_data[head]) {
             busy_wait(_WAIT_TIME);
-            size = size >> 1;
-            head = mod(_info.head + size);
+            if (size > _MIN_BATCH_SIZE) {
+                size = size >> 1;
+                head = _mod(_info.head + size);
+            } else {
+                return false;
+            }
         }
-        if (size <= _MIN_BATCH_SIZE)  // NOTE: in the paper this references the undefined variable `batch_size`
-            return false;
         _batch_head = head;
         return true;
     }
 
-    u32 mod(const u32 value) const { return value % _info.size; }
+    u32 _mod(const u32 value) const { return value % _info.size; }
 };
 
 }  // namespace queues

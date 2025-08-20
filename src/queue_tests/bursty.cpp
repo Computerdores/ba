@@ -42,7 +42,7 @@ int main(const int argc, char *argv[]) {
         run_test(&bq);
     } else if (q_param == "eq") {
         std::println(std::cerr, "using eq");
-        queues::equeue eq(4096, 16384, 50);
+        queues::equeue eq(4096, 256, 16384, 50);
         run_test(&eq);
     } else if (q_param == "ffq") {
         std::println(std::cerr, "using ffq");
