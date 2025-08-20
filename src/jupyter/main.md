@@ -30,19 +30,12 @@ plt.close("all")
 BASE_DIR = Path("../")
 
 FILES = [
-    "flugzeug_basic_bq_main.csv",
-    "flugzeug_basic_eq_main.csv",
-    "flugzeug_basic_ffq_main.csv",
-    "flugzeug_bursty_bq_main.csv",
-    "flugzeug_bursty_eq_main.csv",
-    "flugzeug_bursty_ffq_main.csv",
-
-    "flugzeug_basic_bq_main2.csv",
-    "flugzeug_basic_eq_main2.csv",
-    "flugzeug_basic_ffq_main2.csv",
-    "flugzeug_bursty_bq_main2.csv",
-    "flugzeug_bursty_eq_main2.csv",
-    "flugzeug_bursty_ffq_main2.csv",
+    "flugzeug_basic_bq_5f9af44_jitter.csv",
+    "flugzeug_basic_eq_5f9af44_jitter.csv",
+    "flugzeug_basic_ffq_5f9af44_jitter.csv",
+    "flugzeug_bursty_bq_5f9af44_jitter.csv",
+    "flugzeug_bursty_eq_5f9af44_jitter.csv",
+    "flugzeug_bursty_ffq_5f9af44_jitter.csv",
 ]
 
 def load_results(path: str):
@@ -55,8 +48,10 @@ def load_results(path: str):
     return df
 
 MOD = 6
-OFF = 5
-results = [(load_results(f), f) for i, f in enumerate(FILES) if i % MOD == OFF]
+
+BY_QUEUE = False    # whether OFF selects by QUEUE or by RUN
+OFF = 0
+results = [(load_results(f), f) for i, f in enumerate(FILES) if (i % MOD if BY_QUEUE else i // MOD) == OFF]
 
 for res in results:
     print(res[1])
