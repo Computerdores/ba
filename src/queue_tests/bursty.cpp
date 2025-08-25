@@ -56,7 +56,7 @@ int main(const int argc, char *argv[]) {
         run_test(&mcrb);
     } else if (q_param == "ffwdq") {
         std::println(std::cerr, "using ffwdq");
-        queues::fast_forward ffwdq(16384, NS_PER_S / params.tx.rate, 64);
+        queues::fast_forward ffwdq(16384, NS_PER_S / params.tx.rate, params.msg_count);
         run_test(&ffwdq);
     } else {
         std::println("invalid queue arg");
