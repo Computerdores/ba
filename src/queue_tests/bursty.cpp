@@ -5,6 +5,7 @@
 #include "measurer/fine_grained.h"
 #include "queues/b_queue.h"
 #include "queues/equeue.h"
+#include "queues/fast_forward.h"
 #include "queues/ff_queue.h"
 #include "queues/mc_ring_buffer.h"
 #include "runner.h"
