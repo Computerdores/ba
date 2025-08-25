@@ -48,7 +48,7 @@ class fast_forward final : public Queue<T> {
     const usize GOOD = 6 * CACHE_LINE_SIZE;
 
     void _adjust_slip() const {
-        const usize dist = _distance();
+        usize dist = _distance();
         if (dist < DANGER) {
             auto dist_old = 0;
             do {
