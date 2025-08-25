@@ -30,12 +30,14 @@ plt.close("all")
 BASE_DIR = Path("../")
 
 FILES = [
-    "flugzeug_basic_bq_5f9af44_jitter.csv",
-    "flugzeug_basic_eq_5f9af44_jitter.csv",
-    "flugzeug_basic_ffq_5f9af44_jitter.csv",
-    "flugzeug_bursty_bq_5f9af44_jitter.csv",
-    "flugzeug_bursty_eq_5f9af44_jitter.csv",
-    "flugzeug_bursty_ffq_5f9af44_jitter.csv",
+    "flugzeug_basic_bq_2456ae6_clean.csv",
+    "flugzeug_basic_eq_2456ae6_clean.csv",
+    "flugzeug_basic_ffq_2456ae6_clean.csv",
+    "flugzeug_basic_ffwdq_2456ae6_clean.csv",
+    "flugzeug_bursty_bq_2456ae6_clean.csv",
+    "flugzeug_bursty_eq_2456ae6_clean.csv",
+    "flugzeug_bursty_ffq_2456ae6_clean.csv",
+    "flugzeug_bursty_ffwdq_2456ae6_clean.csv",
 ]
 
 def load_results(path: str):
@@ -47,7 +49,7 @@ def load_results(path: str):
 
     return df
 
-MOD = 6
+MOD = 8
 
 BY_QUEUE = False    # whether OFF selects by QUEUE or by RUN
 OFF = 0
@@ -67,7 +69,7 @@ for res in results:
 ```
 
 ```python
-#raise RuntimeError
+raise RuntimeError
 # Plot RX_TIME
 plt.figure(figsize=(10, 6))
 for df, filename in results:
