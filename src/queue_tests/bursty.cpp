@@ -8,7 +8,7 @@
 #include "queues/ff_queue.h"
 #include "queues/mc_ring_buffer.h"
 #include "runner.h"
-#include "waiter/constant_rate.h"
+#include "waiter/constant_wait.h"
 
 struct {
     usize msg_count = 1'000'000;
@@ -35,6 +35,7 @@ int main(const int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    // TODO: these parameters currently have somewhat arbitrary values
     const auto q_param = std::string(argv[1]);
     if (q_param == "bq") {
         std::println(std::cerr, "using bq");
@@ -52,6 +53,10 @@ int main(const int argc, char *argv[]) {
         std::println(std::cerr, "using mcrb");
         queues::mc_ring_buffer mcrb(16384, 5000);
         run_test(&mcrb);
+    } else if (q_param == "ffwdq") {
+        std::println(std::cerr, "using ffwdq");
+        queues::fast_forward ffwdq(16384, NS_PER_S / params.tx.rate, 64);
+        run_test(&ffwdq);
     } else {
         std::println("invalid queue arg");
         return EXIT_FAILURE;
