@@ -7,6 +7,7 @@
 #include "queues/equeue.h"
 #include "queues/fast_forward.h"
 #include "queues/ff_queue.h"
+#include "queues/lamport.h"
 #include "queues/mc_ring_buffer.h"
 #include "runner.h"
 #include "waiter/constant_wait.h"
@@ -39,25 +40,29 @@ int main(const int argc, char *argv[]) {
     // TODO: these parameters currently have somewhat arbitrary values
     const auto q_param = std::string(argv[1]);
     if (q_param == "bq") {
-        std::println(std::cerr, "using bq");
+        std::println(std::cerr, "using B-Queue");
         queues::b_queue bq(16384, 8192, 64, 50);
         run_test(&bq);
     } else if (q_param == "eq") {
-        std::println(std::cerr, "using eq");
+        std::println(std::cerr, "using EQueue");
         queues::equeue eq(4096, 256, 16384, 50);
         run_test(&eq);
     } else if (q_param == "ffq") {
-        std::println(std::cerr, "using ffq");
+        std::println(std::cerr, "using Fast Flow Queue");
         queues::ff_queue ffq(1024, 16);
         run_test(&ffq);
     } else if (q_param == "mcrb") {
-        std::println(std::cerr, "using mcrb");
+        std::println(std::cerr, "using MCRingBuffer");
         queues::mc_ring_buffer mcrb(16384, 5000);
         run_test(&mcrb);
     } else if (q_param == "ffwdq") {
-        std::println(std::cerr, "using ffwdq");
+        std::println(std::cerr, "using FastForward Queue");
         queues::fast_forward ffwdq(16384, NS_PER_S / params.tx.rate, params.msg_count);
         run_test(&ffwdq);
+    } else if (q_param == "lprt") {
+        std::println(std::cerr, "using Lamport Queue");
+        queues::lamport lprt(16384);
+        run_test(&lprt);
     } else {
         std::println("invalid queue arg");
         return EXIT_FAILURE;
