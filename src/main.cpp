@@ -1,4 +1,5 @@
 #include <cxxopts.hpp>
+#include <fstream>
 #include <iostream>
 
 #include "measurer/fine_grained.h"
@@ -66,20 +67,45 @@ std::istream& operator>>(std::istream& in, benchmark& bm) {
     return in;
 }
 
+struct {
+    usize msg_count = 1'000'000;
+    struct {
+        usize rate = 1'000'000;
+    } rx;
+    struct {
+        usize rate = 1'000'000;
+        usize burst_size = 2048;
+    } tx;
+} params;
+
 int main(const int argc, char** argv) {
     cxxopts::Options options("benchmarks", "Benchmark different queues.");
     options.set_width(120);
 
     benchmark bm;
     queue_type qt;
+    std::string filename;
 
-    options.add_options()("b,benchmark", "Which benchmark to use (basic|bursty)", cxxopts::value(bm))(
-        "q,queue", "Which queue to benchmark (bq|eq|fflwq|mcrb|ffwdq|lprt)", cxxopts::value(qt))(
-        "h,help", "Print this help text.");
+    options.add_options()                                                                              //
+        ("b,benchmark", "Which benchmark to use (basic|bursty)", cxxopts::value(bm))                   //
+        ("q,queue", "Which queue to benchmark (bq|eq|fflwq|mcrb|ffwdq|lprt)", cxxopts::value(qt))      //
+        ("o,output", "Where to store the result data.", cxxopts::value(filename)->default_value("-"))  //
+        ("h,help", "Print this help text.");
 
     auto result = options.parse(argc, argv);
     REQUIRE_ARG("benchmark");
     REQUIRE_ARG("queue");
+
+    std::ostream* out = &std::cout;
+    std::ofstream ofs;
+    if (filename != "-" && !filename.empty()) {
+        ofs = std::ofstream(filename);
+        if (!ofs.is_open()) {
+            std::cerr << "Failed to open file: " << filename << std::endl;
+            return EXIT_FAILURE;
+        }
+        out = &ofs;
+    }
 
     if (result.count("help")) {
         std::cout << options.help() << std::endl;
@@ -119,25 +145,17 @@ int main(const int argc, char** argv) {
             if constexpr (std::is_same_v<Q, std::monostate>)
                 return EXIT_FAILURE;
             else {
-                struct {
-                    usize msg_count = 1'000'000;
-                    struct {
-                        usize rate = 1'000'000;
-                    } rx;
-                    struct {
-                        usize rate = 1'000'000;
-                        usize burst_size = 2048;
-                    } tx;
-                } params;
                 if (bm == benchmark::basic) {
                     Runner<Q, SimplePair<measurer::FineGrained>,
                            RXTXPair<waiter::ConstantWait, waiter::ConstantRate<true>>>
                         r(&q, params);
                     r.run();
+                    r.write_results(out);
                 } else {
                     Runner<Q, SimplePair<measurer::FineGrained>, RXTXPair<waiter::ConstantWait, waiter::Bursty<true>>>
                         r(&q, params);
                     r.run();
+                    r.write_results(out);
                 }
                 return EXIT_SUCCESS;
             }

@@ -28,10 +28,12 @@ class Runner {
 
         tx.join();
         rx.join();
+    }
 
-        std::cout << _measurer.tx.format_header("TX") << "," << _measurer.rx.format_header("RX") << std::endl;
+    void write_results(std::ostream* out) {
+        *out << _measurer.tx.format_header("TX") << "," << _measurer.rx.format_header("RX") << std::endl;
         for (usize i = 0; i < _msg_count; i++) {
-            std::cout << _measurer.tx.row_to_string(i) << "," << _measurer.rx.row_to_string(i) << std::endl;
+            *out << _measurer.tx.row_to_string(i) << "," << _measurer.rx.row_to_string(i) << std::endl;
         }
     }
 
