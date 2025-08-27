@@ -4,7 +4,7 @@
 
 namespace queues {
 
-template <typename T = u64>
+template <typename T = u64, T EMPTY = 0>
 class fast_forward final : public Queue<T> {
   public:
     explicit fast_forward(const usize size, const usize avg_enqueue_interval, const usize adjust_slip_interval)
@@ -13,7 +13,7 @@ class fast_forward final : public Queue<T> {
     }
 
     bool enqueue(T item) override {
-        if (_buffer[_head] != NULL) {
+        if (_buffer[_head] != EMPTY) {
             return false;
         }
         _buffer[_head] = item;
@@ -26,11 +26,11 @@ class fast_forward final : public Queue<T> {
             _adjust_slip();
         }
         auto data = _buffer[_tail];
-        if (data == NULL) {
+        if (data == EMPTY) {
             _adjust_slip();
             return std::nullopt;
         }
-        _buffer[_tail] = NULL;
+        _buffer[_tail] = EMPTY;
         _tail = _next(_tail);
         return data;
     }
