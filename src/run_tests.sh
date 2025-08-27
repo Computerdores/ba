@@ -16,7 +16,7 @@ sudo cpupower frequency-set -f "2.8G" >/dev/null
 
 for benchmark in basic bursty; do
     echo "Now running $benchmark benchmarks"
-    for queue in bq eq ffq ffwdq lprt; do
+    for queue in bq eq fflwq ffwdq lprt; do
         build/benchmarks -q "$queue" -b "$benchmark" > "flugzeug_${benchmark}_${queue}_${run_name}.csv"
     done
 done
