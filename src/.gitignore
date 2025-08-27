@@ -1,4 +1,5 @@
 cmake-build-*/
+build/
 *.csv
 .venv/
 __pycache__/
