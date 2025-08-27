@@ -4,8 +4,7 @@ project(queue_benchmarks)
 
 include_directories(BEFORE SYSTEM ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(basic queue_tests/basic.cpp)
-add_executable(bursty queue_tests/bursty.cpp)
+add_executable(benchmarks main.cpp)
 
 add_executable(test_tsc_freq hw_tests/test_tsc_freq.cpp)
 add_executable(test_mc_sync hw_tests/test_mc_sync.cpp)

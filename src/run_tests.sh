@@ -14,10 +14,10 @@ cmake --build build/
 
 sudo cpupower frequency-set -f "2.8G" >/dev/null
 
-for _test in basic bursty; do
-    echo "Now running $_test tests"
+for benchmark in basic bursty; do
+    echo "Now running $benchmark benchmarks"
     for queue in bq eq ffq ffwdq lprt; do
-        "build/$_test" "$queue" > "flugzeug_${_test}_${queue}_${run_name}.csv"
+        build/benchmarks -q "$queue" -b "$benchmark" > "flugzeug_${benchmark}_${queue}_${run_name}.csv"
     done
 done
 

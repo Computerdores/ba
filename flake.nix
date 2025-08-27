@@ -12,6 +12,7 @@
                 automake
                 gcc14
                 pkg-config
+                cxxopts
             ];
             buildDeps = with pkgs; [];
         in {
