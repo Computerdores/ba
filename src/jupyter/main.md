@@ -6,9 +6,9 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.17.2
+      jupytext_version: 1.16.4
   kernelspec:
-    display_name: .venv (3.12.3)
+    display_name: Python 3
     language: python
     name: python3
 ---
@@ -18,58 +18,39 @@ jupyter:
 ```
 
 ```python
-import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 import seaborn as sns
+
+from lib import load_results
 ```
 
 ```python
 plt.close("all")
 
-BASE_DIR = Path("../")
+BASE_DIR = Path("./")
 
 FILES = [
-    "flugzeug_basic_bq_2456ae6_clean.csv",
-    "flugzeug_basic_eq_2456ae6_clean.csv",
-    "flugzeug_basic_ffq_2456ae6_clean.csv",
-    "flugzeug_basic_ffwdq_2456ae6_clean.csv",
-    "flugzeug_bursty_bq_2456ae6_clean.csv",
-    "flugzeug_bursty_eq_2456ae6_clean.csv",
-    "flugzeug_bursty_ffq_2456ae6_clean.csv",
-    "flugzeug_bursty_ffwdq_2456ae6_clean.csv",
+    "flugzeug_basic_bq_9f53673_clean.csv",
+    "flugzeug_basic_eq_9f53673_clean.csv",
+    "flugzeug_basic_ffq_9f53673_clean.csv",
+    "flugzeug_basic_ffwdq_9f53673_clean.csv",
+    "flugzeug_basic_lprt_9f53673_clean.csv",
+    "flugzeug_bursty_bq_9f53673_clean.csv",
+    "flugzeug_bursty_eq_9f53673_clean.csv",
+    "flugzeug_bursty_ffq_9f53673_clean.csv",
+    "flugzeug_bursty_ffwdq_9f53673_clean.csv",
+    "flugzeug_bursty_lprt_9f53673_clean.csv",
 ]
 
-def load_results(path: str):
-    df = pd.read_csv(BASE_DIR.joinpath(path))
+MOD = 10
 
-    df["RX_TIME"] = df["RX_End"] - df["RX_Start"]
-    df["TX_TIME"] = df["TX_End"] - df["TX_Start"]
-    df["LATENCY"] = df["RX_End"] - df["TX_End"]
-
-    return df
-
-MOD = 8
-
-BY_QUEUE = False    # whether OFF selects by QUEUE or by RUN
-OFF = 0
-results = [(load_results(f), f) for i, f in enumerate(FILES) if (i % MOD if BY_QUEUE else i // MOD) == OFF]
-
-for res in results:
-    print(res[1])
-    avg_rx_diff, avg_tx_diff = res[0]["RX_Start"].diff().dropna().mean(), res[0]["TX_Start"].diff().dropna().mean()
-    print(f"TX Wait: {avg_tx_diff:.2f}, RX Wait: {avg_rx_diff:.2f}")
-    rx_rate, tx_rate = 1000000000 / avg_rx_diff, 1000000000 / avg_tx_diff
-    print(f"TX Rate: {tx_rate:.2f}, RX_Rate: {rx_rate:.2f}"),
-    print(f"Rate Diff: {tx_rate - rx_rate:.2f}")
-    print(f"Mean:\n{res[0][["RX_TIME", "TX_TIME"]].mean()}")
-    print(f"Median:\n{res[0][["RX_TIME", "TX_TIME"]].median()}")
-    print(f"Standard Deviation:\n{res[0][["RX_TIME", "TX_TIME"]].std()}")
-    print("---------------------------------------------")
+BY_QUEUE = True    # whether OFF selects by QUEUE or by RUN
+OFF = 3
+results = [(load_results(BASE_DIR.joinpath(f)), f) for i, f in enumerate(FILES) if (i % MOD if BY_QUEUE else i // MOD) == OFF]
 ```
 
 ```python
-raise RuntimeError
 # Plot RX_TIME
 plt.figure(figsize=(10, 6))
 for df, filename in results:
