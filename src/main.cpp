@@ -1,6 +1,7 @@
 #include <cxxopts.hpp>
 #include <fstream>
 #include <iostream>
+#include <print>
 
 #include "measurer/fine_grained.h"
 #include "queues/b_queue.h"
@@ -118,21 +119,27 @@ int main(const int argc, char** argv) {
     QueueVariant queue;
     switch (qt) {
         case queue_type::BQueue:
+            std::println("Testing BQueue.");
             queue.emplace<queues::b_queue<>>(16384, 8192, 64, 50);
             break;
         case queue_type::EQueue:
+            std::println("Testing E-Queue.");
             queue.emplace<queues::equeue>(4096, 256, 16384, 50);
             break;
         case queue_type::FastFlowQueue:
+            std::println("Testing FastFlow Queue.");
             queue.emplace<queues::ff_queue<>>(1024, 16);
             break;
         case queue_type::MCRingBuffer:
+            std::println("Testing MCRingBuffer.");
             queue.emplace<queues::mc_ring_buffer<>>(16384, 5000);
             break;
         case queue_type::FastForwardQueue:
+            std::println("Testing FastForward Queue.");
             queue.emplace<queues::fast_forward<>>(16384, NS_PER_S / params.tx.rate, params.msg_count);
             break;
         case queue_type::LamportQueue:
+            std::println("Testing Lamport Queue.");
             queue.emplace<queues::lamport<>>(16384);
             break;
         default:
