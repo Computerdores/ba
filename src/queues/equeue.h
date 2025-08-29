@@ -14,10 +14,10 @@ namespace queues {
 
 /**
  * State of this implementation:
- * - implements equeue without batching
+ * - implements equeue with batching
  * - divergences from paper:
  *   - enqueue ensures that _info.size doesn't exceed the buffer size
- *   - one if statement in _enqueue_detect_batching_size differs because the paper referenced an undefined variable
+ *   - _enqueue_detect_batching_size differs because the paper and ref impl differ
  *   - enqueue method increments traffic_full when batching even-though paper pseudocode doesn't because dynamic
  *     resizing would otherwise not work
  */

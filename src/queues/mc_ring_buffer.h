@@ -4,6 +4,10 @@
 
 namespace queues {
 
+/**
+ * - currently deadlocks when trying to dequeue the last elements in some cases
+ *   (related to batching and number of enqueued elements vs batch_size)
+ */
 template <typename T = u64, bool BLOCK_ON_EMPTY = false, bool BLOCK_ON_FULL = false>
 class mc_ring_buffer final : public Queue<T> {
   public:

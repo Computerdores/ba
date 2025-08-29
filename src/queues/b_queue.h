@@ -9,7 +9,7 @@ namespace queues {
 /**
  * State of this implementation:
  * - complete implementation of B-Queue with self-adaptive backtracking
- * - enqueue and dequeue differ from the paper in order to fix two bugs (wtf?!)
+ * - enqueue and dequeue differ from the paper in order to fix two bugs
  */
 template <typename T = u64>
 class b_queue final : public Queue<T> {
