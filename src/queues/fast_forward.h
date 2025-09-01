@@ -36,7 +36,7 @@ class fast_forward final : public Queue<T> {
     }
 
   private:
-    CACHE_ALIGNED T *_buffer;
+    CACHE_ALIGNED volatile T *_buffer;
     CACHE_ALIGNED usize _head = 0;
     CACHE_ALIGNED usize _tail = 0;
 
