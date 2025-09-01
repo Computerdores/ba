@@ -36,16 +36,22 @@ class fast_forward final : public Queue<T> {
     }
 
   private:
-    CACHE_ALIGNED volatile T *_buffer;
     CACHE_ALIGNED usize _head = 0;
     CACHE_ALIGNED usize _tail = 0;
 
+    // buffer
     CACHE_ALIGNED
+    volatile T *_buffer;
+
+    // constants
     usize _SIZE;
     usize _AVG_ENQUEUE_INTERVAL;
     usize _ADJUST_SLIP_INTERVAL;
     const usize DANGER = 2 * CACHE_LINE_SIZE;
     const usize GOOD = 6 * CACHE_LINE_SIZE;
+    // volatile refs to control compiler optimisation
+    volatile usize &_vol_head = _head;  // should only be read
+    volatile usize &_vol_tail = _tail;  // should only be read
 
     void _adjust_slip() const {
         usize dist = _distance();
@@ -60,7 +66,8 @@ class fast_forward final : public Queue<T> {
     }
 
     usize _distance() const {
-        return _head > _tail ? _head - _tail : _tail - _head;  // NOTE: paper does not specify how to implement this
+        // NOTE: paper does not specify how to implement this
+        return _vol_head > _vol_tail ? _vol_head - _vol_tail : _vol_tail - _vol_head;
     }
     usize _next(const usize index) const { return (index + 1) % _SIZE; }
 };

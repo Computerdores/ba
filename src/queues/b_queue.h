@@ -11,7 +11,7 @@ namespace queues {
  * - complete implementation of B-Queue with self-adaptive backtracking
  * - enqueue and dequeue differ from the paper in order to fix two bugs
  */
-template <typename T = u64>
+template <typename T = u64, T EMPTY = 0>
 class b_queue final : public Queue<T> {
     // TODO: investigate whether the buffer being optionals has a significant performance impact,
     //       because that could introduce bias
@@ -21,7 +21,7 @@ class b_queue final : public Queue<T> {
           _BATCH_SIZE(batch_size),
           _BATCH_INCREMENT(batch_increment),
           _WAIT_TIME(wait_time),
-          _buffer(new std::optional<T>[size]),
+          _buffer(new T[size](EMPTY)),
           _batch_history(batch_size) {
         assert(batch_size < size);
     }
@@ -30,7 +30,7 @@ class b_queue final : public Queue<T> {
         if (mod(_head + 1) == _tail) return false;  // NOTE: this line differs from the paper
         if (_head == _batch_head) {
             auto new_batch_head = mod(_head + _BATCH_SIZE);
-            if (_buffer[new_batch_head]) return false;
+            if (_buffer[new_batch_head] != EMPTY) return false;
             _batch_head = new_batch_head;
         }
         _buffer[_head] = item;
@@ -43,7 +43,7 @@ class b_queue final : public Queue<T> {
             if (!_backtrack_deq()) return std::nullopt;
         }
         auto out = _buffer[_tail];
-        _buffer[_tail] = std::nullopt;
+        _buffer[_tail] = EMPTY;
         if (_tail != _batch_tail) _tail = mod(_tail + 1);  // NOTE: this line differs from the paper
         return out;
     }
@@ -51,18 +51,22 @@ class b_queue final : public Queue<T> {
     ~b_queue() override { delete[] _buffer; }
 
   private:
+    CACHE_ALIGNED volatile usize _head = 0;
+    CACHE_ALIGNED volatile usize _batch_head = 0;
+
+    CACHE_ALIGNED volatile usize _tail = 0;
+    CACHE_ALIGNED volatile usize _batch_tail = 0;
+    CACHE_ALIGNED usize _batch_history;
+
+    CACHE_ALIGNED
+    // buffer
+    T* _buffer;
+
+    // constants
     usize _SIZE;
     usize _BATCH_SIZE;
     usize _BATCH_INCREMENT;
     u32 _WAIT_TIME;
-    std::optional<T> *_buffer;
-
-    CACHE_ALIGNED usize _head = 0;
-    CACHE_ALIGNED usize _batch_head = 0;
-
-    CACHE_ALIGNED usize _tail = 0;
-    CACHE_ALIGNED usize _batch_tail = 0;
-    CACHE_ALIGNED usize _batch_history;
 
     bool _backtrack_deq() {
         if (_batch_history < _BATCH_SIZE) {
@@ -71,7 +75,7 @@ class b_queue final : public Queue<T> {
         auto batch_size = _batch_history;
         _batch_tail = mod(_tail + batch_size - 1);
 
-        while (!_buffer[_batch_tail]) {
+        while (_buffer[_batch_tail] == EMPTY) {
             busy_wait(_WAIT_TIME);
             if (batch_size > 1) {
                 batch_size = batch_size >> 1;
@@ -85,4 +89,5 @@ class b_queue final : public Queue<T> {
 
     usize mod(const usize index) const { return index % _SIZE; }
 };
+
 }  // namespace queues

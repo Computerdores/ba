@@ -21,7 +21,8 @@ namespace queues {
  *   - enqueue method increments traffic_full when batching even-though paper pseudocode doesn't because dynamic
  *     resizing would otherwise not work
  */
-class equeue final : public Queue<u64> {
+template <typename T = u64, T EMPTY = 0>
+class equeue final : public Queue<T> {
     // TODO: switch to optionals?
   public:
     equeue() = delete;
@@ -39,19 +40,18 @@ class equeue final : public Queue<u64> {
           _WAIT_TIME(wait_time) {
         _info.head = 0;
         _info.size = size;
-        // TODO: test whether cache line alignment makes a difference here
-        _data = static_cast<std::uint64_t *>(calloc(_MAX_SIZE, sizeof(u64)));
+        _data = new T[_MAX_SIZE](EMPTY);
 
         // paper: "[_MAX_BATCH_SIZE] is set by default to one-quarter of the queue size"
         _MAX_BATCH_SIZE = max_batch_size != -1 ? max_batch_size : size >> 2;
         _MIN_BATCH_SIZE = min_batch_size;
     }
 
-    bool enqueue(const u64 value) override {
+    bool enqueue(const T value) override {
         assert(value != 0);
         if (_info.head == _batch_head) {
             if (!_enqueue_detect_batching_size()) {
-                ++_traffic_full;  // NOTE: this line differs from the paper
+                _traffic_full = _traffic_full + 1;  // NOTE: this line differs from the paper
                 return false;
             }
         }
@@ -61,7 +61,8 @@ class equeue final : public Queue<u64> {
             if (_traffic_full - _traffic_empty >= _ENLARGE_THRESHOLD &&
                 _info.size * 2 <= _MAX_SIZE) {  // NOTE: this line differs from the paper
                 _info.size *= 2;
-                _traffic_full = _traffic_empty = 0;
+                _traffic_full = 0;
+                _traffic_empty = 0;
             } else {
                 _info.head = 0;
             }
@@ -70,9 +71,9 @@ class equeue final : public Queue<u64> {
         return true;
     }
 
-    std::optional<u64> dequeue() override {
-        if (_data[_tail] == 0) {
-            _traffic_empty++;
+    std::optional<T> dequeue() override {
+        if (_data[_tail] == EMPTY) {
+            _traffic_empty = _traffic_empty + 1;
             return std::nullopt;
         }
         const auto temp_idx = _tail;
@@ -96,7 +97,8 @@ class equeue final : public Queue<u64> {
                 if (info_temp.head <= info_temp.size / 2 && info_temp.size / 2 >= _MIN_SIZE) {
                     info_temp_new.size = info_temp.size / 2;
                     if (__sync_bool_compare_and_swap(&_info_data, info_temp_data, info_temp_new_data)) {
-                        _traffic_empty = _traffic_full = 0;
+                        _traffic_empty = 0;
+                        _traffic_full = 0;
                     } else {
                         goto attempt_cas;
                     }
@@ -106,30 +108,32 @@ class equeue final : public Queue<u64> {
         }
 
         auto temp_val = _data[temp_idx];
-        _data[temp_idx] = 0;
+        _data[temp_idx] = EMPTY;
         return temp_val;
     }
 
   private:
     struct __attribute__((packed)) cas_info {
         u32 head;
-        u32 size;
+        volatile u32 size;
     };
     static_assert(sizeof(cas_info) == sizeof(u64));
 
     union {
-        cas_info _info;
-        u64 _info_data;
+        CACHE_ALIGNED cas_info _info;
+        CACHE_ALIGNED u64 _info_data;
     };
 
     CACHE_ALIGNED u32 _batch_head = 0;
     CACHE_ALIGNED u32 _tail = 0;
-    CACHE_ALIGNED u64 _traffic_full = 0;
-    CACHE_ALIGNED u64 _traffic_empty = 0;
-    CACHE_ALIGNED u64 *_data;
+    CACHE_ALIGNED volatile u64 _traffic_full = 0;
+    CACHE_ALIGNED volatile u64 _traffic_empty = 0;
+
+    // buffer
+    CACHE_ALIGNED
+    volatile T *_data;
 
     // config values
-    CACHE_ALIGNED
     u64 _MIN_SIZE;
     u64 _MAX_SIZE;
     u64 _ENLARGE_THRESHOLD;
@@ -143,7 +147,7 @@ class equeue final : public Queue<u64> {
         //       This implementation is closer to the ref impl.
         auto size = _MAX_BATCH_SIZE;
         auto head = _mod(_info.head + size);
-        while (_data[head]) {
+        while (_data[head] != EMPTY) {
             busy_wait(_WAIT_TIME);
             if (size > _MIN_BATCH_SIZE) {
                 size = size >> 1;

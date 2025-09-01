@@ -113,7 +113,7 @@ int main(const int argc, char** argv) {
         return EXIT_SUCCESS;
     }
 
-    using QueueVariant = std::variant<std::monostate, queues::b_queue<>, queues::equeue, queues::ff_queue<>,
+    using QueueVariant = std::variant<std::monostate, queues::b_queue<>, queues::equeue<>, queues::ff_queue<>,
                                       queues::mc_ring_buffer<>, queues::fast_forward<>, queues::lamport<>>;
 
     QueueVariant queue;
@@ -124,7 +124,7 @@ int main(const int argc, char** argv) {
             break;
         case queue_type::EQueue:
             std::println("Testing E-Queue.");
-            queue.emplace<queues::equeue>(4096, 256, 16384, 50);
+            queue.emplace<queues::equeue<>>(4096, 256, 16384, 50);
             break;
         case queue_type::FastFlowQueue:
             std::println("Testing FastFlow Queue.");
