@@ -86,12 +86,17 @@ int main(const int argc, char** argv) {
     benchmark bm;
     queue_type qt;
     std::string filename;
+    bool jitter_value = true;
+    bool measure_failed_value = true;
 
-    options.add_options()                                                                              //
-        ("b,benchmark", "Which benchmark to use (basic|bursty)", cxxopts::value(bm))                   //
-        ("q,queue", "Which queue to benchmark (bq|eq|fflwq|mcrb|ffwdq|lprt)", cxxopts::value(qt))      //
-        ("o,output", "Where to store the result data.", cxxopts::value(filename)->default_value("-"))  //
-        ("h,help", "Print this help text.");
+    options.add_options()                                                                                                      //
+        ("h,help", "Print this help text.")                                                                                    //
+        ("b,benchmark", "Which benchmark to use (basic|bursty)", cxxopts::value(bm))                                           //
+        ("q,queue", "Which queue to benchmark (bq|eq|fflwq|mcrb|ffwdq|lprt)", cxxopts::value(qt))                              //
+        ("o,output", "Where to store the result data.", cxxopts::value(filename)->default_value("-"))                          //
+        ("j,jitter", "Whether to enable jitter for the transmit side.", cxxopts::value(jitter_value)->default_value("false"))  //
+        ("mf,measure-failed", "Whether to include failed operations in the time measurements",
+         cxxopts::value(measure_failed_value)->default_value("false"));
 
     auto result = options.parse(argc, argv);
     REQUIRE_ARG("benchmark");
@@ -147,19 +152,25 @@ int main(const int argc, char** argv) {
             return EXIT_FAILURE;
     }
 
+    using BoolVariant = std::variant<std::true_type, std::false_type>;
+    BoolVariant jitter = jitter_value ? BoolVariant {std::true_type {}} : BoolVariant {std::false_type {}};
+    BoolVariant measure_failed = measure_failed_value ? BoolVariant {std::true_type {}} : BoolVariant {std::false_type {}};
+
     return std::visit(
-        [&]<typename Q>(Q& q) -> int {
+        [&]<typename Q, typename J, typename MF>(Q& q, J, MF) -> int {
             if constexpr (std::is_same_v<Q, std::monostate>)
                 return EXIT_FAILURE;
             else {
+                std::cout << "Running with jitter: " << J::value << ", measure-failed: " << MF::value << std::endl;
                 if (bm == benchmark::basic) {
-                    Runner<Q, SimplePair<measurer::FineGrained>,
-                           RXTXPair<waiter::ConstantWait, waiter::ConstantRate<true>>>
+                    Runner<Q, SimplePair<measurer::FineGrained>, RXTXPair<waiter::ConstantWait, waiter::ConstantRate<J::value>>,
+                           MF::value>
                         r(&q, params);
                     r.run();
                     r.write_results(out);
                 } else {
-                    Runner<Q, SimplePair<measurer::FineGrained>, RXTXPair<waiter::ConstantWait, waiter::Bursty<true>>>
+                    Runner<Q, SimplePair<measurer::FineGrained>, RXTXPair<waiter::ConstantWait, waiter::Bursty<J::value>>,
+                           MF::value>
                         r(&q, params);
                     r.run();
                     r.write_results(out);
@@ -167,5 +178,5 @@ int main(const int argc, char** argv) {
                 return EXIT_SUCCESS;
             }
         },
-        queue);
+        queue, jitter, measure_failed);
 }
