@@ -2,9 +2,19 @@ cmake_minimum_required(VERSION 3.27.0)
 set(CMAKE_CXX_STANDARD 23)
 project(queue_benchmarks)
 
+include(FetchContent)
+FetchContent_Declare(
+        tomlplusplus
+        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+        GIT_TAG v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
 include_directories(BEFORE SYSTEM ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(benchmarks main.cpp)
+
+target_link_libraries(benchmarks PRIVATE tomlplusplus::tomlplusplus)
 
 add_executable(test_tsc_freq hw_tests/test_tsc_freq.cpp)
 add_executable(test_mc_sync hw_tests/test_mc_sync.cpp)

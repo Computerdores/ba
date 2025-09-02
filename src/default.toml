@@ -1,0 +1,31 @@
+msg_count = 1000000
+rx_rate = 1000000
+tx_rate = 1000000
+tx_burst_size = 2048
+
+[BQueue]
+size = 16384
+batch_size = 8192
+batch_increment = 64
+wait_time = 50
+
+[EQueue]
+initial_size = 4096
+min_size = 256
+max_size = 16384
+wait_time = 50
+
+[FastFlow]
+bucket_size = 1024
+max_bucket_count = 16
+
+[MCRingBuffer]
+size = 16384
+batch_size = 5000
+
+[FastForward]
+size = 16384
+adjust_slip_interval = 1000000 # val of msg_count - executes adjust_slip only once
+
+[Lamport]
+size = 16384
