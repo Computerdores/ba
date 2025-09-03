@@ -5,9 +5,9 @@ tx_burst_size = 2048
 
 [BQueue]
 size = 16384
-batch_size = 8192
-batch_increment = 64
-wait_time = 50
+batch_size = 1024       # size / 16         (see original BQueue implementation)
+batch_increment = 512   # batch_size / 2    (see original BQueue implementation)
+wait_time = 358         # 1002.4 cycles     (see original BQueue implementation: 1000 cycles)
 
 [EQueue]
 initial_size = 4096

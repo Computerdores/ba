@@ -10,7 +10,7 @@ echo "run name: $run_name"
 
 set -e
 
-cmake --build build/
+cmake --build build/ -- -j 8
 
 sudo cpupower frequency-set -f "2.8G" >/dev/null
 

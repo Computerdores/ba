@@ -4,10 +4,10 @@ tx_rate = 1000000
 tx_burst_size = 16384
 
 [BQueue]
-size = 65536
-batch_size = 8192
-batch_increment = 64
-wait_time = 50
+size = 65536            # (presumed) Queue Size from EQueue paper
+batch_size = 4096       # size / 16         (see original BQueue implementation)
+batch_increment = 2048  # batch_size / 2    (see original BQueue implementation)
+wait_time = 358         # 1002.4 cycles     (see original BQueue implementation)
 
 [EQueue]
 initial_size = 4096

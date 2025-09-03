@@ -1,0 +1,3 @@
+- certain values here are hardcoded to a hardware specific value, these may include:
+  - wait times in `*.toml`
+  - adjustment factor for `get_tsc_timestamp`
