@@ -141,7 +141,7 @@ int main(const int argc, char** argv) {
     bench_params.tx.burst_size = config["tx_burst_size"].value_or(2048);
 
     // Run specified benchmark
-    using QueueVariant = std::variant<std::monostate, queues::b_queue<>, queues::equeue<>, queues::ff_queue<>,
+    using QueueVariant = std::variant<std::monostate, queues::b_queue<>, queues::equeue<>, queues::ff_queue,
                                       queues::mc_ring_buffer<>, queues::fast_forward<>, queues::lamport<>>;
 
     QueueVariant queue;
@@ -171,7 +171,7 @@ int main(const int argc, char** argv) {
             auto bucket_size = *params["bucket_size"].value<size_t>(),
                  max_bucket_count = *params["max_bucket_count"].value<size_t>();
             std::println("Testing FastFlow Queue. (bucket_size = {}, max_bucket_count = {})", bucket_size, max_bucket_count);
-            queue.emplace<queues::ff_queue<>>(bucket_size, max_bucket_count);
+            queue.emplace<queues::ff_queue>(bucket_size, max_bucket_count);
             break;
         }
         case queue_type::MCRingBuffer: {
