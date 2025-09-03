@@ -15,6 +15,7 @@ namespace queues {
 /**
  * State of this implementation:
  * - implements equeue with batching
+ * - doesn't implement LT-CAS since it is demonstrated but not used in the reference implementation
  * - divergences from paper:
  *   - enqueue ensures that _info.size doesn't exceed the buffer size
  *   - _enqueue_detect_batching_size differs because the paper and ref impl differ

@@ -9,6 +9,7 @@ namespace queues {
 /**
  * State of this implementation:
  * - complete implementation of B-Queue with self-adaptive backtracking
+ * - batching is implemented for producer and consumer
  * - enqueue and dequeue differ from the paper in order to fix two bugs
  */
 template <typename T = u64, T EMPTY = 0>
