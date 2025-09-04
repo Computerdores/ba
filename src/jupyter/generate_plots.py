@@ -14,7 +14,7 @@ RESULTS_DIR = Path(".")
 ERROR_BARS = False
 
 def get_result(benchmark: str, queue: str, preset: str, jitter: bool, all: bool) -> tuple[float, float]:
-    filename = f"flugzeug_{benchmark}_{queue}_{preset}_{'j' if jitter else 'nj'}_{'all' if all else 'na'}.csv"
+    filename = f"data_{preset}_{benchmark}_{queue}_j{str(jitter).lower()}_mf{str(all).lower()}.csv"
     df = load_results(RESULTS_DIR / filename)
     # TODO: determine mean and stddev over multiple runs
     mean = df[["RX_TIME", "TX_TIME"]].mean()

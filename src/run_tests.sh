@@ -5,6 +5,10 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+ITERATIONS=100
+CPUPOWER="cpupower"
+DRY=true
+
 run_name="$(git rev-parse --short HEAD)_$1"
 echo "run name: $run_name"
 
@@ -12,13 +16,23 @@ set -e
 
 cmake --build build/ -- -j 8
 
-sudo cpupower frequency-set -f "2.8G" >/dev/null
+sudo "$CPUPOWER" frequency-set -f "2.8G" >/dev/null
 
 for benchmark in basic bursty; do
-    echo "Now running $benchmark benchmarks"
     for queue in bq eq mcrb fflwq ffwdq lprt; do
-        build/benchmarks -q "$queue" -b "$benchmark" -o "flugzeug_${benchmark}_${queue}_${run_name}.csv"
+        echo "Now running $benchmark $queue"
+        for jitter in true false; do
+            for measure_failed in true false; do
+                for i in $(seq 1 $ITERATIONS); do
+                    if $DRY; then
+                        echo -e "Would have run with: $run_name $benchmark $queue j:$jitter mf:$measure_failed i:$i"
+                    else
+                        build/benchmarks -q "$queue" -b "$benchmark" -o "data_${run_name}_${benchmark}_${queue}_j${jitter}_mf${measure_failed}_${i}.csv" --jitter=$jitter --measure-failed=$measure_failed
+                    fi
+                done
+            done
+        done
     done
 done
 
-sudo cpupower frequency-set -g powersave >/dev/null
+sudo "$CPUPOWER" frequency-set -g powersave >/dev/null
