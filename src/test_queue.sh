@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
 ITERATIONS=50
+CPUPOWER="cpupower"
 
 set -euo pipefail
 
 cmake --build build/
 
-sudo cpupower frequency-set -f "2.8G" >/dev/null
+sudo "$CPUPOWER" frequency-set -f "2.8G" >/dev/null
 
 datafile=$(mktemp)
 trap 'rm -f "$datafile"' EXIT
@@ -31,4 +32,4 @@ done
 echo "RX Mean: $(LC_ALL=C awk "BEGIN {print $total_rx/$ITERATIONS}")"
 echo "TX Mean: $(LC_ALL=C awk "BEGIN {print $total_tx/$ITERATIONS}")"
 
-sudo cpupower frequency-set -g powersave >/dev/null
+sudo "$CPUPOWER" frequency-set -g powersave >/dev/null
