@@ -1,28 +1,38 @@
 {
     inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/release-24.11";
+        nixpkgs.url = "github:NixOS/nixpkgs/release-25.05";
         flake-utils.url = "github:numtide/flake-utils";
     };
 
     outputs = { self, nixpkgs, flake-utils}: flake-utils.lib.eachDefaultSystem(system:
         let
             pkgs = import nixpkgs { inherit system; };
-            nativeBuildDeps = with pkgs; [
-                cmake
-                automake
-                gcc14
-                pkg-config
-                cxxopts
-            ];
-            buildDeps = with pkgs; [];
+
+            tex = pkgs.texlive.combine {
+                inherit (pkgs.texlive)
+                    scheme-basic
+                    latexmk
+                    biber
+                    biblatex
+                    luatex;
+            };
         in {
             devShells.default = pkgs.mkShell {
                 hardeningDisable = [ "all" ];
-                nativeBuildInputs = nativeBuildDeps;
+                nativeBuildInputs = with pkgs; [
+                    cmake
+                    automake
+                    gcc14
+                    pkg-config
+                    cxxopts
+                ];
 
-                buildInputs = buildDeps ++ (with pkgs; [
+                buildInputs = (with pkgs; [
                     python3
                     unzip
+
+                    tex
+                    tex-fmt
                 ]) ++ (with pkgs.python3Packages; [
                     pandas
                     matplotlib
