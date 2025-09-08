@@ -18,8 +18,6 @@
 
 # Queue Candidates
 
-- FastForward
-- MCRingBuffer
 
 # Infos
 
