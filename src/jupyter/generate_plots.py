@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -9,7 +11,8 @@ from pathlib import Path
 
 from lib import load_results
 
-RESULTS_DIR = Path(".")
+QUEUES = ["bq", "eq", "mcrb", "fflwq", "ffwdq", "lprt"]
+RESULTS_DIR = Path("data/")
 
 ERROR_BARS = False
 
@@ -61,5 +64,8 @@ def gen_plot_quad(benchmark: str, queues: list[str], preset: str):
             print(f"{benchmark} {jitter} {all} - done")
 
 if __name__ == "__main__":
-    gen_plot_quad("basic", ["bq", "eq", "fflwq", "ffwdq", "lprt"], "3189a2f_2025-09-04")
-    gen_plot_quad("bursty", ["bq", "eq", "fflwq", "ffwdq", "lprt"], "3189a2f_2025-09-04")
+    if not len(sys.argv) > 1:
+        print(f"Usage: {sys.argv[0]} <preset>")
+    else:
+        for benchmark in ["basic", "bursty"]:
+            gen_plot_quad(benchmark, QUEUES, sys.argv[1])

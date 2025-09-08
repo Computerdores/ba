@@ -5,8 +5,10 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-ITERATIONS=100
 CPUPOWER="cpupower"
+
+ITERATIONS=100
+CONFIG=""
 DRY=true
 
 run_name="$(git rev-parse --short HEAD)_$1"
@@ -27,7 +29,7 @@ for benchmark in basic bursty; do
                     if $DRY; then
                         echo -e "Would have run with: $run_name $benchmark $queue j:$jitter mf:$measure_failed i:$i"
                     else
-                        build/benchmarks -q "$queue" -b "$benchmark" -o "data_${run_name}_${benchmark}_${queue}_j${jitter}_mf${measure_failed}_${i}.csv" --jitter=$jitter --measure-failed=$measure_failed
+                        build/benchmarks -c "$CONFIG" -q "$queue" -b "$benchmark" -o "data_${run_name}_${benchmark}_${queue}_j${jitter}_mf${measure_failed}_${i}.csv" --jitter=$jitter --measure-failed=$measure_failed
                     fi
                 done
             done
