@@ -5,7 +5,7 @@ default: build
 build:
 	mkdir -p build
 	find . -mindepth 1 -maxdepth 1 -not -path './build' -not -path './.git' -exec cp -r {} build/ \; # copy everything except for .git/, build/ into build/
-	cd build && latexmk main.tex; exit_code=$$?; chown --reference=. -R .; exit $$exit_code
+	cd build; latexmk main.tex
 
 open: build
 	xdg-open build/main.pdf
