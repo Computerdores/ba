@@ -14,4 +14,4 @@ clean:
 	rm -rf build/*
 
 format:
-	tex-fmt $(shell find . -path ./build -quit -o -name '*.tex')
+	tex-fmt $(shell find . -not -path './build/*' -a -name '*.tex')
