@@ -5,82 +5,13 @@
 
 \begin{document}
 
-\section{framework}
-\subsection{Motivation}
-\begin{itemize}
-    \item Comparing results of different papers is diffcult
-    \item Often no / only partial source code for the benchmarks
-    \item I make everything available (\todo{embed archive of repo})
-    \item benchmarks differ a lot between papers
-
-    \item should be easy to extend (another queue, different enqueue behaviour, etc.)
-    \item want to avoid duplicating the entire benchmark for every queue/variation in a part of the benchmark
-    \item EQueue: parts of queue impl in benchmark code => full separation
-    \item don't want to give up on the compiler opt advantage of doing so
-\end{itemize}
-
-\subsection{Architecture}
-\begin{itemize}
-    \item Runner class as a skeleton benchmark
-    \item populated with templated components
-    \item components defined in headers
-    \item => get inlined (verified in Ghidra)
-    \item => almost identical result of compilation
-    \item => no perf diff
-    \item (insert runner class or pseudo code of it)
-    \item component types:
-    \item waiter
-        \begin{itemize}
-            \item causes a delay between operation
-            \item used to emulate different enqueue/dequeue patterns
-        \end{itemize}
-    \item measurer
-        \begin{itemize}
-            \item measures time between start and end of operation
-            \item can be used to implement differnt ways of measuring time
-            \item can also be varied to measure other aspects (cnt failed ops, cache stats, etc.)
-        \end{itemize}
-    \item queue
-        \begin{itemize}
-            \item the data structure to be benchmarked
-            \item should implement consistent interface
-            \item non-blocking ops
-        \end{itemize}
-\end{itemize}
-
-\subsection{Components}
-\subsubsection{Waiters}
-\begin{itemize}
-    \item Constant Wait
-        \begin{itemize}
-            \item waits a constant amount of time between operations
-            \item used to emulate operations (of input / output) that take a very consistent amount of time
-        \end{itemize}
-    \item Constant Rate
-        \begin{itemize}
-            \item tries to maintain a constant time difference between starts of operations
-            \item used to emulate input streams with a constant rate
-        \end{itemize}
-    \item Bursty
-        \begin{itemize}
-            \item defers waits in order to have blocks of BURST\_SIZE elements with no waits
-            \item used to emulate enqueue / dequeue behaviour that is bursty
-            \item typical for network applications
-        \end{itemize}
-    \item Jitter can be enabled; adds pseudo-random variance to wait times (also present in FFWDQ paper)
-\end{itemize}
-
-\subsubsection{Measurers}
-\begin{itemize}
-    \item can vary timestamp source \todo{add class for that}
-    \item can vary whether failed operations reset the start timestamp \todo{move to measurer class}
-    \item could measure cache stats for the duration of the operation
-\end{itemize}
+\input{framework}
 
 \section{queue implementations}
 \begin{itemize}
     \item equeue: traffic counter mismatch between paper and impl -> compromise?
 \end{itemize}
+\todo{bullet points}
 
 \section{test setup}
 \begin{itemize}
@@ -89,5 +20,6 @@
 \end{itemize}
 
 \section{results}
+\todo{bullet points}
 
 \end{document}
