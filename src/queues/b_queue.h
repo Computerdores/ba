@@ -14,8 +14,6 @@ namespace queues {
  */
 template <typename T = u64, T EMPTY = 0>
 class b_queue final : public Queue<T> {
-    // TODO: investigate whether the buffer being optionals has a significant performance impact,
-    //       because that could introduce bias
   public:
     explicit b_queue(const usize size, const usize batch_size, const usize batch_increment, const u32 wait_time)
         : _SIZE(size),
