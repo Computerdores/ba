@@ -34,19 +34,68 @@
 \end{itemize}
 
 \subsection{Benchmarks}
+\todo{cycles vs. ns}
 \begin{itemize}
-    \item Benchmark Params (Queue params, msg count, etc.)
-    \item cycles vs. ns
+    \item will start by explaining what parameters there are per queue
+    \item will then for each scenario explain which values were chosen and why + config file for it
 \end{itemize}
+
+\paragraph{BQueue}
+\begin{itemize}
+    \item \texttt{size} - Size of the queue
+    \item \texttt{batch\_size} - BQueue does Prod/Con Batching so it doesn't have to check everytime to avoid
+        running into the producer/consumer
+    \item \texttt{batch\_increment} - BQueue dynamically adjusts the dequeue batch size, this value
+        determines how much larger the candidate for the next batch size should be than the last batch size
+    \item \texttt{wait\_time} - when determining the new dequeue batch size, bqueue waits a certain amount of
+        time when a new candidate is chosen
+\end{itemize}
+
+\paragraph{EQueue}
+\begin{itemize}
+    \item \texttt{min\_size}, \texttt{max\_size} - EQueue dynamically adjusts the size of the queue to
+        optimise cache access times, these values determine the bounds of that
+    \item \texttt{initial\_size} - The initial size of the Queue before dynamic adjustments
+    \item \texttt{wait\_time} - When determining the new enqueue batch size, equeue waits a certain amount of
+        time when a new candidate is chosen
+\end{itemize}
+
+\paragraph{FastFlow Queue}
+\begin{itemize}
+    \item FFLWQ uses a linked list of buffers as queue \todo{should be true, but double check for details}
+    \item \texttt{bucket\_size} - Size of the buffers (``buckets'')
+    \item \texttt{max\_bucket\_count} - The maximum number of buckets ffq will allocate
+\end{itemize}
+
+\paragraph{MCRingBuffer}
+\begin{itemize}
+    \item \texttt{size} - size of the queue
+    \item \texttt{batch\_size} - MCRB does Con/prod batching, this is the size of those batches
+\end{itemize}
+
+\paragraph{FastForward Queue}
+\begin{itemize}
+    \item \texttt{size} - size of the queue
+    \item \texttt{adjust\_slip\_interval} - FFWDQ tries to delay dequeues via waiting so that over one
+        cacheline of data is in the queue (the slip), this determines every how many dequeues this slip is
+        reestablished \todo{check whether the slip is currently set correctly - because of interaction with
+        bursty traffic}
+\end{itemize}
+
+\paragraph{Lamport Queue}
+\begin{itemize}
+    \item only \texttt{size} param for queue size
+\end{itemize}
+
 \subsubsection{Bursty 65k}
 \begin{itemize}
+    \item \texttt{equeue\_repro.toml}
     \item based on EQueue benchmark
     \item Message Count $1,000,000$
-    \item Enqueue / Dequeue Rate $1,000,000$
+    \item Enqueue / Dequeue Rate $1,000,000$ \todo{why this number?}
     \item => 1Mpps for 1 sec
-    \item enqueue burst size of $16,384$
-          (should according to EQueue paper show large difference;
-           shouldn't run into possible weird issues around half queue size)
+    \item enqueue burst size of $16,384$ (should according to EQueue paper show large difference; shouldn't
+        run into possible weird issues around half queue size)
     \item dequeue constant wait
     \item Queue Size $65,536$
         \begin{itemize}
@@ -55,4 +104,74 @@
             \item keeping max queue size same for all queue should make for comparable results
         \end{itemize}
 \end{itemize}
+
+\todo{put all of these toml code blocks into a single figure instead?}
+\begin{minted}{toml}
+[BQueue]
+size = 65536
+batch_size = 4096
+batch_increment = 2048
+wait_time = 358
+\end{minted}
+\paragraph{BQueue}
+\begin{itemize}
+    \item \texttt{batch\_size} set to a 16th of the queue size as specified by BQueue source code
+    \item \texttt{batch\_increment} set to half the \texttt{batch\_size} as specified by BQueue source code
+    \item BQueue uses 1000 Cycles by default, \SI{358}{\nano\second} is 1000 Cycles on my hardware
+\end{itemize}
+
+\begin{minted}{toml}
+[EQueue]
+initial_size = 8192
+min_size = 256
+max_size = 65536
+wait_time = 358
+\end{minted}
+\paragraph{EQueue}
+\begin{itemize}
+    \item \texttt{initial\_size} wasn't specified, tuned it
+    \item \texttt{min\_size}, \texttt{max\_size} explicitly specified in EQueue paper
+    \item \texttt{wait\_time} specified in paper and source code as 1000 Cycles, \SI{358}{\nano\second} is 1000 Cycles on my hardware
+\end{itemize}
+
+\begin{minted}{toml}
+[FastFlow]
+bucket_size = 4096
+max_bucket_count = 16
+\end{minted}
+\paragraph{FastFlow Queue}
+\begin{itemize}
+    \item \texttt{bucket\_size} wasn't specified in paper, tuned
+    \item \texttt{max\_bucket\_count} selected to match max queue size 0f 65ki
+\end{itemize}
+
+\begin{minted}{toml}
+[MCRingBuffer]
+size = 65536
+batch_size = 8000
+\end{minted}
+\paragraph{MCRingBuffer}
+\begin{itemize}
+    \item \texttt{batch\_size} tuned - needs to be divisor of message count, will deadlock otherwise
+\end{itemize}
+
+\begin{minted}{toml}
+[FastForward]
+size = 65536
+adjust_slip_interval = 64
+\end{minted}
+\paragraph{FastForward Queue}
+\begin{itemize}
+    \item \texttt{adjust\_slip\_interval} taken from paper and verfied by tuning
+\end{itemize}
+
+\begin{minted}{toml}
+[Lamport]
+size = 65536
+\end{minted}
+\paragraph{Lamport Queue}
+\begin{itemize}
+    \item no params but size
+\end{itemize}
+
 \todo{bullet points}

@@ -1,6 +1,7 @@
 \section{Queue Implementations}
 \begin{itemize}
-    \item all of the queues needed to be either ported to cpp, adapted to share the same interface, or reimplemented because no source code was available
+    \item all of the queues needed to be either ported to cpp, adapted to share the same interface, or
+        reimplemented because no source code was available
     \item this section is about the considerations that were made in the process
 \end{itemize}
 
@@ -13,16 +14,19 @@
     \item two small divergences from the pseudo-code in the paper are present to fix bugs
     \item one check added to prevent tail from overtaking batch tail
     \item one check added to prevent head from overtaking tail in certain circumstances
-          \footnote{Not necessary for benchmarks anymore; left in because more robust and there seemed to be no harm in it}
+        \footnote{Not necessary for benchmarks anymore; left in because more robust and there seemed to be no
+        harm in it}
 \end{itemize}
 
 \subsection{EQueue}
 \begin{itemize}
-    \item ported to cpp with small differences because there were differences between the released source code and the paper
+    \item ported to cpp with small differences because there were differences between the released source
+        code and the paper
     \item haven't gotten response to prior email
     \item implementation in released source code is also not entirely self-contained
     \item I tried to reconcile the differences apropriately
-    \item added check that used size doesn't exceed buffer size (present in the released implementation, but not in the paper)
+    \item added check that used size doesn't exceed buffer size (present in the released implementation, but
+        not in the paper)
     \item \texttt{\_enqueue\_detect\_batching\_size} differs between paper and their impl, I chose closer to their impl.
     \item \texttt{traffic\_empty} should be increased in \texttt{dequeue} according to paper
         \begin{itemize}
@@ -30,12 +34,13 @@
             \item I did inside dequeue method to have self-contained impl
         \end{itemize}
     \item paper doesn't increase \texttt{traffic\_full} in batched version of \texttt{enqueue}
-          \begin{itemize}
-              \item this doesn't make any sense, because it breaks the core mechanism of the queue
-              \item their code does increase it, but outside of queue impl
-              \item I once again did in in the queue impl to stay self-contained
-          \end{itemize}
-    \item proposed LT-CAS is not implemented since their source code only demonstrates it, but doesn't use it in the queue
+        \begin{itemize}
+            \item this doesn't make any sense, because it breaks the core mechanism of the queue
+            \item their code does increase it, but outside of queue impl
+            \item I once again did in in the queue impl to stay self-contained
+        \end{itemize}
+    \item proposed LT-CAS is not implemented since their source code only demonstrates it, but doesn't use it
+        in the queue
 \end{itemize}
 
 \subsection{MCRingBuffer}
@@ -44,7 +49,8 @@
     \item reached out to authors but no answer\todo{still up to date?}
     \item padding between shared, consumer local, producer local, and read-only variables
     \item volatile markings for read, write, and buffer variables
-    \item paper specifies busy wait when enqueue/dequeue don't immediately succeed; to conform with interface this was changed to return failure instead
+    \item paper specifies busy wait when enqueue/dequeue don't immediately succeed; to conform with interface
+        this was changed to return failure instead
     \item deadlocks under certain conditions (possible mitigations outlined in bqueue paper, not pursued here)
 \end{itemize}
 
@@ -60,8 +66,10 @@
     \item no publicly available source code
     \item talked to author; only had incomplete implementation
     \item padding between head, tail, and buffer ptr to put them on different cache lines
-    \item volatile references to allow compiler to optimise accesses to head from enqueue and tail from dequeue normally, but correctly see accesses to tail from enqueue and head from dequeue as volatile
-    \item implementation of distance function was not specified in paper, difference between head and tail used (head will be accessed from dequeue; otherwise only from enqueue)
+    \item volatile references to allow compiler to optimise accesses to head from enqueue and tail from
+        dequeue normally, but correctly see accesses to tail from enqueue and head from dequeue as volatile
+    \item implementation of distance function was not specified in paper, difference between head and tail
+        used (head will be accessed from dequeue; otherwise only from enqueue)
 \end{itemize}
 
 \subsection{Lamport Queue}

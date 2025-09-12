@@ -11,7 +11,15 @@
             tex = pkgs.texlive.combine {
                 inherit (pkgs.texlive)
                     scheme-basic
+
                     todonotes
+
+                    lineno
+                    upquote
+                    minted
+
+                    siunitx
+
                     latexmk
                     biber
                     biblatex
