@@ -1,8 +1,8 @@
 \section{Introduction}
 \begin{itemize}
     \item many different queue implementations
-    \item each paper benchmarks differently
-    \item comes to conclusion that their queue is the best
+    \item each paper benchmarks differently, hard to compare
+    \item each comes to conclusion that their new queue is the best
     \item wasn't able to find any repro papers
     \item papers rarely provide source code
     \item even then, source code often incomplete or gone missing
@@ -16,14 +16,14 @@
     \item I aim to test the performance of six queues: BQ, EQ, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
     \item I plan to do so in a manner most similar to how EQ did as they compare the most different
         queues out of the papers of these queues
-    \item Lamport not compared in EQ paper but in FFWDQ paper
+    \item (Lamport not compared in EQ paper but in FFWDQ paper, included because easy to implement)
     \item Further I aim to make my results as replicable as possible, by:
         \begin{itemize}
             \item releasing the full source code, both hosted online and embedded into the pdf
-                (latter to prevent missing code in the future)
+                (latter to prevent missing code in the future)\todo{embed archive of repo}
             \item providing, and explaining my choice of, all parameters of the tests and queues
             \item providing, and explaining the choices made in, all implementations of the queues
         \end{itemize}
-    \item I also want to encourage future authors to make their work more replicable and comparable,
-        by making my benchmark easy to extend \todo{reword / expand upon}
+    \item help future authors make their work more replicable and comparable by making my code easy to extend
+    \item should allow for new queues or benchmark variations with minimal effort
 \end{itemize}

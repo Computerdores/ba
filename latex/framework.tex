@@ -1,20 +1,10 @@
 \section{Framework}
-\subsection{Motivation}
+\subsection{Architecture}
 \begin{itemize}
-    \item Comparing results of different papers is diffcult
-    \item Often no / only partial source code for the benchmarks
-    \item I make everything available (\todo{embed archive of repo})
-    \item benchmarks differ a lot between papers
-
-    \item should be easy to extend (another queue, different enqueue behaviour, etc.)
-    \item should be easy to reproduce
     \item want to avoid duplicating the entire benchmark for every queue/variation in a part of the benchmark
     \item don't want to give up on the compiler opt advantage of doing so
     \item EQueue: parts of queue impl in benchmark code => I want full separation
-\end{itemize}
 
-\subsection{Architecture}
-\begin{itemize}
     \item Runner class as a skeleton benchmark
     \item populated with templated components
     \item components defined in headers
