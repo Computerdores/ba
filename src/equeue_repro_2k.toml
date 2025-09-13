@@ -1,0 +1,31 @@
+msg_count = 1000000
+rx_rate = 1000000
+tx_rate = 1000000
+tx_burst_size = 2048
+
+[BQueue]
+size = 65536            # (presumed) Queue Size from EQueue paper
+batch_size = 4096       # size / 16         (see original BQueue implementation)
+batch_increment = 2048  # batch_size / 2    (see original BQueue implementation)
+wait_time = 358         # 1002.4 cycles     (see original BQueue implementation: 1000 Cycles)
+
+[EQueue]
+initial_size = 8192     # not specified in paper -> tuned
+min_size = 256          # from equeue paper
+max_size = 65536        # from equeue paper
+wait_time = 358         # 1002.4 cycles     (see EQueue paper / original implementation: 1000 Cycles)
+
+[FastFlow]
+bucket_size = 4096      # not specified in paper -> tuned
+max_bucket_count = 16   # selected for max queue size of 65536
+
+[MCRingBuffer]
+size = 65536            # (presumed) Queue size from EQueue paper
+batch_size = 8000       # tuned
+
+[FastForward]
+size = 65536            # (presumed) Queue size from EQueue paper
+adjust_slip_interval = 64   # from paper
+
+[Lamport]
+size = 65536            # (presumed) Queue size from EQueue paper
