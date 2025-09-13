@@ -105,28 +105,48 @@
         \end{itemize}
 \end{itemize}
 
-\todo{put all of these toml code blocks into a single figure instead?}
-\begin{minted}{toml}
-[BQueue]
-size = 65536
-batch_size = 4096
-batch_increment = 2048
-wait_time = 358
-\end{minted}
+\begin{figure}
+    \centering
+    \begin{minted}{toml}
+        [BQueue]
+        size = 65536
+        batch_size = 4096
+        batch_increment = 2048
+        wait_time = 358
+
+        [EQueue]
+        initial_size = 8192
+        min_size = 256
+        max_size = 65536
+        wait_time = 358
+
+        [FastFlow]
+        bucket_size = 4096
+        max_bucket_count = 16
+
+        [MCRingBuffer]
+        size = 65536
+        batch_size = 8000
+
+        [FastForward]
+        size = 65536
+        adjust_slip_interval = 64
+
+        [Lamport]
+        size = 65536
+    \end{minted}
+    \caption{The Queue parameters for the Bursty 65k benchmark.}
+    \label{fig:toml-bursty-65k}
+\end{figure}
+
 \paragraph{BQueue}
 \begin{itemize}
     \item \texttt{batch\_size} set to a 16th of the queue size as specified by BQueue source code
     \item \texttt{batch\_increment} set to half the \texttt{batch\_size} as specified by BQueue source code
     \item BQueue uses 1000 Cycles by default, \SI{358}{\nano\second} is 1000 Cycles on my hardware
+    \item See \autoref{fig:toml-bursty-65k} for the concreate values of this and the next paragraphs
 \end{itemize}
 
-\begin{minted}{toml}
-[EQueue]
-initial_size = 8192
-min_size = 256
-max_size = 65536
-wait_time = 358
-\end{minted}
 \paragraph{EQueue}
 \begin{itemize}
     \item \texttt{initial\_size} wasn't specified, tuned it
@@ -135,41 +155,22 @@ wait_time = 358
         1000 Cycles on my hardware
 \end{itemize}
 
-\begin{minted}{toml}
-[FastFlow]
-bucket_size = 4096
-max_bucket_count = 16
-\end{minted}
 \paragraph{FastFlow Queue}
 \begin{itemize}
     \item \texttt{bucket\_size} wasn't specified in paper, tuned
     \item \texttt{max\_bucket\_count} selected to match max queue size 0f 65ki
 \end{itemize}
 
-\begin{minted}{toml}
-[MCRingBuffer]
-size = 65536
-batch_size = 8000
-\end{minted}
 \paragraph{MCRingBuffer}
 \begin{itemize}
     \item \texttt{batch\_size} tuned - needs to be divisor of message count, will deadlock otherwise
 \end{itemize}
 
-\begin{minted}{toml}
-[FastForward]
-size = 65536
-adjust_slip_interval = 64
-\end{minted}
 \paragraph{FastForward Queue}
 \begin{itemize}
     \item \texttt{adjust\_slip\_interval} taken from paper and verfied by tuning
 \end{itemize}
 
-\begin{minted}{toml}
-[Lamport]
-size = 65536
-\end{minted}
 \paragraph{Lamport Queue}
 \begin{itemize}
     \item no params but size
