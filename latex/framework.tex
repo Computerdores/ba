@@ -57,7 +57,9 @@
 
 \subsubsection{Measurers}
 \begin{itemize}
-    \item can vary timestamp source \todo{add class for that}
-    \item can vary whether failed operations reset the start timestamp \todo{move to measurer class}
+    \item could vary timestamp source e.g. for different architectures
     \item could measure cache stats for the duration of the operation
+    \item only one measurer implemented (=> used for all benchmarks here)
+    \item uses \texttt{RDTSC} instruction to get clock count
+    \item uses known base frequency to derive ns timestamps from clock count (epoch is not accounted for)
 \end{itemize}
