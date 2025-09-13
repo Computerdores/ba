@@ -22,3 +22,6 @@
 # Infos
 
 - "Style: Ten Lessons In Clarity And Grace" by Joseph Williams
+
+## Other papers
+- "latency of B-queue operations can be as low as 20 cycles" - https://arxiv.org/html/2502.05293v2#:~:text=XQueue%20uses%20B,as%20low%20as%2020%20cycles

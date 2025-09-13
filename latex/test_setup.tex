@@ -1,8 +1,4 @@
 \section{Test Setup}
-\begin{itemize}
-    \item reproducibility (what did I mean by that?)
-\end{itemize}
-
 \subsection{System Under Test}
 \paragraph{Hardware}
 \begin{itemize}
@@ -96,7 +92,7 @@
     \item => 1Mpps for 1 sec
     \item enqueue burst size of $16,384$ (should according to EQueue paper show large difference; shouldn't
         run into possible weird issues around half queue size)
-    \item dequeue constant wait
+    \item dequeue constant wait (most similar to equeue paper) \todo{elaborate on details here and with enqueue waiter}
     \item Queue Size $65,536$
         \begin{itemize}
             \item max queue size of equeue is 65k
@@ -144,7 +140,7 @@
     \item \texttt{batch\_size} set to a 16th of the queue size as specified by BQueue source code
     \item \texttt{batch\_increment} set to half the \texttt{batch\_size} as specified by BQueue source code
     \item BQueue uses 1000 Cycles by default, \SI{358}{\nano\second} is 1000 Cycles on my hardware
-    \item See \autoref{fig:toml-bursty-65k} for the concreate values of this and the next paragraphs
+    \item See \autoref{fig:toml-bursty-65k} for the concrete values of this and the next paragraphs
 \end{itemize}
 
 \paragraph{EQueue}
@@ -176,4 +172,11 @@
     \item no params but size
 \end{itemize}
 
-\todo{bullet points}
+\subsubsection{Basic 65k}
+\begin{itemize}
+    \item same as Bursty 65k
+    \item instead of bursty enqueue, enqueue with constant rate
+    \item via ConstantRate waiter instead of bursty waiter
+\end{itemize}
+
+\todo{other benchmarks}
