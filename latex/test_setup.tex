@@ -186,7 +186,14 @@
     \item no params but size
 \end{itemize}
 
-\subsubsection{Basic 65k-16k}
+\subsubsection{Bursty 65k-2k}
+\begin{itemize}
+    \item same as the Bursty 65k-16k, but burst size is 2k instead of 16k
+    \item EQueue tested this (with bursty) as well, showed negligible difference between queues
+\end{itemize}
+\todo{maybe merge this with the Bursty 65k-16k subsubsection?}
+
+\subsubsection{Basic 65k}
 \begin{itemize}
     \item same as Bursty 65k-16k (See \autoref{sec:bench-bursty-65k-16k})
     \item instead of bursty enqueue, enqueue with constant rate
@@ -196,13 +203,5 @@
             \item more similar to bqueue testing where they had constant waits between enqueues
         \end{itemize}
 \end{itemize}
-\todo{maybe merge this with the Bursty 65k-16k subsubsection?}
-
-\subsubsection{Basic/Bursty 65k-2k}
-\begin{itemize}
-    \item same as the Basic/Bursty 65k-16k, but burst size is 2k instead of 16k
-    \item EQueue tested this (with bursty) as well, showed negligible difference between queues
-\end{itemize}
-
 
 \todo{consider adding more benchmarks}

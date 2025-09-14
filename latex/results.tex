@@ -1,9 +1,8 @@
 \section{results}
 
-\input{plots/eq16k-basic}
 \input{plots/eq16k-bursty}
-\input{plots/eq2k-basic}
 \input{plots/eq2k-bursty}
+\input{plots/eq-basic}
 
 \todo{My numbers here are read from figures, rerun the numbers to be more accurate}
 \todo{compare to other papers too}
@@ -44,15 +43,16 @@
     \item once again the TX jitter has no significant impact on the results
 \end{itemize}
 
-\subsection{Basic 65k-16k/65k-2k}
+\subsection{Basic 65k}
 \begin{itemize}
-    \item see results in \autoref{fig:results-basic-65k-16k}, \autoref{fig:results-basic-65k-2k}
-    \item results look practically identical
+    \item see results in \autoref{fig:results-basic-65k}
     \item the performance of MCRB, FFLWQ and FFWDQ is mostly the same as in Bursty 65k-16k
     \item RX of BQ, EQ, LPRT as well
-    \item TX is worse by ~1 order of magnitude (See \autoref{fig:results-basic-65k-16k-b})
-    \item without measuring failed operations this effect can't be seen for BQ and EQ and is much less drastic for LPRT (See \autoref{fig:results-basic-65k-16k-a})
+    \item TX is worse by ~1 order of magnitude (See \autoref{fig:results-basic-65k-b})
+    \item without measuring failed operations this effect can't be seen for BQ and EQ and is much less drastic for LPRT (See \autoref{fig:results-basic-65k-a})
     \item suggests that for BQ and EQ this is mostly due to failing enqueue because of full queues
     \item whereas for LPRT this is also the case but additionally the enqueue operation also seems to be slower
     \item once again the TX jitter has no significant impact on the results
+    \item this case is also somewhat similar to the testing from the FastForward paper (in particular no burstiness, but queue size is much larger here)
+    \item FastForward paper showed FFWDQ to be significantly faster than LPRT which my results confirm
 \end{itemize}
