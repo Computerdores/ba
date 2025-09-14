@@ -83,16 +83,27 @@
     \item only \texttt{size} param for queue size
 \end{itemize}
 
-\subsubsection{Bursty 65k}
+\subsubsection{Bursty 65k-16k}
+\label{sec:bench-bursty-65k-16k}
 \begin{itemize}
     \item \texttt{equeue\_repro.toml}
     \item based on EQueue benchmark
     \item Message Count $1,000,000$
     \item Enqueue / Dequeue Rate $1,000,000$ \todo{why this number?}
     \item => 1Mpps for 1 sec
-    \item enqueue burst size of $16,384$ (should according to EQueue paper show large difference; shouldn't
-        run into possible weird issues around half queue size)
-    \item dequeue constant wait (most similar to equeue paper) \todo{elaborate on details here and with enqueue waiter}
+    \item enqueue burst size of $16,384$
+        \begin{itemize}
+            \item burst size selected because it should show large difference (according to EQueue paper)
+            \item concrete decision of 16k vs 32k arbitrary (both showed large difference between queues in equeue paper)
+            \item bursty waiter differs slightly from equeue paper
+            \item instead of same wait time varies to adjust for operation time
+            \item based on idea of network application so enqueue rate should be the same across all queues (fixed wait time would mean varying rate due to varying operation times)
+        \end{itemize}
+    \item dequeue constant wait (most similar to equeue paper)
+        \begin{itemize}
+            \item uses constantWait module for waiter
+            \item same as specified in EQueue paper
+        \end{itemize}
     \item Queue Size $65,536$
         \begin{itemize}
             \item max queue size of equeue is 65k
@@ -172,11 +183,23 @@
     \item no params but size
 \end{itemize}
 
-\subsubsection{Basic 65k}
+\subsubsection{Basic 65k-16k}
 \begin{itemize}
-    \item same as Bursty 65k
+    \item same as Bursty 65k-16k (See \autoref{sec:bench-bursty-65k-16k})
     \item instead of bursty enqueue, enqueue with constant rate
     \item via ConstantRate waiter instead of bursty waiter
+        \begin{itemize}
+            \item EQueue does not test a scenario like this but should be interesting
+            \item more similar to bqueue testing where they had constant waits between enqueues
+        \end{itemize}
+\end{itemize}
+\todo{maybe merge this with the Bursty 65k-16k subsubsection?}
+
+\subsubsection{Basic/Bursty 65k-2k}
+\begin{itemize}
+    \item same as the Basic/Bursty 65k-16k, but burst size is 2k instead of 16k
+    \item EQueue tested this (with bursty) as well, showed negligible difference between queues
 \end{itemize}
 
-\todo{other benchmarks}
+
+\todo{consider adding more benchmarks}
