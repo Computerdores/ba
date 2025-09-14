@@ -20,6 +20,8 @@
 
                     siunitx
 
+                    caption
+
                     latexmk
                     biber
                     biblatex

@@ -1,2 +1,58 @@
 \section{results}
-\todo{bullet points}
+
+\input{plots/eq16k-basic}
+\input{plots/eq16k-bursty}
+\input{plots/eq2k-basic}
+\input{plots/eq2k-bursty}
+
+\todo{My numbers here are read from figures, rerun the numbers to be more accurate}
+\todo{compare to other papers too}
+
+\subsection{Bursty 65k-16k}
+\begin{itemize}
+    \item see results in \autoref{fig:results-bursty-65k-16k}
+    \item no jitter and measuring failed ops is closest of the benchmarks to the benchmarking in EQueue paper with 16k burst size (see \autoref{fig:results-bursty-65k-16k-b})
+    \item however, they also included parts of their testing code in the measurements, I don't (this is a difference, but I'm not sure if it's significant)
+    \item at 16k burst size EQueue reportedly took $\approx 50\text{ cycles} \approx \SI{30}{\nano\second}$ (see equeue paper)
+    \item My measurements show $\approx \SI{26}{\nano\second}$ (RX) and $\approx \SI{24}{\nano\second}$ (TX), less than \SI{5}{\nano\second} off
+    \item Other queues tested in EQueue paper (BQ, MCRB, FFWDQ) reportedly took $\approx \SI{108}{\nano\second}$
+        \footnote{The EQueue paper does not report the exact numbers for any of these queues. There is a table with concrete numbers, but that is for a different burst size.}
+    \item My measurements show $\approx \SI{23}{\nano\second}$ (mean of RX and TX)
+    \item other queues 4-5x worse in EQueue paper
+    \item so while the EQueue performance lines up between the two, other queues perform much better for me
+    \item we can also see that without measuring failed operations RX of all but LPRT performs 50\% better
+    \item meanwhile TX performance only improves marginally
+    \item suggests that a significant number of RX operations fail due to empty queues in this benchmark
+    \item we can also see that the results don't change in either case when adding jitter on the TX side
+        \footnote{This can be a problem in benchmarks where the precise timing by the benchmark causes significant changes in performance. This was also observed at times during the development of the benchmarks, but disappeared due to bug fixes. \todo{Nic said this but are there maybe additional sources for this? Also, is ``XYZ said that in a discussion too'' even valid to bring up here?}}
+    \item Note: I suspect that the numbers from the EQueue paper for the different burst sizes where measured in the cross-cpu configuration, but the paper does not specify.
+\end{itemize}
+
+\subsection{Bursty 65k-2k}
+\begin{itemize}
+    \item see results in \autoref{fig:results-bursty-65k-2k}
+    \item no jitter and measuring failed ops is closest of the benchmarks to the benchmarking in EQueue paper with 2k burst size (see \autoref{fig:results-bursty-65k-2k-b})
+    \item however, they also included parts of their testing code in the measurements, I don't (this is a difference, but I'm not sure if it's significant)
+    \item at 2k burst size EQ, BQ, MCRB, FFWDQ reportedly took $\approx 50\text{ cycles} \approx \SI{30}{\nano\second}$
+    \item in my measurements EQ takes $\approx \SI{35}{\nano\second}$ for TX, other queues $\approx \SI{20}{\nano\second}$
+    \item for RX all queues take around 12-\SI{17}{\nano\second}
+    \item besides TX of EQueue which is an outlier here all queues generally perform similarly, like also did in EQueue paper
+    \item queues are generally faster here than in EQueue paper though
+    \item as mentioned earlier, I suspect the EQueue numbers here were measured in their cross-cpu configuration, which could explain the performance difference.
+    \item when not measuring failed operations, the performances of the queues become evenmore similar (See \autoref{fig:results-bursty-65k-2k-a})
+    \item suggests main performance difference here comes from failed operations due to full/empty queues
+    \item once again the TX jitter has no significant impact on the results
+\end{itemize}
+
+\subsection{Basic 65k-16k/65k-2k}
+\begin{itemize}
+    \item see results in \autoref{fig:results-basic-65k-16k}, \autoref{fig:results-basic-65k-2k}
+    \item results look practically identical
+    \item the performance of MCRB, FFLWQ and FFWDQ is mostly the same as in Bursty 65k-16k
+    \item RX of BQ, EQ, LPRT as well
+    \item TX is worse by ~1 order of magnitude (See \autoref{fig:results-basic-65k-16k-b})
+    \item without measuring failed operations this effect can't be seen for BQ and EQ and is much less drastic for LPRT (See \autoref{fig:results-basic-65k-16k-a})
+    \item suggests that for BQ and EQ this is mostly due to failing enqueue because of full queues
+    \item whereas for LPRT this is also the case but additionally the enqueue operation also seems to be slower
+    \item once again the TX jitter has no significant impact on the results
+\end{itemize}
