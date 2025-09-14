@@ -19,7 +19,7 @@
             \item 8x16GB
             \item DDR5
         \end{itemize}
-    \item all tests at Base Freq for stability
+    \item all tests at Base Freq for stability (set via \texttt{cpupower} util)
 \end{itemize}
 
 \paragraph{Software}
@@ -27,6 +27,7 @@
     \item Ubuntu 24.04.2 LTS
     \item Linux Kernel 6.8.0
     \item gcc 14.2.0
+    \item core isolation using kernel params (e.g. \texttt{isolcpus=2,3 nohz\_full=2,3})
 \end{itemize}
 
 \subsection{Benchmarks}
