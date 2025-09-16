@@ -4,13 +4,20 @@
     \item however, some are also significantly different
     \item differences between EQueue paper and mine could be due to several reasons:
         \begin{itemize}
-            \item I test on single CPU and suspect their data for different burst sizes is from cross cpu test (most similar to cross-cpu data from table)
-            \item They include part of their measurement code in the time measurements, I don't (not sure how significant this is)
-            \item not many details in EQueue paper on the experiment setup, particularly on queue parameters that were used for queues other than EQ (could in particular explain better performance of those queues for me)
-            \item I took steps to isolate outside influence for kernel scheduling and interrupts, they don't say whether they did or how
+            \item I test on single CPU and suspect their data for different burst sizes is from cross cpu
+                test (most similar to cross-cpu data from table)
+            \item They include part of their measurement code in the time measurements, I don't (not sure how
+                significant this is)
+            \item not many details in EQueue paper on the experiment setup, particularly on queue parameters
+                that were used for queues other than EQ (could in particular explain better performance of
+                those queues for me)
+            \item I took steps to isolate outside influence for kernel scheduling and interrupts, they don't
+                say whether they did or how
         \end{itemize}
     \item due to lack of detail on those things it is hard to say why our results differ
-    \item future work: more sophisticated analysis (e.g. how full the queues are over the course the runs, how many ops fail, real RX/TX rate)
-    \item future work: more complex testing scenarios (e.g. mutliple prod/con processes on same core with scheduling, more realistic traffic patterns)
+    \item future work: more sophisticated analysis (e.g. how full the queues are over the course the runs,
+        how many ops fail, real RX/TX rate)
+    \item future work: more complex testing scenarios (e.g. mutliple prod/con processes on same core with
+        scheduling, more realistic traffic patterns)
 \end{itemize}
 \todo{make sure anything said here is not new}

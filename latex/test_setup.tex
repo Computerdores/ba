@@ -98,10 +98,12 @@
     \item enqueue burst size of $16,384$
         \begin{itemize}
             \item burst size selected because it should show large difference (according to EQueue paper)
-            \item concrete decision of 16k vs 32k arbitrary (both showed large difference between queues in equeue paper)
+            \item concrete decision of 16k vs 32k arbitrary (both showed large difference between queues in
+                equeue paper)
             \item bursty waiter differs slightly from equeue paper
             \item instead of same wait time varies to adjust for operation time
-            \item based on idea of network application so enqueue rate should be the same across all queues (fixed wait time would mean varying rate due to varying operation times)
+            \item based on idea of network application so enqueue rate should be the same across all queues
+                (fixed wait time would mean varying rate due to varying operation times)
         \end{itemize}
     \item dequeue constant wait (most similar to equeue paper)
         \begin{itemize}
