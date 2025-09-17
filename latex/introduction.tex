@@ -1,8 +1,14 @@
 \section{Introduction}
 \begin{itemize}
-    \item many different queue implementations
+    \item parallelisation of applications is an important technique for reaching performance goals
+    \item FIFO queues can play an important role here as communication channels between CPU cores
+    \item particularly SPSC FIFO queues are important there
+    \item these channels can be core to the performance of applications, particularly network applications
+        where the rate of incoming packets can be quite high, performance of these queues can thus be critical
+    \item many different SPSC FIFO queue implementations
     \item each paper benchmarks differently, hard to compare
     \item each comes to conclusion that their new queue is the best
+    \item hard to know which queue is best for particular use case
     \item wasn't able to find any repro papers
     \item papers rarely provide source code
     \item even then, source code often incomplete or gone missing
@@ -13,17 +19,17 @@
                 to%20generalize%20findings%20or%20to%20test%20the%20underlying%20hypothesis%20in%20a%20new%20way%29
         }{plato.standford.edu})
     \item only conceptual reproduction
-    \item I aim to test the performance of six queues: BQueue, EQueue, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
-    \item I plan to do so in a manner most similar to how EQ did as they compare the most different
+    \item I test the performance of six queues: BQueue, EQueue, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
+    \item I do so in a manner most similar to how EQ did as they compare the most different
         queues out of the papers of these queues
     \item (Lamport not compared in EQ paper but in FFWDQ paper, included because easy to implement)
-    \item Further I aim to make my results as replicable as possible, by:
+    \item to make my results as replicable as possible, I
         \begin{itemize}
-            \item releasing the full source code, both hosted online and embedded into the pdf
-                (latter to prevent missing code in the future)\todo{embed archive of repo}
-            \item providing, and explaining my choice of, all parameters of the tests and queues
-            \item providing, and explaining the choices made in, all implementations of the queues
+            \item released the full source code, both hosted online and embedded into the pdf
+                (latter to prevent missing code in the future)
+            \item provided, and explained my choice of, all parameters of the tests and queues
+            \item provided, and explained the choices made in, all implementations of the queues
         \end{itemize}
-    \item help future authors make their work more replicable and comparable by making my code easy to extend
-    \item should allow for new queues or benchmark variations with minimal effort
+    \item built benchmarking framework to help future authors make their work more replicable and comparable
+        by making my code easy to extend
 \end{itemize}

@@ -1,39 +1,109 @@
 \section{Framework}
 \todo{more details?}
-\subsection{Architecture}
+\subsection{Goals}
+\todo{TODO: not sure about this subsection title}
 \begin{itemize}
-    \item want to avoid duplicating the entire benchmark for every queue/variation in a part of the benchmark
-    \item don't want to give up on the compiler opt advantage of doing so
+    \item want to avoid duplicating the entire benchmark code for every queue/variation in a part of the benchmark
+    \item duplicating the code would allow the compiler to optimise better
+    \item don't want to give up on that performance advantage (I would expect that to be present in real applications)
     \item EQueue: parts of queue impl in benchmark code => I want full separation
+    \item should allow new queues or benchmark variations with minimal effort
+\end{itemize}
 
-    \item Runner class as a skeleton benchmark
+\subsection{Architecture}
+\begin{figure}
+    \begin{minted}{cpp}
+/* ... */
+template <IsQueueWith<u64> Q, IsMeasurerPair M, IsWaiterPair W, bool MEASURE_FAILED = false>
+class Runner {
+  public:
+    template <typename P>
+    explicit Runner(Q* queue, const P& params)
+        : _queue(queue), _measurer(M(params.msg_count)), _waiter(W(params)),
+          _msg_count(params.msg_count) {}
+
+    void run() { /* ... */ }
+
+    void write_results(std::ostream* out) { /* ... */ }
+
+  private:
+    Q* _queue;
+    M _measurer;
+    W _waiter;
+    usize _msg_count;
+    volatile bool _start = false;
+    CACHE_ALIGNED u64 _data_sink;
+
+    void producer() {
+        // wait for start
+        while (!_start) { }
+        // do test
+        _waiter.tx.start();
+        for (usize i = 0; i < _msg_count; i++) {
+            _measurer.tx.pre();
+            auto data = get_timestamp();
+            while (!_queue->enqueue(data)) {
+                if constexpr (!MEASURE_FAILED) _measurer.tx.pre();
+            }
+            _measurer.tx.post();
+            _waiter.tx.wait();
+        }
+    }
+
+    void consumer() {
+        // wait for start
+        while (!_start) { }
+        // do test
+        _waiter.rx.start();
+        for (usize i = 0; i < _msg_count; i++) {
+            _measurer.rx.pre();
+            std::optional<u64> data = std::nullopt;
+            while (!((data = _queue->dequeue()))) {
+                if constexpr (!MEASURE_FAILED) _measurer.rx.pre();
+            }
+            _data_sink += *data;
+            _measurer.rx.post();
+            _waiter.rx.wait();
+        }
+    }
+};
+    \end{minted}
+    \caption{The implementation of the runner class in C++, with some parts ommited.}
+    \label{fig:runner-class-code}
+\end{figure}
+\begin{itemize}
+    \item Runner class as a skeleton benchmark (See \autoref{fig:runner-class-code})
     \item populated with templated components
     \item components defined in headers
-    \item => get inlined (verified in Ghidra)
-    \item => almost identical result of compilation
-    \item => no perf diff
-    \item (insert runner class or pseudo code of it)
-    \item component types:
+    \item => get inlined into the runner class (verified in Ghidra)
+    \item => almost identical result of compilation to duplicating the runner class and copying the component
+        code into it
+    \item => no performance difference, but easier to work with
+    \item runner class has three types of components:
     \item waiter
         \begin{itemize}
             \item causes a delay between operation
             \item used to emulate different enqueue/dequeue patterns
+            \item has a \texttt{start} method to mark the beginning of the benchmark
+            \item has a \texttt{wait} method to trigger a wait time according to the waiter's semantics
         \end{itemize}
     \item measurer
         \begin{itemize}
             \item measures time between start and end of operation
             \item can be used to implement differnt ways of measuring time
-            \item can also be varied to measure other aspects (cnt failed ops, cache stats, etc.)
+            \item can also be varied to measure other aspects (cnt failed ops, cache stats, etc.) there
+            \item \texttt{pre} method gets called to record timestamp before operation (overwrites last
+                timestamp if called back to back)
+            \item \texttt{post} method gets called to record timestamp after operation
         \end{itemize}
     \item queue
         \begin{itemize}
             \item the data structure to be benchmarked
-            \item should implement consistent interface
-            \item non-blocking ops
+            \item implements consistent interface with non-blocking \texttt{enqueue} and \texttt{dequeue}
+                that indicate success via their return values
         \end{itemize}
 \end{itemize}
 
-\subsection{Components}
 \subsubsection{Waiters}
 \begin{itemize}
     \item Constant Wait
@@ -46,13 +116,18 @@
             \item tries to maintain a constant time difference between starts of operations
             \item used to emulate input streams with a constant rate
         \end{itemize}
+    \item e.g. if OP takes \ns{80} and wait time is \ns{200} then ConstantWait leads to a \ns{280} delay
+        between starts of OPs and ConstantRate leads to a \ns{200} delay between starts of OPs because it
+        only waits $\ns{200}-\ns{80}=\ns{120}$
     \item Bursty
         \begin{itemize}
             \item defers waits in order to have blocks of BURST\_SIZE elements with no waits
             \item used to emulate enqueue / dequeue behaviour that is bursty
             \item typical for network applications
+            \item e.g. with BURST\_SIZE of 20, wait time of \ns{100}, and OP duration of \ns{20} -- 20
+                elements will be enqueued followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$
         \end{itemize}
-    \item Jitter can be enabled; adds pseudo-random variance to wait times (also present in FFWDQ paper)
+    \item Jitter can be enabled; adds pseudo-random variance to wait times (idea also present in FFWDQ paper)
 \end{itemize}
 
 \subsubsection{Measurers}

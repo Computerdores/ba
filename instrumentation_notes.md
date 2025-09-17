@@ -11,8 +11,3 @@
   - use `sudo find /proc/irq/ -type f -name smp_affinity -exec bash -c 'echo 3 > {}' \;` to set IRQ affinity to cpus 1,2
   - `turbostat` confirms this works
   - scheint etwas weniger jitter zu haben? aus wenigen runs nicht eindeutig erkennbar
-- Neue Erkenntnis: das waiting war kein busy waiting sondern Interrupt basiert
-  - austauschen durch busy waiting hat dazu geführt dass die wait time fast keinen Einfluss auf RX und TX zeit mehr hat
-  - RX und TX sind jetzt bei jeweils ca. 50ns bzw. 45ns
-  - latenz ist auch leicht gesunken
-

@@ -22,6 +22,8 @@
 
                     caption
 
+                    cleveref
+
                     latexmk
                     biber
                     biblatex

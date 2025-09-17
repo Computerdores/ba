@@ -4,6 +4,8 @@
 \usepackage{graphicx}
 
 \usepackage{hyperref}
+\usepackage{cleveref}
+
 \usepackage{minted}
 
 \usepackage[per-mode=symbol]{siunitx}
@@ -13,19 +15,20 @@
 \usepackage{todonotes}
 \setuptodonotes{inline}
 
+\newcommand{\ns}[1]{\SI{#1}{\nano\second}}
+
 \begin{document}
 
-\todo{template preferences? sonst prob OSM}
+\todo{TODO: styling -- apply OSM template or similar}
 
-\todo{do I want to talk about why I didn't do Cache Measurements (besides time reason) / general thoughts I had on that ?}
+\todo{TODO: various ``In this section I will ...'' paragraphs (keyword: expectation management)}
 
-\todo{various ``In this section I will ...'' paragraphs}
+\todo{TODO: Link to github repository}
+\todo{TODO: embed archive of repo}
 
-\todo{Abstract; is it fine for this to be basically the same content as the intro? Is there some kind of gold standard for this I could take inspiration from?}
+\todo{mention that TSC is incremented at base freq on systems with invariant TSC?}
 
-\todo{Link to github repository}
-
-\todo{Note about removed EQueue repository and links to EQ/BQ fork repos}
+\input{abstract}
 
 \input{introduction}
 

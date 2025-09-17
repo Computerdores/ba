@@ -1,17 +1,53 @@
 \section{Queue Implementations}
+\begin{figure}
+    \begin{minted}{cpp}
+        template <typename T>
+        class Queue {
+          public:
+            using Item = T;
+
+            virtual bool enqueue(T item) = 0;
+
+            virtual std::optional<T> dequeue() = 0;
+
+            virtual ~Queue() = default;
+        };
+    \end{minted}
+    \caption{The \texttt{Queue<T>} interface.}
+    \label{fig:queue-interface}
+\end{figure}
+
 \begin{itemize}
     \item all of the queues needed to be either ported to cpp, adapted to share the same interface, or
-        reimplemented because no source code was available
+        reimplemented because no source code was available (For interface see \autoref{fig:queue-interface})
     \item this section is about the considerations that were made in the process
 \end{itemize}
+
+\todo{TODO: update the 'as of now' dates later}
+On 2025-09-04, I reached out via E-Mail to the authors of the MCRingBuffer and FastForward papers seeking
+source code for the original implementations or feedback on my implementations of their queues.
+One of the authors of the FastForward paper responded and was able to provide me with a partial
+implementation of the FastForward queue which was missing the slip adjustment code.
+The provided code was very similar to my implementation, suggesting that that part of my implementation is correct.
+I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-16, however, my
+original message could not be delivered to Tian Bu and Girish Chandranmenon since their E-Mail addresses,
+stated in the MCRingBuffer paper, are not valid anymore.
+
+I reached out via E-Mail to Yangfeng Tian and Xiong Fu, who are authors of the EQueue paper, and Junchang
+Wang, who is an author of the B-Queue and EQueue papers, on 2025-05-28 with some questions about the EQueue
+paper and source code
+\footnote{About a week after reaching out, I noticed that the EQueue repository on GitHub ceased to be available.
+For preservation purposes, I have reuploaded the repository to GitHub (See \href{https://github.com/Computerdores/equeue}{Computerdores/equeue}).
+For the same purpose, I have also forked a GitHub reupload of the now unavailable, original B-Queue repository (See \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).}.
+I have not received an answer to this E-Mail as of 2025-09-16 and for this reason not reached out separately
+about feedback on my implementation.
 
 \subsection{BQueue}
 \begin{itemize}
     \item originally reimplemented from paper because source was unavailable
-    \item haven't gotten response to prior email
     \item full implementation, including self-adaptive backtracking and prod/con batching
     \item source has since been found elsewhere and original version showed no measurable performance difference
-    \item two small divergences from the pseudo-code in the paper are present to fix bugs
+    \item two small divergences from the pseudo code in the paper are present to fix bugs
     \item one check added to prevent tail from overtaking batch tail
     \item one check added to prevent head from overtaking tail in certain circumstances
         \footnote{Not necessary for benchmarks anymore; left in because more robust and there seemed to be no
@@ -22,7 +58,6 @@
 \begin{itemize}
     \item ported to cpp with small differences because there were differences between the released source
         code and the paper
-    \item haven't gotten response to prior email
     \item implementation in released source code is also not entirely self-contained
     \item I tried to reconcile the differences apropriately
     \item added check that used size doesn't exceed buffer size (present in the released implementation, but
@@ -46,7 +81,6 @@
 \subsection{MCRingBuffer}
 \begin{itemize}
     \item no publicly available source code
-    \item reached out to authors but no answer\todo{still up to date?}
     \item padding between shared, consumer local, producer local, and read-only variables
     \item volatile markings for read, write, and buffer variables
     \item paper specifies busy wait when enqueue/dequeue don't immediately succeed; to conform with interface
@@ -64,7 +98,6 @@
 \subsection{Fast Forward Queue}
 \begin{itemize}
     \item no publicly available source code
-    \item talked to author; only had incomplete implementation
     \item padding between head, tail, and buffer ptr to put them on different cache lines
     \item volatile references to allow compiler to optimise accesses to head from enqueue and tail from
         dequeue normally, but correctly see accesses to tail from enqueue and head from dequeue as volatile

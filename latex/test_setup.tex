@@ -1,6 +1,6 @@
 \section{Test Setup}
 \subsection{System Under Test}
-\paragraph{Hardware}
+\subsubsection{Hardware}
 \begin{itemize}
     \item SuperMicro SYS-521C-NR
     \item 1x Intel Xeon Gold 6548N
@@ -22,7 +22,7 @@
     \item all tests at Base Freq for stability (set via \texttt{cpupower} util)
 \end{itemize}
 
-\paragraph{Software}
+\subsubsection{Software}
 \begin{itemize}
     \item Ubuntu 24.04.2 LTS
     \item Linux Kernel 6.8.0
@@ -37,6 +37,7 @@
     \item will then for each scenario explain which values were chosen and why + config file for it
 \end{itemize}
 
+\subsubsection{Parameters}
 \paragraph{BQueue}
 \begin{itemize}
     \item \texttt{size} - Size of the queue
@@ -87,7 +88,7 @@
 \subsubsection{Bursty 65k-16k}
 \label{sec:bench-bursty-65k-16k}
 \begin{itemize}
-    \item \texttt{equeue\_repro.toml}
+    \item \texttt{equeue\_repro\_16k.toml}
     \item based on EQueue benchmark
     \item Message Count $1,000,000$
     \item Enqueue / Dequeue Rate $1,000,000$
@@ -191,6 +192,7 @@
 
 \subsubsection{Bursty 65k-2k}
 \begin{itemize}
+    \item \texttt{equeue\_repro\_2k.toml}
     \item same as the Bursty 65k-16k, but burst size is 2k instead of 16k
     \item EQueue tested this (with bursty) as well, showed negligible difference between queues
 \end{itemize}
@@ -206,5 +208,3 @@
             \item more similar to bqueue testing where they had constant waits between enqueues
         \end{itemize}
 \end{itemize}
-
-\todo{consider adding more benchmarks}

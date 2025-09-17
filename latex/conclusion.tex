@@ -1,23 +1,45 @@
 \section{conclusion}
 \begin{itemize}
-    \item some of the results I am seeing are quite similar to those of the EQueue paper
-    \item however, some are also significantly different
-    \item differences between EQueue paper and mine could be due to several reasons:
+    \item framework finished
+    \item testing new queues should be easy, just have to implement interface and add a couple of lines to main func
+    \item variations of benchmark should be relatively easy as well since everything is as modular as possible
+    \item queue parameters are stored in config file => easier to manage/version
+    \item in my experience working with it was good (granted I am the author of it, but still)
+    \item I hope future authors will make use of it to make their results easier to reproduce than existing ones
+
+    \item some of the results I am seeing are quite similar to EQ, BQ, FFWD papers
+    \item however, some are also significantly different; could be due to several reasons:
         \begin{itemize}
-            \item I test on single CPU and suspect their data for different burst sizes is from cross cpu
-                test (most similar to cross-cpu data from table)
-            \item They include part of their measurement code in the time measurements, I don't (not sure how
-                significant this is)
+            \item I tested on single CPU and suspect EQueue data for different burst sizes is from cross-cpu test
+            \item EQ measurements include part of their measurement code in the time measurements, I don't
             \item not many details in EQueue paper on the experiment setup, particularly on queue parameters
-                that were used for queues other than EQ (could in particular explain better performance of
-                those queues for me)
-            \item I took steps to isolate outside influence for kernel scheduling and interrupts, they don't
-                say whether they did or how
+                that were used for queues other than EQ
+            \item I took steps to isolate outside influence of kernel scheduling and interrupts, others don't say whether they did or how
+            \item papers all use different hardware, nothing to be done about that; especially significant for B-Queue as results look very different 
         \end{itemize}
-    \item due to lack of detail on those things it is hard to say why our results differ
+    \item I have done my best to prevent these issues
+        \begin{itemize}
+            \item provided as many details as possible by publishing full source code and giving all surrounding details I could come up with
+            \item also took these issues into account when building framework so as not to repeat them
+        \end{itemize}
+
+    \item fflwq was (among the) best in almost every single scenario, recommended as first pick
+    \item should still try out different queues as there significant differences
+    \item should be easy due to me publishing impls for all tested here with same function interface (only templates differ)
+    \item also results here may give an idea which queues to start with
+
     \item future work: more sophisticated analysis (e.g. how full the queues are over the course the runs,
         how many ops fail, real RX/TX rate)
     \item future work: more complex testing scenarios (e.g. mutliple prod/con processes on same core with
         scheduling, more realistic traffic patterns)
+    \item future work: cache statistics (cache miss \%)
+        \begin{itemize}
+            \item is done by other papers
+            \item could be interesting for investigating reasons behind performance differences
+            \item however, imo only the cache events from the benchmarked code should be counted
+            \item this may be possible with oprofile
+            \item however, due to inlining of the enqueue and dequeue functions this may not be easy/possible with oprofile
+            \item due to time constraints this was not attempted here
+        \end{itemize}
 \end{itemize}
 \todo{make sure anything said here is not new}
