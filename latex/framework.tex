@@ -1,8 +1,9 @@
 \section{Framework}
 \todo{is this the right amount of detail?}
 \subsection{Goals}
-\todo{not sure about this subsection title}
+\todo{not sure about this subsection title, ``Requirements'' maybe?}
 \begin{itemize}
+    \item framework for benchmarking different SPSC FIFO queues in different benchmarks
     \item want to avoid duplicating the entire benchmark code for every queue/variation in a part of the benchmark
     \item duplicating the code would allow the compiler to optimise better
     \item don't want to give up on that performance advantage (I would expect that to be present in real applications)
@@ -107,6 +108,15 @@ class Runner {
     \item loads numerical parameters related to queues and benchmark from config file
     \item starts an instance of the runner class with the appropriate components
     \item causes write of result data after benchmark is done
+\end{itemize}
+
+\subsubsection{Time Measurement}
+\begin{itemize}
+    \item relevant for waiters and measurers
+    \item I am using \texttt{RDTSC} to measure time
+    \item does not meaure time directly; measures clock ticks
+    \item incremented at constant rate of CPU base frequency if CPU has invariant TSC (The CPU I use does)
+    \item so to convert \texttt{RDTSC} diff to seconds divide by base freq
 \end{itemize}
 
 \subsubsection{Waiters}

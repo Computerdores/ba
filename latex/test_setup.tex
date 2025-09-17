@@ -33,11 +33,6 @@
 
 \subsection{Benchmarks}
 \begin{itemize}
-    \item I am using \texttt{RDTSC} to measure time
-    \item does not meaure time directly; measures clock ticks
-    \item incremented at constant rate of CPU base frequency if CPU has invariant TSC
-    \item so to convert \texttt{RDTSC} diff to seconds divide by base freq
-
     \item will start by explaining what parameters there are per queue
     \item will then for each scenario explain which values were chosen and why + config file for it
 \end{itemize}
@@ -45,41 +40,41 @@
 \subsubsection{Parameters}
 \paragraph{BQueue}
 \begin{itemize}
-    \item \texttt{size} - Size of the queue
-    \item \texttt{batch\_size} - BQueue does Prod/Con Batching so it doesn't have to check everytime to avoid
+    \item \texttt{size} -- Size of the queue
+    \item \texttt{batch\_size} -- BQueue does Prod/Con Batching so it doesn't have to check everytime to avoid
         running into the producer/consumer
-    \item \texttt{batch\_increment} - BQueue dynamically adjusts the dequeue batch size, this value
+    \item \texttt{batch\_increment} -- BQueue dynamically adjusts the dequeue batch size, this value
         determines how much larger the candidate for the next batch size should be than the last batch size
-    \item \texttt{wait\_time} - when determining the new dequeue batch size, bqueue waits a certain amount of
+    \item \texttt{wait\_time} -- when determining the new dequeue batch size, bqueue waits a certain amount of
         time when a new candidate is chosen
 \end{itemize}
 
 \paragraph{EQueue}
 \begin{itemize}
-    \item \texttt{min\_size}, \texttt{max\_size} - EQueue dynamically adjusts the size of the queue to
+    \item \texttt{min\_size}, \texttt{max\_size} -- EQueue dynamically adjusts the size of the queue to
         optimise cache access times, these values determine the bounds of that
-    \item \texttt{initial\_size} - The initial size of the Queue before dynamic adjustments
-    \item \texttt{wait\_time} - When determining the new enqueue batch size, equeue waits a certain amount of
+    \item \texttt{initial\_size} -- The initial size of the Queue before dynamic adjustments
+    \item \texttt{wait\_time} -- When determining the new enqueue batch size, equeue waits a certain amount of
         time when a new candidate is chosen
 \end{itemize}
 
 \paragraph{FastFlow Queue}
 \begin{itemize}
     \item FFLWQ uses a linked list of buffers as queue
-    \item \texttt{bucket\_size} - Size of the buffers (``buckets'')
-    \item \texttt{max\_bucket\_count} - The maximum number of buckets ffq will allocate
+    \item \texttt{bucket\_size} -- Size of the buffers (``buckets'')
+    \item \texttt{max\_bucket\_count} -- The maximum number of buckets ffq will allocate
 \end{itemize}
 
 \paragraph{MCRingBuffer}
 \begin{itemize}
-    \item \texttt{size} - size of the queue
-    \item \texttt{batch\_size} - MCRB does Con/prod batching, this is the size of those batches
+    \item \texttt{size} -- size of the queue
+    \item \texttt{batch\_size} -- MCRB does Con/prod batching, this is the size of those batches
 \end{itemize}
 
 \paragraph{FastForward Queue}
 \begin{itemize}
-    \item \texttt{size} - size of the queue
-    \item \texttt{adjust\_slip\_interval} - FFWDQ tries to delay dequeues via waiting so that over one
+    \item \texttt{size} -- size of the queue
+    \item \texttt{adjust\_slip\_interval} -- FFWDQ tries to delay dequeues via waiting so that over one
         cacheline of data is in the queue (the slip), this determines every how many dequeues this slip is
         reestablished
 \end{itemize}
@@ -181,7 +176,7 @@
 
 \paragraph{MCRingBuffer}
 \begin{itemize}
-    \item \texttt{batch\_size} tuned - needs to be divisor of message count, will deadlock otherwise
+    \item \texttt{batch\_size} tuned -- needs to be divisor of message count, will deadlock otherwise
 \end{itemize}
 
 \paragraph{FastForward Queue}

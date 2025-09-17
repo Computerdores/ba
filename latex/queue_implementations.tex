@@ -17,12 +17,6 @@
     \label{fig:queue-interface}
 \end{figure}
 
-\begin{itemize}
-    \item all of the queues needed to be either ported to cpp, adapted to share the same interface, or
-        reimplemented because no source code was available (For interface see \autoref{fig:queue-interface})
-    \item this section is about the considerations that were made in the process
-\end{itemize}
-
 \todo{TODO: update the 'as of now' dates later}
 On 2025-09-04, I reached out via E-Mail to the authors of the MCRingBuffer and FastForward papers seeking
 source code for the original implementations or feedback on my implementations of their queues.
@@ -41,6 +35,12 @@ For preservation purposes, I have reuploaded the repository to GitHub (See \href
 For the same purpose, I have also forked a GitHub reupload of the now unavailable, original B-Queue repository (See \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).}.
 I have not received an answer to this E-Mail as of 2025-09-17 and for this reason not reached out separately
 about feedback on my implementation.
+
+\begin{itemize}
+    \item all of the queues needed to be either ported to cpp, adapted to share the same interface, or
+        reimplemented because no source code was available (For interface see \autoref{fig:queue-interface})
+    \item this section is about the considerations that were made in the process
+\end{itemize}
 
 \subsection{BQueue}
 \begin{itemize}
