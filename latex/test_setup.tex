@@ -31,8 +31,12 @@
 \end{itemize}
 
 \subsection{Benchmarks}
-\todo{cycles vs. ns}
 \begin{itemize}
+    \item I am using \texttt{RDTSC} to measure time
+    \item does not meaure time directly; measures clock ticks
+    \item incremented at constant rate of CPU base frequency if CPU has invariant TSC
+    \item so to convert \texttt{RDTSC} diff to seconds divide by base freq
+
     \item will start by explaining what parameters there are per queue
     \item will then for each scenario explain which values were chosen and why + config file for it
 \end{itemize}
@@ -60,7 +64,7 @@
 
 \paragraph{FastFlow Queue}
 \begin{itemize}
-    \item FFLWQ uses a linked list of buffers as queue \todo{should be true, but double check for details}
+    \item FFLWQ uses a linked list of buffers as queue
     \item \texttt{bucket\_size} - Size of the buffers (``buckets'')
     \item \texttt{max\_bucket\_count} - The maximum number of buckets ffq will allocate
 \end{itemize}
@@ -76,8 +80,7 @@
     \item \texttt{size} - size of the queue
     \item \texttt{adjust\_slip\_interval} - FFWDQ tries to delay dequeues via waiting so that over one
         cacheline of data is in the queue (the slip), this determines every how many dequeues this slip is
-        reestablished \todo{check whether the slip is currently set correctly - because of interaction with
-        bursty traffic}
+        reestablished
 \end{itemize}
 
 \paragraph{Lamport Queue}
