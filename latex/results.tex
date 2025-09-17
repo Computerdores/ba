@@ -35,7 +35,7 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
     \item My measurements show $\approx \SI{23}{\nano\second}$ (mean of RX and TX)
     \item other queues 4-5x worse in EQueue paper
     \item so while the EQueue performance lines up between the two, other queues perform much better for me
-    \item the reasons for this difference are unclear; could be due to different queue parameters for BQ, MCRB, FFWDQ than I am using
+    \item the reasons for this difference are unclear; could be due to different queue parameters for BQ, MCRB, FFWDQ than I am using (EQueue paper is light on details about this)
     \item we can also see that, without measuring failed operations, RX of all but LPRT perform 50\% better
     \item meanwhile TX performance only improves marginally
     \item suggests that a significant number of RX operations fail due to empty queues in this benchmark

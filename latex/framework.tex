@@ -103,6 +103,10 @@ class Runner {
             \item implements consistent interface with non-blocking \texttt{enqueue} and \texttt{dequeue}
                 that indicate success via their return values
         \end{itemize}
+    \item main function orchestrates
+    \item loads numerical parameters related to queues and benchmark from config file
+    \item starts an instance of the runner class with the appropriate components
+    \item causes write of result data after benchmark is done
 \end{itemize}
 
 \subsubsection{Waiters}

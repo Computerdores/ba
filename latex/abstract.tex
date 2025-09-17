@@ -1,14 +1,21 @@
 \section{Abstract}
-\todo[prepend,caption={TODO}]{
-    \begin{itemize}
-        \item should summarise whole work not just intro stuff
-        \item most important points:
-            \begin{itemize}
-                \item What's the problem?
-                \item Why is it relevant?
-                \item Why is unsolved? (if work has already been done, why not enough)
-                \item What do I want to contribute?
-                \item What was the result of that?
-            \end{itemize}
-    \end{itemize}
-}
+\begin{itemize}
+    \item parallelisation of applications is an important technique for reaching performance goals
+    \item FIFO queues can play an important role here as communication channels between CPU cores
+    \item particularly SPSC FIFO queues are important there
+    \item these channels can be core to the performance of applications, particularly network applications
+        where the rate of incoming packets can be quite high, performance of these queues can thus be critical
+    \item many different SPSC FIFO queue implementations
+    \item each paper benchmarks differently, hard to compare
+    \item hard to know which queue is best for particular use case
+    \item wasn't able to find any repro papers
+    \item papers rarely provide source code
+    \item even then, source code often incomplete or gone missing
+    \item I test the performance of six queues: BQueue, EQueue, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
+    \item build benchmarking framework to help future authors make their work more replicable and comparable
+        by making my code easy to extend
+    \item I tested the performance of those queues, result is that FFLWQ is most consitently very good
+    \item my results partial line up, partialy don't with EQ/BQ/FFWD papers
+    \item I published all source code and as many details as possible, my results should therefore be much easier to reproduce
+    \item framework is done, modular, and should be easy to extend
+\end{itemize}
