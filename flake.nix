@@ -19,10 +19,9 @@
                     minted
 
                     siunitx
-
                     caption
-
                     cleveref
+                    attachfile2
 
                     latexmk
                     biber

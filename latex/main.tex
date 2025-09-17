@@ -1,6 +1,7 @@
 \documentclass[a4paper]{article}
 \usepackage[top = 2.5cm, left = 2.5cm, right = 2.5cm, bottom = 2.5cm]{geometry}
 
+\usepackage{attachfile2}
 \usepackage{graphicx}
 
 \usepackage{hyperref}
@@ -23,8 +24,6 @@
 
 \todo{TODO: various ``In this section I will ...'' paragraphs (keyword: expectation management)}
 
-\todo{TODO: embed archive of repo}
-
 \input{abstract}
 
 \input{introduction}
@@ -38,5 +37,13 @@
 \input{results}
 
 \input{conclusion}
+
+\appendix
+
+\section{Source Code Archive}
+As mentioned previously, to assure the preservation of the source code of everything related to this work, it was embedded into this document as an archive.
+The archive can be extracted via the following link: \textattachfile[color=0 0 1]{src.tar.gz}{src.tar.gz}.
+Since this is not a commonly used feature of PDF files, it may not work in every PDF viewer.
+It was tested and confirmed to work in Firefox version 141.0 on Linux.
 
 \end{document}
