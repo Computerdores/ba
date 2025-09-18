@@ -1,4 +1,4 @@
-\section{Results}
+\subsection{Results}
 It can generally be noted that the jitter on the TX side does not have an impact on any of the results
 (See \cref{fig:results-bursty-65k-16k,fig:results-bursty-65k-2k,fig:results-basic-65k}).
 Jitter having a significant impact can be a problem where the precise timing by the benchmark causes significant changes in performance.
@@ -22,7 +22,7 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
 
 \todo{TODO: My numbers here are read from figures, replace them with the accurate values}
 
-\subsection{Bursty 65k-16k}
+\subsubsection{Bursty 65k-16k}
 \begin{itemize}
     \item see results in \autoref{fig:results-bursty-65k-16k}
     \item no jitter and measuring failed ops is closest of the benchmarks to the benchmarking in EQueue paper
@@ -41,7 +41,7 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
     \item suggests that a significant number of RX operations fail due to empty queues in this benchmark
 \end{itemize}
 
-\subsection{Bursty 65k-2k}
+\subsubsection{Bursty 65k-2k}
 \begin{itemize}
     \item see results in \autoref{fig:results-bursty-65k-2k}
     \item no jitter and measuring failed ops is closest of the benchmarks to the benchmarking in EQueue paper
@@ -60,7 +60,7 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
     \item suggests main performance difference here comes from failed operations due to full/empty queues
 \end{itemize}
 
-\subsection{Basic 65k}
+\subsubsection{Basic 65k}
 \begin{itemize}
     \item see results in \autoref{fig:results-basic-65k}
     \item the performance is mostly the same as in Bursty 65k-16k

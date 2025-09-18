@@ -1,39 +1,3 @@
-\section{Test Setup}
-
-\todo{note about structure here, will first explain all related to testing in this section then all about results in next}
-
-\subsection{System Under Test}
-\subsubsection{Hardware}
-\begin{itemize}
-    \item SuperMicro SYS-521C-NR
-    \item 1x Intel Xeon Gold 6548N
-        \begin{itemize}
-            \item 32 Cores
-            \item 2.8 GHz Base Frequency
-            \item 1 NUMA Node
-            \item L1 Cache 80KB (per core)
-            \item L2 Cache 2MB (per core)
-            \item L3 Cache 60MB (shared)
-        \end{itemize}
-    \item 128GB Memory
-        \begin{itemize}
-            \item PN: HMCG78MEBRA115N
-            \item 4800MT/s
-            \item 8x16GB
-            \item DDR5
-        \end{itemize}
-    \item all tests at Base Freq for stability (set via \texttt{cpupower} util)
-\end{itemize}
-
-\subsubsection{Software}
-\begin{itemize}
-    \item Ubuntu 24.04.2 LTS
-    \item Linux Kernel 6.8.0
-    \item gcc 14.2.0
-    \item core isolation using kernel params (e.g. \texttt{isolcpus=2,3 nohz\_full=2,3})
-        \footnote{The EQ, BQ and FFWDQ papers don't mention whether or not, they did this.}
-\end{itemize}
-
 \subsection{Benchmarks}
 \begin{itemize}
     \item will start by explaining what parameters there are per queue
