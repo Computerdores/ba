@@ -1,8 +1,8 @@
 \section{Introduction}
 \begin{itemize}
     \item parallelisation of applications is an important technique for reaching performance goals
-    \item FIFO queues can play an important role here as communication channels between CPU cores
-    \item particularly SPSC FIFO queues are important there
+    \item common example is pipeline paralellism for network applications (citation here; see bqueue paper for srcs)
+    \item FIFO queues can play an important role here as communication channels between application components (often on different CPU cores)
     \item these channels can be core to the performance of applications, particularly network applications
         where the rate of incoming packets can be quite high, performance of these queues can thus be critical
     \item many different SPSC FIFO queue implementations
@@ -18,20 +18,20 @@
                 conceptual%20replications%20%28which%20deliberately%20alter%20important%20features%20of%20the%20study
                 to%20generalize%20findings%20or%20to%20test%20the%20underlying%20hypothesis%20in%20a%20new%20way%29
         }{plato.standford.edu})
-    \item only conceptual reproduction
+    \item only conceptual replication
     \item I test the performance of six queues: BQueue, EQueue, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
         \cite{B-Queue}\cite{EQueue}\cite{FastForward}\cite{FastFlowGithub}\cite{Lamport}\cite{MCRingBuffer}
+    \item for this I built a benchmarking framework
+    \item this framework should be easy to extend to help future authors make their work more replicable and comparable
     \item compare to the results from EQ, BQ, FFWD papers
     \item I do so in a manner most similar to how EQ did as they compare the most different
         queues out of the papers of these queues
     \item (Lamport not compared in EQ paper but in FFWDQ paper, included because easy to implement)
     \item to make my results as replicable as possible, I
         \begin{itemize}
-            \item released the full source code, both hosted online and embedded into the pdf
+            \item released the full source code, both hosted online (See \href{https://github.com/Computerdores/ba}{Computerdores/ba}) and embedded into the pdf
                 (latter to prevent missing code in the future)
             \item provided, and explained my choice of, all parameters of the tests and queues
             \item provided, and explained the choices made in, all implementations of the queues
         \end{itemize}
-    \item built benchmarking framework to help future authors make their work more replicable and comparable
-        by making my code easy to extend
 \end{itemize}
