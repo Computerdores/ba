@@ -26,6 +26,7 @@
                     latexmk
                     biber
                     biblatex
+                    biblatex-ieee
                     luatex;
             };
         in {
