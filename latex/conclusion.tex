@@ -10,7 +10,7 @@
     \item some of the results I am seeing are quite similar to EQ, BQ, FFWD papers
     \item however, some are also significantly different; could be due to several reasons:
         \begin{itemize}
-            \item I tested on single CPU and suspect EQueue data for different burst sizes is from cross-cpu test
+            \item I tested on multiple cores of \textit{single} CPU and suspect EQueue data for different burst sizes is from cross-cpu test (multiple cores of \textit{different} CPUs)
             \item EQ measurements include part of their measurement code in the time measurements, I don't
             \item not many details in EQueue paper on the experiment setup, particularly on queue parameters
                 that were used for queues other than EQ
@@ -24,7 +24,7 @@
         \end{itemize}
 
     \item fflwq was (among the) best in almost every single scenario, recommended as first pick
-    \item should still try out different queues as there significant differences
+    \item should still try out different queues as there are significant differences
     \item should be easy due to me publishing impls for all tested here with same function interface (only templates differ)
     \item also results here may give an idea which queues to start with
 

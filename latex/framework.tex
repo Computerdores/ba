@@ -1,113 +1,81 @@
 \section{Framework}
-\todo{is this the right amount of detail?}
 \subsection{Goals}
-\todo{not sure about this subsection title, ``Requirements'' maybe?}
 \begin{itemize}
-    \item framework for benchmarking different SPSC FIFO queues in different benchmarks
-    \item want to avoid duplicating the entire benchmark code for every queue/variation in a part of the benchmark
-    \item duplicating the code would allow the compiler to optimise better
-    \item don't want to give up on that performance advantage (I would expect that to be present in real applications)
-    \item EQueue: parts of queue impl in benchmark code => I want full separation
+    \item Goal: framework for benchmarking different SPSC FIFO queues in different benchmarks
     \item should allow new queues or benchmark variations with minimal effort
-    \item full source code available on GitHub (See \href{https://github.com/Computerdores/ba}{Computerdores/ba})
+    \item Goal: avoid duplicating the entire benchmark code for every queue/variation in a part of the benchmark
+    \item duplicating the code would allow the compiler to optimise better
+    \item Goal: don't want to give up on that performance advantage (I would expect that to be present in real applications)
+    \item EQueue: parts of queue impl in benchmark code
+    \item Goal: full separation of benchmark code and queue implementation
+    \item full source code available on GitHub (See \href{https://github.com/Computerdores/ba}{Computerdores/ba}) \todo{TODO: move this to better spot}
 \end{itemize}
 
 \subsection{Architecture}
-\begin{figure}
-    \begin{minted}{cpp}
-/* ... */
-template <IsQueueWith<u64> Q, IsMeasurerPair M, IsWaiterPair W, bool MEASURE_FAILED = false>
-class Runner {
-  public:
-    template <typename P>
-    explicit Runner(Q* queue, const P& params)
-        : _queue(queue), _measurer(M(params.msg_count)), _waiter(W(params)),
-          _msg_count(params.msg_count) {}
-
-    void run() { /* ... */ }
-
-    void write_results(std::ostream* out) { /* ... */ }
-
-  private:
-    Q* _queue;
-    M _measurer;
-    W _waiter;
-    usize _msg_count;
-    volatile bool _start = false;
-    CACHE_ALIGNED u64 _data_sink;
-
-    void producer() {
-        // wait for start
-        while (!_start) { }
-        // do test
-        _waiter.tx.start();
-        for (usize i = 0; i < _msg_count; i++) {
-            _measurer.tx.pre();
-            auto data = get_timestamp();
-            while (!_queue->enqueue(data)) {
-                if constexpr (!MEASURE_FAILED) _measurer.tx.pre();
-            }
-            _measurer.tx.post();
-            _waiter.tx.wait();
-        }
-    }
-
-    void consumer() {
-        // wait for start
-        while (!_start) { }
-        // do test
-        _waiter.rx.start();
-        for (usize i = 0; i < _msg_count; i++) {
-            _measurer.rx.pre();
-            std::optional<u64> data = std::nullopt;
-            while (!((data = _queue->dequeue()))) {
-                if constexpr (!MEASURE_FAILED) _measurer.rx.pre();
-            }
-            _data_sink += *data;
-            _measurer.rx.post();
-            _waiter.rx.wait();
-        }
-    }
-};
-    \end{minted}
-    \caption{The implementation of the runner class in C++, with some parts ommited.}
-    \label{fig:runner-class-code}
-\end{figure}
 \begin{itemize}
-    \item Runner class as a skeleton benchmark (See \autoref{fig:runner-class-code})
-    \item populated with templated components
+    \item different benchmarks are still similar in certain ways
+    \item producer/consumer threads
+    \item enqueue/dequeue X items
+    \item take measurements per operation
+    \item wait between operations to simulate work
+    \item What varies is: waiting behaviour, measuring code
+    \item => Have one runner class, 'skeleton benchmark', that makes use of swappable components for the waiting behaviour and measuring
+    \item this way core part of benchmark is not duplicated (Goal)
+    \item can plug different components into runner class to have different benchmarks (Goal)
+    \item each component is implemented as a class with a certain interface
+    \item structure of producer / consumer threads:
+        \begin{itemize}
+            \item largely the same; differences because one enqueues one dequeues
+            \item run through loop to enqueue X items
+            \item for each item: queue operation gets called repeatedly until it is successfull (e.g. if enqueue fails it will eventually succeed once dequeue has run on other thread)
+            \item waiter gets called once before the first operation of first item (allows it to adjust wait durations relative to start time) and after every successful operation
+            \item to take before measurements, measurer either gets called only before the first attempt of each item (when including failed operations in the measurements)
+                or before every attempt to reset the before measurement from failed operations (when not including failed operations in the measurements)
+            \item measurer also gets called after every successful operation to take after measurements
+        \end{itemize}
+\end{itemize}
+
+\subsection{Technical Details}
+
+\input{figures/runner-class-code}
+
+\begin{itemize}
+    \item see runner class implementation: \autoref{fig:runner-class-code}
+    \item components as template parameters
+    \item template params are pairs of components
+        \begin{itemize}
+            \item not that important
+            \item only done to shorten construction of runner class
+        \end{itemize}
     \item components defined in headers
     \item => get inlined into the runner class (verified in Ghidra)
     \item => almost identical result of compilation to duplicating the runner class and copying the component
         code into it
-    \item => no performance difference, but easier to work with
-    \item runner class has three types of components:
+    \item => no performance difference, but easier to work with (Goal)
+    \item Queue impl is also template parameter => full separation of Queue impl and benchmark (Goal)
     \item waiter
         \begin{itemize}
-            \item causes a delay between operation
-            \item used to emulate different enqueue/dequeue patterns
-            \item has a \texttt{start} method to mark the beginning of the benchmark
-            \item has a \texttt{wait} method to trigger a wait time according to the waiter's semantics
+            \item \texttt{start} method -- marks the beginning of the benchmark
+            \item \texttt{wait} method -- triggers a wait time according to the waiter's implementation
         \end{itemize}
     \item measurer
         \begin{itemize}
-            \item measures time between start and end of operation
-            \item can be used to implement differnt ways of measuring time
-            \item can also be varied to measure other aspects (cnt failed ops, cache stats, etc.) there
-            \item \texttt{pre} method gets called to record timestamp before operation (overwrites last
+            \item \texttt{pre} method -- gets called to record timestamp before operation (overwrites last
                 timestamp if called back to back)
-            \item \texttt{post} method gets called to record timestamp after operation
+            \item \texttt{post} method -- gets called to record timestamp after operation
         \end{itemize}
     \item queue
         \begin{itemize}
             \item the data structure to be benchmarked
             \item implements consistent interface with non-blocking \texttt{enqueue} and \texttt{dequeue}
-                that indicate success via their return values
+                that indicate success via their return values (See \autoref{fig:queue-interface})
         \end{itemize}
-    \item main function orchestrates
-    \item loads numerical parameters related to queues and benchmark from config file
-    \item starts an instance of the runner class with the appropriate components
-    \item causes write of result data after benchmark is done
+    \item main function prepares/runs/cleans up benchmark
+        \begin{itemize}
+            \item loads numerical parameters related to queues and benchmark from config file
+            \item starts an instance of the runner class with the appropriate components
+            \item causes write of result data after benchmark is done
+        \end{itemize}
 \end{itemize}
 
 \subsubsection{Time Measurement}
@@ -115,12 +83,14 @@ class Runner {
     \item relevant for waiters and measurers
     \item I am using \texttt{RDTSC} to measure time
     \item does not meaure time directly; measures clock ticks
-    \item incremented at constant rate of CPU base frequency if CPU has invariant TSC (The CPU I use does)
+    \item incremented at constant rate (CPU base frequency) if CPU has invariant TSC (The CPU I use does)
     \item so to convert \texttt{RDTSC} diff to seconds divide by base freq
 \end{itemize}
 
-\subsubsection{Waiters}
+\subsubsection{Waiter Implementations}
 \begin{itemize}
+    \item causes a delay between operation (\textit{waits})
+    \item used to emulate different enqueue/dequeue patterns
     \item Constant Wait
         \begin{itemize}
             \item waits a constant amount of time between operations
@@ -140,16 +110,16 @@ class Runner {
             \item used to emulate enqueue / dequeue behaviour that is bursty
             \item typical for network applications
             \item e.g. with BURST\_SIZE of 20, wait time of \ns{100}, and OP duration of \ns{20} -- 20
-                elements will be enqueued followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$
+                elements will be enqueued followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$ (thus on average delay between starts of OPs will be \ns{100})
         \end{itemize}
     \item Jitter can be enabled; adds pseudo-random variance to wait times (idea also present in FFWDQ paper)
 \end{itemize}
 
-\subsubsection{Measurers}
+\subsubsection{Measurer Implementations}
 \begin{itemize}
-    \item could vary timestamp source e.g. for different architectures
-    \item could measure cache stats for the duration of the operation
     \item only one measurer implemented (=> used for all benchmarks here)
-    \item uses \texttt{RDTSC} instruction to get clock count
-    \item uses known base frequency to derive ns timestamps from clock count (epoch is not accounted for)
+    \item uses \texttt{RDTSC} instruction as explained previously
+    \item could vary timestamp source e.g. for different architectures
+    \item could also measure failed operations
+    \item could measure cache stats for the duration of the operation
 \end{itemize}
