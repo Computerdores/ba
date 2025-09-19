@@ -31,14 +31,19 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
         (see equeue paper)
     \item My measurements show $\approx \SI{26}{\nano\second}$ (RX) and $\approx \SI{24}{\nano\second}$ (TX),
         less than \SI{5}{\nano\second} off
+    \item gives credence to idea that this benchmark is similar to that of EQ paper
+    \item also suggests, that my version of EQ impl is very similar to their version
     \item Other queues tested in EQueue paper (BQ, MCRB, FFWDQ) reportedly took $\approx \SI{108}{\nano\second}$
     \item My measurements show $\approx \SI{23}{\nano\second}$ (mean of RX and TX)
     \item other queues 4-5x worse in EQueue paper
-    \item so while the EQueue performance lines up between the two, other queues perform much better for me
     \item the reasons for this difference are unclear; could be due to different queue parameters for BQ, MCRB, FFWDQ than I am using (EQueue paper is light on details about this)
+    \item could also mean that EQ is only better than those queues in specific scenarios / hardware; more testing needed
+    \item so while the EQueue performance lines up between the two, other queues perform much better for me
     \item we can also see that, without measuring failed operations, RX of all but LPRT perform 50\% better
     \item meanwhile TX performance only improves marginally
     \item suggests that a significant number of RX operations fail due to empty queues in this benchmark
+    \item suspect this is happening during wait time between bursts; thus lower time for LPRT doesn't matter
+    \item => all queues perform roughly equally well here
 \end{itemize}
 
 \subsubsection{Bursty 65k-2k}
@@ -58,9 +63,15 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
     \item when not measuring failed operations, the performances of the queues become evenmore similar (See
         \autoref{fig:results-bursty-65k-2k-a})
     \item suggests main performance difference here comes from failed operations due to full/empty queues
+    \item on its own number of failed ops for EQ could be interpreted as bursts not entirely fitting in the queue leading to some but not very many failed ops
+    \item unlikely since it doesn't show up with larger burst size where it would be expected to be evenmore significant
+    \item unclear why this increase in failed ops is present
+    \item MCRB is also a bit slower on RX when measuring failed ops
+    \item => all other queues perform equally well to Bursty 65k-16k
 \end{itemize}
 
 \subsubsection{Basic 65k}
+\todo{make sure the significance of the differences between FFWD/BQ paper and mine is clearly pointed out}
 \begin{itemize}
     \item see results in \autoref{fig:results-basic-65k}
     \item the performance is mostly the same as in Bursty 65k-16k
@@ -69,6 +80,8 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
         drastic for LPRT (See \autoref{fig:results-basic-65k-a})
     \item suggests that for BQ and EQ this is mostly due to failing enqueue because of full queues
     \item whereas for LPRT this is also the case but additionally the enqueue operation also seems to be slower in itself
+    \item this might mean that EQ/BQ/LPRT fill up early in benchmark -- causing enqueues to fail later eventhough dequeue similarly fast to others
+    \item Lamport's TX being worse could be for Cache Opt reasons, BQ/EQ/FFWDQ/MCRB all do cache opt but LPRT doesn't
     \item this case is also somewhat similar to the testing from the FastForward paper, where FFWDQ and LPRT are compared (in particular no
         burstiness, but queue size is much larger here)
     \item FastForward paper showed FFWDQ to be significantly faster than LPRT which my results confirm
@@ -79,4 +92,5 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
     \item neither my measurements, nor those of the EQueue paper show values that small for any of those queues
     \item this leads me to believe that the absolute values are not comparable between the hardware used in the B-Queue paper and the hardware used here or in the EQueue paper
     \item also, BQ used much smaller queue sizes for their tests
+    \item overall, suggests performance of FFWDQ/FFLWQ/MCRB is most stable when enqueue rate is stable
 \end{itemize}

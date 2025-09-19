@@ -1,0 +1,17 @@
+\begin{figure}
+    \begin{minted}{cpp}
+        template <typename T>
+        class Queue {
+          public:
+            using Item = T;
+
+            virtual bool enqueue(T item) = 0;
+
+            virtual std::optional<T> dequeue() = 0;
+
+            virtual ~Queue() = default;
+        };
+    \end{minted}
+    \caption{The \texttt{Queue<T>} interface.}
+    \label{fig:queue-interface}
+\end{figure}
