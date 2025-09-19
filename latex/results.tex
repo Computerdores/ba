@@ -71,7 +71,6 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
 \end{itemize}
 
 \subsubsection{Basic 65k}
-\todo{make sure the significance of the differences between FFWD/BQ paper and mine is clearly pointed out}
 \begin{itemize}
     \item see results in \autoref{fig:results-basic-65k}
     \item the performance is mostly the same as in Bursty 65k-16k
@@ -82,8 +81,8 @@ Lastly, for the Basic benchmark I compare my results to those of the B-Queue and
     \item whereas for LPRT this is also the case but additionally the enqueue operation also seems to be slower in itself
     \item this might mean that EQ/BQ/LPRT fill up early in benchmark -- causing enqueues to fail later eventhough dequeue similarly fast to others
     \item Lamport's TX being worse could be for Cache Opt reasons, BQ/EQ/FFWDQ/MCRB all do cache opt but LPRT doesn't
-    \item this case is also somewhat similar to the testing from the FastForward paper, where FFWDQ and LPRT are compared (in particular no
-        burstiness, but queue size is much larger here)
+    \item this case is also somewhat similar to the testing from the FastForward paper, where FFWDQ and LPRT are compared
+    \item worth noting that there are significant differences: much larger queue size here, they sent packets in a circle I do nothing of the sort
     \item FastForward paper showed FFWDQ to be significantly faster than LPRT which my results confirm
     \item it is also the most similar to the benchmark from the B-Queue paper with 1 concurrent queue
     \item the B-Queue benchmark showed very similar performance of BQ, MCRB and FFWDQ
