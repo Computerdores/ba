@@ -1,7 +1,6 @@
 \section*{Abstract}
-Parallelised architectures play an important role in reaching performance goals.
-In implementing such architectures, FIFO queues can play an important role as communication channels between different application components.
-These communication channels can often be core to the performance of such applications, particularly network applications which often make use of pipeline parallelism due to high packet rates.
+In implementing parallelised architectures, FIFO queues can play an important role as communication channels between different application components\cite{WangCheng2009}.
+These communication channels can often be core to the performance of such applications, particularly network applications which often make use of pipeline parallelism\cite{Upadhyaya2007,WangCheng2009}.
 However, there are many different SPSC FIFO queue implementations and each paper benchmarks their queue differently, making it hard to compare results between them.
 For this reason it is hard to determine the optimal choice of queue without implementing a testing all of the considered options.
 I seek to alleviate this problem by building a benchmarking framework, which should allow for easier benchmarking of a wide range of queues and allow future authors of papers presenting novel queue designs to benchmark their newly proposed implementations in a replicable and comparable manner.
