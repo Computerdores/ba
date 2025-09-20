@@ -1,37 +1,29 @@
 \section{Introduction}
-\begin{itemize}
-    \item parallelisation of applications is an important technique for reaching performance goals
-    \item common example is pipeline paralellism for network applications (citation here; see bqueue paper for srcs)
-    \item FIFO queues can play an important role here as communication channels between application components (often on different CPU cores)
-    \item these channels can be core to the performance of applications, particularly network applications
-        where the rate of incoming packets can be quite high, performance of these queues can thus be critical
-    \item many different SPSC FIFO queue implementations
-    \item each paper benchmarks differently, hard to compare
-    \item each comes to conclusion that their new queue is the best
-    \item hard to know which queue is best for particular use case
-    \item wasn't able to find any repro papers (See \autoref{app:repro-search-queries})
-    \item papers rarely provide source code
-    \item even then, source code often incomplete or gone missing
-    \item a direct replication not possible (see
-            \href{https://plato.stanford.edu/entries/scientific-reproducibility/#:~:text=direct
-                replication%20%28which%20closely%20follow%20the%20original%20study%20to%20verify%20results%29%20and
-                conceptual%20replications%20%28which%20deliberately%20alter%20important%20features%20of%20the%20study
-                to%20generalize%20findings%20or%20to%20test%20the%20underlying%20hypothesis%20in%20a%20new%20way%29
-        }{plato.standford.edu})
-    \item only conceptual replication
-    \item I test the performance of six queues: BQueue, EQueue, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
-        \cite{B-Queue}\cite{EQueue}\cite{FastForward}\cite{FastFlowGithub}\cite{Lamport}\cite{MCRingBuffer}
-    \item for this I built a benchmarking framework
-    \item this framework should be easy to extend to help future authors make their work more replicable and comparable
-    \item compare to the results from EQ, BQ, FFWD papers
-    \item I do so in a manner most similar to how EQ did as they compare the most different
-        queues out of the papers of these queues
-    \item (Lamport not compared in EQ paper but in FFWDQ paper, included because easy to implement)
-    \item to make my results as replicable as possible, I
-        \begin{itemize}
-            \item released the full source code, both hosted online (See \href{https://github.com/Computerdores/ba}{Computerdores/ba}) and embedded into the pdf
-                (latter to prevent missing code in the future)
-            \item provided, and explained my choice of, all parameters of the tests and queues
-            \item provided, and explained the choices made in, all implementations of the queues
-        \end{itemize}
-\end{itemize}
+\label{sec:introduction}
+Parallelisation of applications is an important technique for reaching performance goals.
+A common example of making use of multi-core architectures in such a way, are network applications making use of pipeline parallelism\cite{Upadhyaya2007,WangCheng2009}.
+This allows parallelisation by decomposing these network applications into sequential tasks that can be parallelised\cite{WangCheng2009}.
+In such applications FIFO queues play an important role as communication channels between these sequential tasks, can often be located on different CPU cores.
+However, the performance of these communication channels can be critical, ``take [a] 10 Gbps network as an example, a minimal 64-byte Ethernet frame must be processed in amortized time of 67 ns, which is about one DRAM access time''\cite{B-Queue}.
+
+Because of this there are many different SPSC FIFO queue designs aiming to improve, relative to previous iterations, the time spent per enqueue/dequeue operation\cite{B-Queue,EQueue,FastForward,FastFlowGithub,MCRingBuffer}.
+However, choosing one of these implementations can be diffcult for several reasons.
+Each paper of course concludes that their new design surpasses the performance of existing designs in some way and shows results of some kind of test to support their conclusion.
+This means that these benchmarks are very different from paper to paper, making it hard to compare the results.
+Furthermore, there also don't seem to be any papers comparing many different queues via the same tests (See \autoref{app:repro-search-queries}).
+The papers also rarely provide source code for their new queue designs or, if they did, the source code may not be available anymore
+due to link rot\footnote{Examples of this link rot include the original distributions of the source code of the EQueue and B-Queue papers (See \autoref{equeue-bqueue-links}).}.
+All of this makes a direct replication hard, if not impossible\cite{sep-scientific-reproducibility}.
+
+With the aim of addressing these problems, I built a benchmarking framework and used it to benchmark six queues: B-Queue, EQueue, FastForward Queue, FastFlow Queue, Lamport Queue and MCRingBuffer \cite{B-Queue,EQueue,FastForward,FastFlowGithub,Lamport,MCRingBuffer}.
+This Framework should make it easier for future authors to test queue designs in a way that is replicable and comparable, and makes it easy to include parameter values like queue size, batching size, etc. with the source code by reading these values from a config file that can be stored alongside it.
+Afterwards, I compare the results from the benchmarks to those of the EQueue, B-Queue and FastForward papers in order to see how closely their results are replicated.
+These benchmarks were designed to be most similar to those of the EQueue paper, as that paper compares the most different queues out of those three.
+
+In order to make my results as replicable as possible, I released the full source code on Github (see \href{https://github.com/Computerdores/ba}{Computerdores/ba}) and also embedded it into the PDF to prevent link rot (see \autoref{app:source-code-archive}).
+Furthermore, I provide and explain my choice of, all parameters of the tests and queues and also detail the considerations that were made during the implementation of the queues.
+Due to the full source code of all of these queues being released, all with an identical interface, it will also be easier for implementors to test different queues in their applications.
+
+In the rest of this thesis I first outline the architecture of the benchmarking framework that was developed and certain technical details of it.
+Afterwards, I describe the considerations made in the queue implementions, followed by an explanation of the system under test and the different benchmarks that were performed.
+Then, I analyse the results of the benchmarks, and finally I present my conclusion.
