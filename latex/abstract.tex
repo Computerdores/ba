@@ -1,17 +1,11 @@
 \section*{Abstract}
-\begin{itemize}
-    \item parallelisation of applications is an important technique for reaching performance goals
-    \item FIFO queues can play an important role here as communication channels between application components
-    \item these channels can be core to the performance of applications, particularly network applications
-        where the rate of incoming packets can be quite high, performance of these queues can thus be critical
-    \item many different SPSC FIFO queue implementations
-    \item each paper benchmarks differently, hard to compare
-    \item hard to know which queue is best for particular use case
-    \item I tested the performance of six queues: BQueue, EQueue, FastForwardQ, FastFlowQ, LamportQ, MCRingBuffer
-    \item built benchmarking framework to help future authors make their work more replicable and comparable
-        by making my code easy to extend
-    \item I tested the performance of those queues, result is that FFLWQ is most consistently very good
-    \item my results partially line up, partially don't with EQ/BQ/FFWD papers
-    \item I published all source code and as many details as possible, my results should therefore be much easier to reproduce
-    \item framework is done, modular, and should be easy to extend
-\end{itemize}
+Parallelised architectures play an important role in reaching performance goals.
+In implementing such architectures, FIFO queues can play an important role as communication channels between different application components.
+These communication channels can often be core to the performance of such applications, particularly network applications which often make use of pipeline parallelism due to high packet rates.
+However, there are many different SPSC FIFO queue implementations and each paper benchmarks their queue differently, making it hard to compare results between them.
+For this reason it is hard to determine the optimal choice of queue without implementing a testing all of the considered options.
+I seek to alleviate this problem by building a benchmarking framework, which should allow for easier benchmarking of a wide range of queues and allow future authors of papers presenting novel queue designs to benchmark their newly proposed implementations in a replicable and comparable manner.
+I make use of this framework to test a range of different queues: B-Queue, EQueue, FastForward Queue, FastFlow Queue, Lamport Queue and MCRingBuffer \cite{B-Queue,EQueue,FastForward,FastFlowGithub,Lamport,MCRingBuffer}.
+In the benchmarks used here FastForward Queue, FastFlow Queue, and MCRingBuffer were consistently (among) the best performing queues.
+I also compared my results with some of those of the EQueue, B-Queue, and FastForward papers and found, in parts similar, but not identical, results.
+Furthermore, I published all source code used for this benchmarking along with as many surrounding details as possible, in order to make my results as simple to replicate as possible.
