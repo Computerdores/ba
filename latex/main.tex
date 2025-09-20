@@ -10,6 +10,13 @@
 
 \usepackage{hyperref}
 \usepackage{cleveref}
+\hypersetup{
+    linktoc=all,
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
 
 \usepackage{minted}
 
@@ -31,7 +38,10 @@
 \listoftodos
 \newpage
 
-\tableofcontents
+\begingroup
+    \hypersetup{hidelinks}
+    \tableofcontents
+\endgroup
 \newpage
 
 \input{abstract}
