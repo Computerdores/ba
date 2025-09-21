@@ -1,124 +1,119 @@
 \section{Framework}
 \subsection{Goals}
-\begin{itemize}
-    \item Goal: framework for benchmarking different SPSC FIFO queues in different benchmarks
-    \item should allow new queues or benchmark variations with minimal effort
-    \item Goal: avoid duplicating the entire benchmark code for every queue/variation in a part of the benchmark
-    \item duplicating the code would allow the compiler to optimise better
-    \item Goal: don't want to give up on that performance advantage (I would expect that to be present in real applications)
-    \item EQueue: parts of queue impl in benchmark code
-    \item Goal: full separation of benchmark code and queue implementation
-\end{itemize}
+First and foremost, this framework should allow for benchmarking of different SPSC FIFO queues in different benchmarks.
+In oder to make it as straightforward as possible to add new queues or different benchmarks, large code
+duplications between different benchmarks should also be avoided.
+For this reason the framework should be kept modular to allow for simple reuse of existing code.
+However, duplicating the code shared between benchmarks would potentially allow the compiler to optimise more
+freely than naive modularisation would, which I would also expect to potentially be the case in real world
+applications -- the details of how this was avoided while still keeping the framework modular are outlined in
+\autoref{sec:framework-technical-details}.
+Lastly, I want to specifically avoid mixing the code being benchmarked and the code responsible for said
+benchmarking, in order to keep the queue implementations self contained and easily usable by others.
 
 \subsection{Architecture}
-\begin{itemize}
-    \item different benchmarks are still similar in certain ways
-    \item producer/consumer threads
-    \item enqueue/dequeue X items
-    \item take measurements per operation
-    \item wait between operations to simulate work
-    \item What varies is: waiting behaviour, measuring code
-    \item => Have one runner class, 'skeleton benchmark', that makes use of swappable components for the waiting behaviour and measuring
-    \item this way core part of benchmark is not duplicated (Goal)
-    \item can plug different components into runner class to have different benchmarks (Goal)
-    \item each component is implemented as a class with a certain interface
-    \item structure of producer / consumer threads:
-        \begin{itemize}
-            \item largely the same; differences because one enqueues one dequeues
-            \item run through loop to enqueue X items
-            \item for each item: queue operation gets called repeatedly until it is successfull (e.g. if enqueue fails it will eventually succeed once dequeue has run on other thread)
-            \item waiter gets called once before the first operation of first item (allows it to adjust wait durations relative to start time) and after every successful operation
-            \item to take before measurements, measurer either gets called only before the first attempt of each item (when including failed operations in the measurements)
-                or before every attempt to reset the before measurement from failed operations (when not including failed operations in the measurements)
-            \item measurer also gets called after every successful operation to take after measurements
-        \end{itemize}
-\end{itemize}
+Typically benchmarks of FIFO queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
+Two separate threads will be started, one for enqueuing and one for dequeuing elements,
+each thread will perform an equal number of successful operations,
+they will take measurements of certain aspects of the behaviour of the operations,
+and a workload will be simulated in between queue operations.
+What varies between these benchmarks is the type of workload that is simulated and how measurements are taken.
+
+With this in mind, I chose to center the framework around a Runner class which acts as a sort of ``skeleton benchmark.''
+This class implements the aforementioned shared aspects of different benchmarks, and makes use of swappable
+components for the varying waiting behaviour and measurement code.
+All components are implemented as classes with an interface specific to the type of component they implement.
+
+The producer and consumer threads are quite similar in structure, with the major differences only being
+related to the queue operation they perform.
+Each runs through a configurable number of iterations, repeatedly attempting their queue operation for each
+until it succeeds\footnote{This will not cause a deadlock to occur, since a correctly implemented queue will
+only fail on enqueue / dequeue operations, if the queue is full/empty respectively.}.
+Before and after each operation, the measurement component will be called in order to take measurements, with
+the measurement from before an operation possibly being repeated in case the operation failed and failed
+operations are not to be included in the measurements (whether they are to be included is configurable).
+After each successful operation's post operation measurements, the waiter will be called in order to simulate
+work related to the last performed operation.
+The waiter will also be called once before the first iteration, so it can adjust wait times based on the
+start time of the benchmark, in case this is needed for its specific implementation.
+
+As I set out in the previous subsection, this architecture allows us to implement different benchmarks for
+different queues, without unnecessary code duplication, by implementing, and making use of, different components.
 
 \subsection{Technical Details}
+\label{sec:framework-technical-details}
 
 \input{figures/runner-class-code}
 
-\begin{itemize}
-    \item see runner class implementation: \autoref{fig:runner-class-code}
-    \item components as template parameters
-    \item template params are pairs of components
-        \begin{itemize}
-            \item not that important
-            \item only done to shorten construction of runner class
-        \end{itemize}
-    \item components defined in headers
-    \item => get inlined into the runner class (verified in Ghidra)
-    \item => almost identical result of compilation to duplicating the runner class and copying the component
-        code into it
-    \item => no performance difference, but easier to work with (Goal)
-    \item Queue impl is also template parameter => full separation of Queue impl and benchmark (Goal)
-    \item waiter
-        \begin{itemize}
-            \item \texttt{start} method -- marks the beginning of the benchmark
-            \item \texttt{wait} method -- triggers a wait time according to the waiter's implementation
-        \end{itemize}
-    \item measurer
-        \begin{itemize}
-            \item \texttt{pre} method -- gets called to record timestamp before operation (overwrites last
-                timestamp if called back to back)
-            \item \texttt{post} method -- gets called to record timestamp after operation
-        \end{itemize}
-    \item queue
-        \begin{itemize}
-            \item the data structure to be benchmarked
-            \item implements consistent interface with non-blocking \texttt{enqueue} and \texttt{dequeue}
-                that indicate success via their return values (See \autoref{fig:queue-interface})
-        \end{itemize}
-    \item main function prepares/runs/cleans up benchmark
-        \begin{itemize}
-            \item loads numerical parameters related to queues and benchmark from config file
-            \item starts an instance of the runner class with the appropriate components
-            \item causes write of result data after benchmark is done
-        \end{itemize}
-\end{itemize}
+As can be seen in \autoref{fig:runner-class-code}, the integration of the components into the runner class
+was implemented via template parameters\footnote{You may observe the template parameters being pairs of
+components, this was done to simplify the construction of the runner class and is not relevant here.}.
+Furthermore, the components are stored as part of the data of the runner class, which in combination with the
+components being defined in Header files, means that the compiler will inline both data and method
+implementations into the runner class.
+This was verified using the software reverse engineering framework Ghidra.
+Due to this inlining the result of compilation, will be near identical to duplicating the runner class and
+copying the components code into it by hand.
+This means that, as I set out to achieve, the modularisation makes it easier to work with, but it does not
+impact the performance of the benchmark and should thus not have an impact on the results.
+Furthermore, the type of the queue implementation is also specified as a template parameter, with the
+implementation being passed as a parameter to the constructor.
+Thus there is also full separation between the queue implementation and the benchmarking code, as the runner
+class can thus only rely on the common interface of all queues (see \autoref{fig:queue-interface}).
+
+\autoref{fig:runner-class-code} also shows which methods of the waiter and measurer components are being used.
+First of, there is the \texttt{start} method of the waiter, which marks the beginning of the benchmark,
+and the \texttt{wait} method of the waiter, which triggers a wait time according to the waiter's implementation.
+Secondly, there is the \texttt{pre} method of the measurer, which gets called to record timestamp before each
+attempted operation and overwrites the last recorded measurement if called again before the \texttt{post}
+method is called, which is used to take a measurement after each sucessful operation.
+
+Lastly, it is worth mentioning the main function, which prepares, runs, and cleans up the benchmark.
+It first loads parameters related to the instantiation of the queues and regarding the benchmark from a config file,
+and then starts an instance of the runner class with the appropriate components, all according to the CLI
+arguments it was provided.
+After the benchmark has finished, it causes the measurement data to be saved.
 
 \subsubsection{Time Measurement}
-\begin{itemize}
-    \item relevant for waiters and measurers
-    \item I am using \texttt{RDTSC} to measure time
-    \item does not meaure time directly; measures clock ticks
-    \item incremented at constant rate (CPU base frequency) if CPU has invariant TSC (The CPU I use does)
-    \item so to convert \texttt{RDTSC} diff to seconds divide by base freq
-\end{itemize}
+Both the waiter implementations and the measurer implementation need to measure time intervals.
+The basis of this is the \texttt{RDTSC} instruction which reads the Timestamp Counter (TSC), which is a
+feature of x86 CPUs.
+On all CPUs with an invariant TSC, like the one used for the benchmarks here, this counter is incremented at
+a constant rate, equal to the base frequency of the CPU.
+This means that in order to provide time interval measurements in nanoseconds, the TSC difference needs to be
+divided by the CPU's base frequency to arrive at the correct unit.
 
 \subsubsection{Waiter Implementations}
-\begin{itemize}
-    \item causes a delay between operation (\textit{waits})
-    \item used to emulate different enqueue/dequeue patterns
-    \item Constant Wait
-        \begin{itemize}
-            \item waits a constant amount of time between operations
-            \item used to emulate operations (of input / output) that take a very consistent amount of time
-        \end{itemize}
-    \item Constant Rate
-        \begin{itemize}
-            \item tries to maintain a constant time difference between starts of operations
-            \item used to emulate input streams with a constant rate
-        \end{itemize}
-    \item e.g. if OP takes \ns{80} and wait time is \ns{200} then ConstantWait leads to a \ns{280} delay
-        between starts of OPs and ConstantRate leads to a \ns{200} delay between starts of OPs because it
-        only waits $\ns{200}-\ns{80}=\ns{120}$
-    \item Bursty
-        \begin{itemize}
-            \item defers waits in order to have blocks of BURST\_SIZE elements with no waits
-            \item used to emulate enqueue / dequeue behaviour that is bursty
-            \item typical for network applications
-            \item e.g. with BURST\_SIZE of 20, wait time of \ns{100}, and OP duration of \ns{20} -- 20
-                elements will be enqueued followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$ (thus on average delay between starts of OPs will be \ns{100})
-        \end{itemize}
-    \item Jitter can be enabled; adds pseudo-random variance to wait times (idea also present in FFWDQ paper)
-\end{itemize}
+As outlined previously, waiter components cause a delay between queue operations, in order to simulate the
+enqueue and dequeue patterns, caused by real-world workloads.
+For the benchmarks in this thesis I have implemented three different waiter components.
+
+\paragraph{Constant Wait}
+This component waits a constant amount of time between operations.
+It aims to simulate work loads with very consistent time expenditure per item enqueued or dequeued.
+
+\paragraph{Constant Rate}
+This component tries to maintain a constant time difference between the starts of queue operations.
+It is used in order to isolate the differing operation times of different queue implementations from the rate
+at which operations are performed.
+For example, if the queue operation takes \ns{80} on average, and the wait time (time difference between
+operations if the specified en-/dequeue rate is maintained exactly) is \ns{200}, then Constant Wait will lead
+to a \ns{280} delay between the starts of operations, while Constant Rate will lead to a \ns{200} delay
+between starts of operations, because it would only waits $\ns{200}-\ns{80}=\ns{120}$.
+
+\paragraph{Bursty}
+This waiter behaves similarly to the Constant Rate component, however it defers wait operations, in order to
+produce blocks of BURST\_SIZE operations with little to no delay, similar to network applications where
+network packets often arrive in bursts.
+For example, with a BURST\_SIZE of 20, a wait time of \ns{100}, and an average operation duration of \ns{20},
+20 elements will be enqueued followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$ (leading to an average
+delay between starts of operations of \ns{100}).
+Lastly, this component and the Constant Rate waiter also allow for jitter to be enabled, which adds pseudo
+random variance to the wait times (this was also done in the FastForward paper\cite{FastForward}).
 
 \subsubsection{Measurer Implementations}
-\begin{itemize}
-    \item only one measurer implemented (=> used for all benchmarks here)
-    \item uses \texttt{RDTSC} instruction as explained previously
-    \item could vary timestamp source e.g. for different architectures
-    \item could also measure failed operations
-    \item could measure cache stats for the duration of the operation
-\end{itemize}
+I have only implemented a single measurer component, however, measurer components could be used to, for
+example, use different timestamp sources than the \texttt{RDTSC} instruction used here as it is only supported on x86.
+It could also be used to measure other aspects of the queue/benchmark behaviour, such as cache statistic, the
+number of failed operations, etc.
+Due to being the only implemented measurer, it is used for every benchmark here.

@@ -5,8 +5,10 @@
           public:
             using Item = T;
 
+            // non-blocking on failure
             virtual bool enqueue(T item) = 0;
 
+            // non-blocking on failure
             virtual std::optional<T> dequeue() = 0;
 
             virtual ~Queue() = default;
