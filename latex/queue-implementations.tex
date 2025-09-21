@@ -1,12 +1,8 @@
 \section{Queue Implementations}
-
-\begin{itemize}
-    \item all of the queues needed to be either ported to cpp, adapted to share the same interface, or
-        reimplemented because no source code was available (For interface see \autoref{fig:queue-interface})
-    \item this section is about the considerations that were made in the process
-    \item first I talk about how I reached out to authors for feedback on my implementations
-    \item then I highlight each implementation's considerations one at a time
-\end{itemize}
+All of the queues I will benchmark in this work, needed to either be ported to cpp, adapted to share the same
+interface (see \autoref{fig:queue-interface}), or reimplemented because no source code was available.
+In the first subsection, I will explain how I reached out to authors of those queues for feedback on my implementations.
+In the following subsections, I will outline the considerations that were made for each queue one at a time.
 
 \subsection{Feedback}
 \todo{TODO: update the 'as of now' dates later}
@@ -15,17 +11,20 @@ source code for the original implementations or feedback on my implementations o
 One of the authors of the FastForward paper responded and was able to provide me with a partial
 implementation of the FastForward queue which was missing the slip adjustment code.
 The provided code was very similar to my implementation, suggesting that that part of my implementation is correct.
-I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-19, however, my
+I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-21, however, my
 original message could not be delivered to Tian Bu and Girish Chandranmenon since their E-Mail addresses,
 stated in the MCRingBuffer paper, are not valid anymore.
 
 I reached out via E-Mail to Yangfeng Tian and Xiong Fu, who are authors of the EQueue paper, and Junchang
 Wang, who is an author of the B-Queue and EQueue papers, on 2025-05-28 with some questions about the EQueue
-paper and source code\footnote{About a week after reaching out, I noticed that the EQueue repository on GitHub ceased to be available.
-For preservation purposes, I have reuploaded the repository to GitHub (See \href{https://github.com/Computerdores/equeue}{Computerdores/equeue}).
-For the same purpose, I have also forked a GitHub reupload of the now unavailable, original B-Queue repository (See \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).
+paper and source code\footnote{About a week after reaching out,
+    I noticed that the EQueue repository on GitHub ceased to be available.
+    For preservation purposes, I have reuploaded the repository to GitHub (See
+    \href{https://github.com/Computerdores/equeue}{Computerdores/equeue}).
+    For the same reason, I have also forked a GitHub reupload of the, now unavailable, original B-Queue
+    repository (See \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).
 \label{equeue-bqueue-links}}.
-I have not received an answer to this E-Mail as of 2025-09-19 and for this reason not reached out separately
+I have not received an answer to this E-Mail as of 2025-09-21 and for this reason not reached out separately
 about feedback on my implementation.
 
 \input{figures/queue-interface}
@@ -33,72 +32,68 @@ about feedback on my implementation.
 \todo{TODO: Add link to repository for code of each queue}
 
 \subsection{BQueue}
-\begin{itemize}
-    \item originally reimplemented from paper because source was unavailable
-    \item full implementation, including self-adaptive backtracking and prod/con batching
-    \item source has since been found elsewhere and original version showed no measurable performance difference
-    \item two small divergences from the pseudo code in the paper are present to fix bugs
-    \item one check added to prevent tail from overtaking batch tail
-    \item one check added to prevent head from overtaking tail in certain circumstances
-        \footnote{Not necessary for benchmarks anymore; left in because more robust and there seemed to be no
-        harm in it}
-\end{itemize}
+This queue was initally reimplemented, because the original source code repository linked in the B-Queue
+paper had become unavailable\cite{B-Queue}.
+As such a full B-Queue implemention, including self-adaptive backtracking and producer and consumer batching, was made.
+I have since found a copy of the original repository and validated that my implementation shows the same
+performance characteristics in my benchmarks.
+The implementation has two small divergences from the pseudo code in the paper, which are present to fix bugs.
+First, a check was added to prevent the tail from overtaking the batch tail.
+Second, another check was added to prevent the head from overtaking the tail in certain circumstances\footnote{
+    This check does not appear to be necessary for the benchmarks anymore, however, I did not remove it,
+because it makes the implementation more robust and I did not observe any performance difference due to it.}.
 
 \subsection{EQueue}
-\begin{itemize}
-    \item ported to cpp with small differences because there were differences between the released source
-        code and the paper
-    \item implementation in released source code is also not entirely self-contained
-    \item I tried to reconcile the differences apropriately
-    \item added check that used size doesn't exceed buffer size (present in the released implementation, but
-        not in the paper)
-    \item \texttt{\_enqueue\_detect\_batching\_size} differs between paper and their impl, I chose closer to their impl.
-    \item \texttt{traffic\_empty} should be increased in \texttt{dequeue} according to paper
-        \begin{itemize}
-            \item their code does it outside of dequeue method
-            \item I did inside dequeue method to have self-contained impl
-        \end{itemize}
-    \item paper doesn't increase \texttt{traffic\_full} in batched version of \texttt{enqueue}
-        \begin{itemize}
-            \item this doesn't make any sense, because it breaks the core mechanism of the queue
-            \item their code does increase it, but outside of queue impl
-            \item I once again did in in the queue impl to stay self-contained
-        \end{itemize}
-    \item proposed LT-CAS is not implemented since their source code only demonstrates it, but doesn't use it
-        in the queue
-\end{itemize}
+EQueue was ported to C++ with small differences, because the released source code and the paper differed\cite{EQueue}.
+Furthermore, their queue implementation is also not entirely self contained (see traffic counters).
+I tried to reconcile the differences between the paper and their code appropriately.
+
+First, I added a check to make sure the used portion of the buffer does not exceed the buffer in size, which
+is also present in their code.
+Secondly, the structure of \texttt{\_enqueue\_detect\_batching\_size} differs between the EQueue paper and
+their implementation; my version of it is closer to their implementation than to the paper.
+Thirdly, according to the paper, the \texttt{traffic\_empty} counter should be increased in \texttt{dequeue},
+however their implementation does this outside of the queue implementation.
+To keep my implementation self contained, I moved this into the \texttt{dequeue} method, as specified by the paper.
+Fourthly, the EQueue paper's pseudo code does not increment \texttt{traffic\_full} in the batched version of
+\texttt{enqueue}.
+In my opinion this does not make a lot of sense, since the core mechanism to resize the used portion of the
+buffer relies on this being incremented.
+Furthermore, their implementation also increments it, but does so outside of the queue implementation.
+For my implementation, I increment it as part of the \texttt{enqueue} method, similarly to the
+\texttt{traffic\_empty} counter.
+Lastly, I did not implement their LT-CAS primitive, since their implementation does not make use of it as
+part of the queue either (it only contains a demonstration of the primitive).
 
 \subsection{MCRingBuffer}
-\begin{itemize}
-    \item no publicly available source code
-    \item padding between shared, consumer local, producer local, and read-only variables
-    \item volatile markings for read, write, and buffer variables
-    \item paper specifies busy wait when enqueue/dequeue don't immediately succeed; to conform with interface
-        this was changed to return failure instead
-    \item deadlocks under certain conditions (possible mitigations outlined in bqueue paper, not pursued here)
-\end{itemize}
+The queue from the MCRingBuffer paper was implemented from scratch, as there does not seem to be any publicly
+available source code\cite{MCRingBuffer}.
+I made sure to add padding between shared, consumer local, producer local, and read only variables, to
+prevent false sharing by making sure these blocks of variables are on different cache lines.
+I also added volatile markings for the variables \texttt{read}, \texttt{write}, and \texttt{buffer}.
+The last change I made is that when enqueue or dequeue don't immediately succeed, instead of waiting as
+specified in the paper, the operation instead fails, to conform with the interface\cite{MCRingBuffer}.
+It is also worth mentioning that this queue deadlocks under certain conditions, however, fixing this issue
+was not pursued here, for the same reasons also outlined in the B-Queue paper\cite{B-Queue}.
 
-\subsection{Fast Flow Queue}
-\begin{itemize}
-    \item adapted to fit interface
-    \item by default has prepare/commit interface
-    \item added wrapper methods that implement a simple enqueue/dequeue according to the general interface used here
-\end{itemize}
+\subsection{FastFlow Queue}
+FastFlow Queue was largely taken as is and only extended to conform with the general queue interface\cite{FastFlowGithub}.
+This was done since FastFlow Queue has a prepare + commit interface for enqueue and dequeue.
+To fix this interface discrepancy, wrapper methods were implemented, which make use of the prepare + commit
+interface to implement the typical enqueue and dequeue semantics.
 
-\subsection{Fast Forward Queue}
-\begin{itemize}
-    \item no publicly available source code
-    \item padding between head, tail, and buffer ptr to put them on different cache lines
-    \item volatile references to allow compiler to optimise accesses to head from enqueue and tail from
-        dequeue normally, but correctly see accesses to tail from enqueue and head from dequeue as volatile
-    \item implementation of distance function was not specified in paper, difference between head and tail
-        used (head will be accessed from dequeue; otherwise only from enqueue)
-\end{itemize}
+\subsection{FastForward Queue}
+Like MCRingBuffer, FastForward queue was implemented from scratch, because I was not able to find source code for it\cite{FastForward}.
+Also like MCRingBuffer, padding was added to make sure that the \texttt{head}, \texttt{tail}, and
+\texttt{buffer} variables are on different cache lines, to prevent false sharing.
+Furthermore, volatile markings and volatile references were added to prevent optimisation errors by the compiler.
+Lastly, the implementation of the distance function was not specified in the paper and was implemented via
+access to the, otherwise thread local, \texttt{head} and \texttt{tail} variables.
 
 \subsection{Lamport Queue}
-\begin{itemize}
-    \item benchmarked in FastForward paper, but source code not published => reimplemented
-    \item padding between head, tail and read-only variables
-    \item volatile references as before
-    \item no busy wait like specified in Lamport paper
-\end{itemize}
+This queue was also reimplemented due to no source code being available, which had seemingly also been done
+for the FastForward paper.
+Similar to the other queues, padding was added between \texttt{head}, \texttt{tail}, and the read only
+variables and volatile references were added as well.
+It is also worth noting that, as with MCRingBuffer, instead of waiting when an operation does not succeed
+immediately like the paper specifies, the queue operations fail instead\cite{Lamport}.
