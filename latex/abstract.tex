@@ -1,10 +1,20 @@
 \section*{Abstract}
-In implementing parallelised architectures, FIFO queues can play an important role as communication channels between different application components\cite{WangCheng2009}.
-These communication channels can often be core to the performance of such applications, particularly network applications which often make use of pipeline parallelism\cite{Upadhyaya2007,WangCheng2009}.
-However, there are many different SPSC FIFO queue implementations and each paper benchmarks their queue differently, making it hard to compare results between them.
-For this reason it is hard to determine the optimal choice of queue without implementing a testing all of the considered options.
-I seek to alleviate this problem by building a benchmarking framework, which should allow for easier benchmarking of a wide range of queues and allow future authors of papers presenting novel queue designs to benchmark their newly proposed implementations in a replicable and comparable manner.
-I make use of this framework to test a range of different queues: B-Queue, EQueue, FastForward Queue, FastFlow Queue, Lamport Queue and MCRingBuffer \cite{B-Queue,EQueue,FastForward,FastFlowGithub,Lamport,MCRingBuffer}.
-In the benchmarks used here FastForward Queue, FastFlow Queue, and MCRingBuffer were consistently (among) the best performing queues.
-I also compared my results with some of those of the EQueue, B-Queue, and FastForward papers and found, in parts similar, but not identical, results.
-Furthermore, I published all source code used for this benchmarking along with as many surrounding details as possible, in order to make my results as simple to replicate as possible.
+In implementing parallelised architectures, FIFO queues can play an important role as communication channels
+between different application components\cite{WangCheng2009}.
+These communication channels can often be core to the performance of such applications, particularly network
+applications which often make use of pipeline parallelism\cite{Upadhyaya2007,WangCheng2009}.
+However, there are many different SPSC FIFO queue implementations and each paper benchmarks their queue
+differently, making it hard to compare results between them.
+For this reason it is hard to determine the optimal choice of queue without implementing a testing all of the
+considered options.
+I seek to alleviate this problem by building a benchmarking framework, which should allow for easier
+benchmarking of a wide range of queues and allow future authors of papers presenting novel queue designs to
+benchmark their newly proposed implementations in a replicable and comparable manner.
+I make use of this framework to test a range of different queues: B-Queue, EQueue, FastForward Queue,
+FastFlow Queue, Lamport Queue and MCRingBuffer \cite{B-Queue,EQueue,FastForward,FastFlowGithub,Lamport,MCRingBuffer}.
+In the benchmarks used here FastForward Queue, FastFlow Queue, and MCRingBuffer were consistently (among) the
+best performing queues.
+I also compared my results with some of those of the EQueue, B-Queue, and FastForward papers and found, in
+parts similar, but not identical, results.
+Furthermore, I published all source code used for this benchmarking along with as many surrounding details as
+possible, in order to make my results as simple to replicate as possible.
