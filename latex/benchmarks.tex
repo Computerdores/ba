@@ -1,176 +1,130 @@
 \subsection{Benchmarks}
-\todo{TODO: add note about order of benchmarks here}
-\begin{itemize}
-    \item will start by explaining what parameters there are per queue
-    \item will then for each scenario explain which values were chosen and why + config file for it
-\end{itemize}
+\todo{TODO: Querverweise}
+In this subsection I will start by explaining the different parameters to be set for each queue.
+I will then continue to outline the specifics of each benchmark, with one benchmark per subsection in the
+order from the benchmark with the smallest difference between the performance of the queues to the benchmark
+with the highest difference between the queues.
 
 \subsubsection{Parameters}
 \paragraph{BQueue}
+BQueue implements producer and consumer batching to avoid having to read ahead in the buffer on every
+operation in order to check if the operation will succeed. BQueue also dynamically adjusts the dequeue batch
+size. The queue is configured via the following values:
 \begin{itemize}
-    \item \texttt{size} -- Size of the queue
-    \item \texttt{batch\_size} -- BQueue does Prod/Con Batching so it doesn't have to check everytime to avoid
-        running into the producer/consumer
-    \item \texttt{batch\_increment} -- BQueue dynamically adjusts the dequeue batch size, this value
-        determines how much larger the candidate for the next batch size should be than the last batch size
-    \item \texttt{wait\_time} -- when determining the new dequeue batch size, bqueue waits a certain amount of
-        time when a new candidate is chosen
+    \item \texttt{size} -- The size of the queue.
+    \item \texttt{batch\_size} -- This parameter determines the size of the producer and consumer batches.
+    \item \texttt{batch\_increment} -- This value determines how much larger the candidate for the next
+        dequeue batch size should be than the last used one.
+    \item \texttt{wait\_time} -- While determining the new dequeue batch size, B-Queue waits a certain amount
+        of time when a new candidate is chosen. This parameter determines the duration of each of those waits.
 \end{itemize}
 
 \paragraph{EQueue}
+EQueue dynamically adjusts the size of the queue to optimise cache access times\cite{EQueue}. Furthermore,
+EQueue also dynamically adjusts the dequeue batch size. The following parameters influence these behaviours:
 \begin{itemize}
-    \item \texttt{min\_size}, \texttt{max\_size} -- EQueue dynamically adjusts the size of the queue to
-        optimise cache access times, these values determine the bounds of that
-    \item \texttt{initial\_size} -- The initial size of the Queue before dynamic adjustments
+    \item \texttt{min\_size}, \texttt{max\_size} -- These values determine the valid range for the queue size. The
+        underlying ring buffer will be allocated with a size of \texttt{max\_size}.
+    \item \texttt{initial\_size} -- The initial size of the queue before the dynamic queue size adjustments.
     \item \texttt{wait\_time} -- When determining the new enqueue batch size, equeue waits a certain amount of
-        time when a new candidate is chosen
+        time when a new candidate is chosen. This parameter determines the length of those waits.
 \end{itemize}
 
 \paragraph{FastFlow Queue}
+FastFlow Queue uses a linked list of dynamically allocated buffers as the storage of the queue. The buffers
+are referred to as ``buckets.'' This behaviour is controlled by the following parameters:
 \begin{itemize}
-    \item FFLWQ uses a linked list of buffers as queue
-    \item \texttt{bucket\_size} -- Size of the buffers (``buckets'')
-    \item \texttt{max\_bucket\_count} -- The maximum number of buckets ffq will allocate
+    \item \texttt{bucket\_size} -- This parameter sets the size of these buffers.
+    \item \texttt{max\_bucket\_count} -- This parameter determines the maximum number of buckets that can be
+        allocated by the queue.
 \end{itemize}
 
 \paragraph{MCRingBuffer}
+MCRingBuffer implements producer and consumer batching. The queue is configured using the following values:
 \begin{itemize}
-    \item \texttt{size} -- size of the queue
-    \item \texttt{batch\_size} -- MCRB does Con/prod batching, this is the size of those batches
+    \item \texttt{size} -- The size of the queue.
+    \item \texttt{batch\_size} -- The size of the producer and consumer batches.
 \end{itemize}
 
 \paragraph{FastForward Queue}
+FastForward Queue delays dequeues via waiting to try to keep over one cacheline of data in the queue. The
+distance between head and tail that this creates is called the ``slip''. The following parameters can be used
+to control FastForward Queue's behaviour:
 \begin{itemize}
-    \item \texttt{size} -- size of the queue
-    \item \texttt{adjust\_slip\_interval} -- FFWDQ tries to delay dequeues via waiting so that over one
-        cacheline of data is in the queue (the slip), this determines every how many dequeues this slip is
-        reestablished
+    \item \texttt{size} -- The size of the queue.
+    \item \texttt{adjust\_slip\_interval} -- This parameter determines every how many dequeues the slip is adjusted.
 \end{itemize}
 
 \paragraph{Lamport Queue}
-\begin{itemize}
-    \item only \texttt{size} param for queue size
-\end{itemize}
+The only parameter of Lamport Queue is the \texttt{size} parameter, which controls its size.
 
-\subsubsection{Bursty 65k-16k}
+\subsubsection{Bursty 65k-16k / Bursty 65k-2k}
 \label{sec:bench-bursty-65k-16k}
-\begin{itemize}
-    \item \texttt{equeue\_repro\_16k.toml}
-    \item based on EQueue benchmark
-    \item Message Count $1,000,000$
-    \item Enqueue / Dequeue Rate $1,000,000$
-        \begin{itemize}
-            \item differs from EQueue (they did ~20M)
-            \item should test robustness of existing results \todo{TODO: is that a good enough reason?}
-        \end{itemize}
-    \item enqueue burst size of $16,384$
-        \begin{itemize}
-            \item burst size selected because it should show large difference (according to EQueue paper)
-            \item concrete decision of 16k vs 32k arbitrary (both showed large difference between queues in
-                equeue paper)
-            \item bursty waiter differs slightly from equeue paper
-            \item instead of same wait time varies to adjust for operation time
-            \item based on idea of network application so enqueue rate should be the same across all queues
-                (fixed wait time would mean varying rate due to varying operation times)
-        \end{itemize}
-    \item dequeue constant wait (most similar to equeue paper)
-        \begin{itemize}
-            \item uses constantWait module for waiter
-            \item same as specified in EQueue paper
-        \end{itemize}
-    \item Queue Size $65,536$
-        \begin{itemize}
-            \item max queue size of equeue is 65k
-            \item size of other queues not mentioned
-            \item keeping max queue size same for all queue should make for comparable results
-        \end{itemize}
-\end{itemize}
 
-\begin{figure}
-    \centering
-    \begin{minted}{toml}
-        [BQueue]
-        size = 65536
-        batch_size = 4096
-        batch_increment = 2048
-        wait_time = 358
+The Bursty 65k-16k and Bursty 65k-2k benchmarks are based on the tests performed in the EQueue paper,
+specifically the tests with a burst size of $16,384$ and $2,048$ elements respectively.
+The benchmark performs $1,000,000$ operations at a targeted rate for enqueue and dequeue of $1,000,000$
+operations per second\footnote{This rate differs from the rate in the EQueue paper, where they targeted
+    $\approx 20,000,000$ operations per second (specified as a wait time of $85\text{ cycles}\approx \ns{50}$).
+\todo{TODO: Give reason here? If so, is ``should test robustness of existing results'' a good enough reason?}}.
+All benchmarks (including Basic 65k) were repeated 100 times, with the operation times being averaged for
+every repetition.
 
-        [EQueue]
-        initial_size = 8192
-        min_size = 256
-        max_size = 65536
-        wait_time = 358
+The benchmark uses the Bursty waiter component to simulate bursty enqueue patterns, similar to the EQueue paper.
+The burst sizes of $16,384$ and $2,048$ were selected, because both were tested in the EQueue paper and showed
+very different results.
+The concrete selection of the burst size $16,384$ over the burst size $32,768$ was arbitrary due to the small
+difference between the reported results.
+It is further worth noting, that the implementation of the bursty enqueue pattern differes slightly from the
+one used in the EQueue paper, because the Bursty waiter adjusts for the time the operation takes, as outlined
+in \autoref{sec:waiter-implementations}.
+The waiter for the consumer thread is a Constant Wait component, selected because it is closest to the
+implementation from the EQueue paper.
 
-        [FastFlow]
-        bucket_size = 4096
-        max_bucket_count = 16
+The minimum and maximum size of EQueue is set to $256$ and $65,536$ respectively, as it also is in the EQueue paper.
+The paper does not specifiy the queue sizes used for queues other than EQueue.
+For this reason I chose $65,536$ as the (maximum) queue size for all other queues in order to have a
+like-for-like comparison.
+In the next paragraphs, I will outline the reasons for the remaining queue parameter values.
+The configuration containing all of these values can be seen in \autoref{fig:toml-bursty-65k}.
+The full configurations for both of these benchmarks can be found in \texttt{equeue\_repro\_16k.toml} and
+\texttt{equeue\_repro\_2k.toml} respectively.
 
-        [MCRingBuffer]
-        size = 65536
-        batch_size = 8000
-
-        [FastForward]
-        size = 65536
-        adjust_slip_interval = 64
-
-        [Lamport]
-        size = 65536
-    \end{minted}
-    \caption{The Queue parameters for the Bursty 65k benchmark.}
-    \label{fig:toml-bursty-65k}
-\end{figure}
+\input{figures/toml-bursty-65k}
 
 \paragraph{BQueue}
-\begin{itemize}
-    \item \texttt{batch\_size} set to a 16th of the queue size as specified by BQueue source code
-    \item \texttt{batch\_increment} set to half the \texttt{batch\_size} as specified by BQueue source code
-    \item BQueue uses 1000 Cycles by default, \SI{358}{\nano\second} is 1000 Cycles on my hardware
-    \item See \autoref{fig:toml-bursty-65k} for the concrete values of this and the next paragraphs
-\end{itemize}
+The \texttt{batch\_size} parameter was set to a sixteenth of the queue size as specified by the original
+B-Queue source code.
+In turn, the \texttt{batch\_increment} parameter was set to half of the \texttt{batch\_size} parameter as
+also specified by the source code.
+Lastly, the \texttt{wait\_time} parameter was set to \SI{358}{\nano\second} in accordance with the
+$1,000\text{ cycles}$ value from the source code.
 
 \paragraph{EQueue}
-\begin{itemize}
-    \item \texttt{initial\_size} wasn't specified, tuned it
-    \item \texttt{min\_size}, \texttt{max\_size} explicitly specified in EQueue paper
-    \item \texttt{wait\_time} specified in paper and source code as 1000 Cycles, \SI{358}{\nano\second} is
-        1000 Cycles on my hardware
-\end{itemize}
+For the \texttt{initial\_size} value of EQueue, no value was specified in the paper, and it was thus tuned
+from scratch\footnote{Note that all of the parameter tuning was done at significantly lower sample counts
+than the final benchmarks, because of the unfeasibly large amount of time this would otherwise have taken.}.
+The other unaccounted for parameter, \texttt{wait\_time}, was specified in paper and source code as 1000
+Cycles and was thus set to the equivalent \SI{358}{\nano\second}.
 
 \paragraph{FastFlow Queue}
-\begin{itemize}
-    \item \texttt{bucket\_size} wasn't specified in paper, tuned
-    \item \texttt{max\_bucket\_count} selected to match max queue size 0f 65ki
-\end{itemize}
+For FastFlow queue there are two parameters; \texttt{bucket\_size} for which there is no specified default
+value and which was thus tuned from scratch, and \texttt{max\_bucket\_count} which was entirely predetermined by
+the bucket size and the targeted maximum size of the queue.
 
 \paragraph{MCRingBuffer}
-\begin{itemize}
-    \item \texttt{batch\_size} tuned -- needs to be divisor of message count, will deadlock otherwise
-\end{itemize}
+The \texttt{batch\_size} parameter was tuned -- with the constraint that it needed to be a divisor of the
+number of enqueue / dequeue operations in order to avoid the aforementioned deadlock issue.
 
 \paragraph{FastForward Queue}
-\begin{itemize}
-    \item \texttt{adjust\_slip\_interval} taken from paper and verfied by tuning
-\end{itemize}
+The value for \texttt{adjust\_slip\_interval} was taken from the FastForward paper as is and then verfied via tuning.
 
 \paragraph{Lamport Queue}
-\begin{itemize}
-    \item no params but size
-\end{itemize}
-
-\subsubsection{Bursty 65k-2k}
-\begin{itemize}
-    \item \texttt{equeue\_repro\_2k.toml}
-    \item same as the Bursty 65k-16k, but burst size is 2k instead of 16k
-    \item EQueue tested this (with bursty) as well, showed negligible difference between queues
-\end{itemize}
+The Lamport queue has no parameters, but the size.
 
 \subsubsection{Basic 65k}
-\begin{itemize}
-    \item same as Bursty 65k-16k (See \autoref{sec:bench-bursty-65k-16k})
-    \item instead of bursty enqueue, enqueue with constant rate
-    \item via ConstantRate waiter instead of bursty waiter
-        \begin{itemize}
-            \item EQueue does not test a scenario like this but should be interesting
-            \item more similar to bqueue testing where they had constant waits between enqueues
-        \end{itemize}
-\end{itemize}
+The Basic 65k benchmark is identical to the Bursty benchmarks, except that the Constant Rate waiter was used
+for the enqueue thread instead of the Bursty waiter.
+The EQueue paper does not include a test with constant rate or constant wait enqueueing, but this
+benchmark is more similar to the testing in B-Queue and FastForward queue than the Bursty benchmarks are.
+The configuration file for this benchmark is \texttt{equeue\_repro\_16k.toml}.

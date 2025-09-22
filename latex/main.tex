@@ -21,6 +21,13 @@
 \usepackage{minted}
 
 \usepackage[per-mode=symbol]{siunitx}
+\DeclareSIUnit\transfer{T}
+\sisetup{
+    group-digits = integer,
+    group-minimum-digits = 4,
+    group-separator = {,},
+    output-decimal-marker = {.},
+}
 
 \usepackage{subcaption}
 

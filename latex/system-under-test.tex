@@ -1,31 +1,15 @@
 \subsection{System Under Test}
 \subsubsection{Hardware}
-\begin{itemize}
-    \item SuperMicro SYS-521C-NR
-    \item 1x Intel Xeon Gold 6548N
-        \begin{itemize}
-            \item 32 Cores
-            \item 2.8 GHz Base Frequency
-            \item 1 NUMA Node
-            \item L1 Cache 80KB (per core)
-            \item L2 Cache 2MB (per core)
-            \item L3 Cache 60MB (shared)
-        \end{itemize}
-    \item 128GB Memory
-        \begin{itemize}
-            \item PN: HMCG78MEBRA115N
-            \item 4800MT/s
-            \item 8x16GB
-            \item DDR5
-        \end{itemize}
-    \item all tests at Base Freq for stability (set via \texttt{cpupower} util)
-\end{itemize}
+The benchmarks were run on a SuperMicro SYS-521C-NR server with a Intel Xeon Gold 6548N CPU with 32 cores
+running at the base frequency of \SI{2.8}{\giga\hertz}.
+Each core has \SI{80}{\kilo\byte} of L1 Cache, \SI{2}{\mega\byte} of L2 Cache, and \SI{60}{\mega\byte} of L3
+Cache shared among the cores.
+The server has \SI{128}{\giga\byte} of DDR5 memory, in a 8x\SI{16}{\giga\byte} configuration running at
+\SI{4800}{\mega\transfer\per\second}.
+All benchmarks were run with the CPU running at base frequency (set via the \texttt{cpupower} utility).
 
 \subsubsection{Software}
-\begin{itemize}
-    \item Ubuntu 24.04.2 LTS
-    \item Linux Kernel 6.8.0
-    \item gcc 14.2.0
-    \item core isolation using kernel params (e.g. \texttt{isolcpus=2,3 nohz\_full=2,3})
-        \footnote{The EQ, BQ and FFWDQ papers don't mention whether or not, they did this.}
-\end{itemize}
+The server was running Ubuntu 24.04.2 LTS with Linux Kernel version 6.8.0.
+The benchmarks were compiled using gcc 14.2.0.
+Kernel parameters were used to isolate the CPU cores used for the benchmark for influences from the rest of the system.
+Specifically, the \texttt{isolcpus} and \texttt{nohz\_full} parameters were used.
