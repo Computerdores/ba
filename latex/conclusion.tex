@@ -1,45 +1,54 @@
 \section{Conclusion}
-\begin{itemize}
-    \item framework finished
-    \item testing new queues should be easy, just have to implement interface and add a couple of lines to main func
-    \item variations of benchmark should be relatively easy as well since everything is as modular as possible
-    \item queue parameters are stored in config file => easier to manage/version
-    \item in my experience working with it was good (granted I am the author of it, but still)
-    \item I hope future authors will make use of it to make their results easier to reproduce than existing ones
+This paper presents a framework for testing the performance of SPSC FIFO queues.
+This framework simplifies the process of testing the performance of those queues, by only requiring small
+modifications to the main function of the framework and that the queue implements a common interface.
+Through its modular architecture, the framework also makes it easier to test the queues under multiple
+different conditions.
+Furthermore, parameters for queues and benchmarks are stored in config files, making sets of them simpler to
+manage and to keep different version of.
+This framework was used in this thesis to test different queues and has shown its ease of use in the process.
+Collectively, this framework should lessen the work required of future authors to test proposed queue design
+in a replicable and comparable manner.
 
-    \item some of the results I am seeing are quite similar to EQ, BQ, FFWD papers
-    \item however, some are also significantly different; could be due to several reasons:
-        \begin{itemize}
-            \item I tested on multiple cores of \textit{single} CPU and suspect EQueue data for different burst sizes is from cross-cpu test (multiple cores of \textit{different} CPUs)
-            \item EQ measurements include part of their measurement code in the time measurements, I don't
-            \item not many details in EQueue paper on the experiment setup, particularly on queue parameters
-                that were used for queues other than EQ
-            \item I took steps to isolate outside influence of kernel scheduling and interrupts, others don't say whether they did or how
-            \item papers all use different hardware, nothing to be done about that; especially significant for B-Queue as results look very different 
-        \end{itemize}
-    \item I have done my best to prevent these issues
-        \begin{itemize}
-            \item provided as many details as possible by publishing full source code and giving all surrounding details I could come up with
-            \item also kept these issues in mind when building framework so as not to repeat them
-        \end{itemize}
+In this work, I also tested the performance of six different queues in three different benchmarks with four
+variations each.
+In part, the results from these tests show significant similarities to those presented in the EQueue,
+B-Queue, and FastForward papers, however, there are also significant differences that were
+observed\cite{EQueue,B-Queue,FastForward}.
+Several potential reasons for these differences were identified.
+First, there is the possibility that the results from the EQueue paper were measured in their cross-cpu
+configuration which would present a significant difference to the benchmarks performed here.
+Second, the parameters of the other queues benchmarked in the EQueue paper are not know and might thus be
+significantly different to those used here.
+Third, the three papers did not specify what steps they took to isolate outside influences on their results,
+and it is thus not clear how those differ from the approach taken here.
+Fourth, inevitably the results of all papers were obtained on different hardware which, especially for the
+B-Queue paper, might also be a reason for the differences.
+In writing this paper, I have attempted to minimise the issues mentioned above, and those not repeated here,
+by publishing the full source code required to replicate my measurements, providing detailed contextual
+information, and outlining my reasoning for key decisions made in the process.
 
-    \item ffwdq/fflwq were (among the) best in almost every single scenario, recommended as first picks
-    \item MCRB as second pick since slightly worse in one case
-    \item should still try out different queues as there are significant differences
-    \item should be easy due to me publishing impls for all tested here with same function interface (only templates differ)
-    \item also results here may give an idea which queues to start with
+Given that FastForward queue and FastFlow queue were among the queue with the best performance in almost
+every benchmark, it is recommended that they be the first candidates when choosing a queue imlpementation.
+Similary, MCRingBuffer performed only slightly worse than these two queues and therefore also makes for a
+good candidate.
+However, given the differences between the results found here and in other papers, it is still recommended to
+test multiple different queues in the concrete application that the chosen queue will be used in.
+This should also require a reduced amount of work, due to the queue implementations tested here all
+implementing the same interface and having their source code published.
+Lastly, should the number of queues that can be tested be limited, the results presented here should give
+application developers insight into which candidates to prioritise.
 
-    \item future work: more sophisticated analysis (e.g. how full the queues are over the course the runs,
-        how many ops fail, real RX/TX rate)
-    \item future work: more complex testing scenarios (e.g. mutliple prod/con processes on same core with
-        scheduling, more realistic traffic patterns)
-    \item future work: cache statistics (cache miss \%)
-        \begin{itemize}
-            \item is done by other papers
-            \item could be interesting for investigating reasons behind performance differences
-            \item however, imo only the cache events from the benchmarked code should be counted
-            \item this may be possible with oprofile
-            \item however, due to inlining of the enqueue and dequeue functions this may not be easy/possible with oprofile
-            \item due to time constraints this was not attempted here
-        \end{itemize}
-\end{itemize}
+Building on the work done in this thesis, future contributions could include additional benchmarks featuring,
+for example, multiple producer and consumer threads on the same core or more realistic simulated work loads.
+Additionally, more sophisticated analysis of the data produced by the benchmarks could also be done.
+This could include analysing the difference between completed enqueue and dequeue operations, or the number of
+of failed operations, over time.
+Lastly, a measurer component could be implemented to measure cache statistic, specificly the cache miss
+percentage, which was not implemented in this thesis due to time constraints.
+This was done in other papers, including the EQueue and B-Queue papers, and could be interesting to
+investigate the performance differences between the queues.
+However, these cache statistics should be measured per operation and not include the benchmarking code,
+in line with the existing measurements.
+This might be possible using the oprofile tool also used in the B-Queue paper, however, due to function
+inlining a different approach might be needed.
