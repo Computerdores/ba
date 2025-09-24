@@ -77,13 +77,15 @@ It is also worth mentioning that this queue deadlocks under certain conditions, 
 was not pursued here, for the same reasons also outlined in the B-Queue paper\cite{B-Queue}.
 
 \subsection{FastFlow Queue}
-FastFlow Queue was largely taken as is and only extended to conform with the general queue interface\cite{FastFlowGithub}.
+FastFlow Queue was largely taken as is and only extended to conform with the general queue
+interface\cite{FastFlowGithub}.
 This was done since FastFlow Queue has a prepare + commit interface for enqueue and dequeue.
 To fix this interface discrepancy, wrapper methods were implemented, which make use of the prepare + commit
 interface to implement the typical enqueue and dequeue semantics.
 
 \subsection{FastForward Queue}
-Like MCRingBuffer, FastForward queue was implemented from scratch, because I was not able to find source code for it\cite{FastForward}.
+Like MCRingBuffer, FastForward queue was implemented from scratch, because I was not able to find source code
+for it\cite{FastForward}.
 Also like MCRingBuffer, padding was added to make sure that the \texttt{head}, \texttt{tail}, and
 \texttt{buffer} variables are on different cache lines, to prevent false sharing.
 Furthermore, volatile markings and volatile references were added to prevent optimisation errors by the compiler.
