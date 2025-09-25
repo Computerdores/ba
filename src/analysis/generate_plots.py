@@ -42,7 +42,7 @@ def gen_plot(benchmark: str, queues: list[str], preset: str, jitter: bool, all: 
     )
 
     plt.figure(figsize=(8,6))
-    ax: Axes = sns.barplot(data=df, x="queue", y="duration", hue="type", errorbar="sd", capsize=0.1)
+    ax: Axes = sns.barplot(data=df, x="queue", y="duration", hue="type", errorbar=("ci", 95), capsize=0.1)
 
     if ERROR_BARS:
         for i, row in df.iterrows():
