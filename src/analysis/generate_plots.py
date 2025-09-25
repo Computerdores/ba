@@ -14,8 +14,6 @@ from lib import load_results
 QUEUES = ["bq", "eq", "mcrb", "fflwq", "ffwdq", "lprt"]
 RESULTS_DIR = Path("data/")
 
-ERROR_BARS = False
-
 def get_result(benchmark: str, queue: str, preset: str, jitter: bool, all: bool, runs: int = 100) -> tuple[float, float]:
     results = []
     for i in range(runs):
@@ -43,12 +41,6 @@ def gen_plot(benchmark: str, queues: list[str], preset: str, jitter: bool, all: 
 
     plt.figure(figsize=(8,6))
     ax: Axes = sns.barplot(data=df, x="queue", y="duration", hue="type", errorbar=("ci", 95), capsize=0.1)
-
-    if ERROR_BARS:
-        for i, row in df.iterrows():
-            # Get the x-position of the bar
-            x = i//2 + (-0.2 if row["type"]=="RX" else 0.2)
-            ax.errorbar(x, row["mean"], yerr=row["std"], fmt='none', c='black', capsize=5)
 
     plt.ylabel("Duration (ns)")
     title = f"RX and TX for each Queue {"with" if jitter else "without"} jitter and while{"" if all else " not"} measuring failed operations"
