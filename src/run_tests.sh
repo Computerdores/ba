@@ -29,7 +29,7 @@ for benchmark in basic bursty; do
                     if $DRY; then
                         echo -e "Would have run with: $run_name $benchmark $queue j:$jitter mf:$measure_failed i:$i"
                     else
-                        build/benchmarks -c "$CONFIG" -q "$queue" -b "$benchmark" -o "data_${run_name}_${benchmark}_${queue}_j${jitter}_mf${measure_failed}_${i}.csv" --jitter=$jitter --measure-failed=$measure_failed
+                        build/benchmarks -c "$CONFIG" -q "$queue" -b "$benchmark" -o "data/data_${run_name}_${benchmark}_${queue}_j${jitter}_mf${measure_failed}_${i}.csv" --jitter=$jitter --measure-failed=$measure_failed
                     fi
                 done
             done

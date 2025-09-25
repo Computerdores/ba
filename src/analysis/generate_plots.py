@@ -14,6 +14,21 @@ from lib import load_results
 QUEUES = ["bq", "eq", "mcrb", "fflwq", "ffwdq", "lprt"]
 RESULTS_DIR = Path("data/")
 
+PLOT_ERRORBAR_TYPE = ("ci", 95)
+
+REPORT_HEADER_TEMPLATE = """
+# {preset}-{benchmark}-{jitter}-{all}
+preset: {preset}
+type: {benchmark}
+jitter: {jitter}
+measure failed: {all}
+plot errorbar type: {errorbar_type}
+
+## Results per Queue
+| Queue | Type | Mean (ns) | Std Dev (ns) |
+|-------|------|-----------|--------------|
+"""
+
 def get_result(benchmark: str, queue: str, preset: str, jitter: bool, all: bool, runs: int = 100) -> tuple[float, float]:
     results = []
     for i in range(runs):
@@ -28,31 +43,55 @@ def get_result(benchmark: str, queue: str, preset: str, jitter: bool, all: bool,
         })
     return pd.DataFrame(results)
 
-def gen_plot(benchmark: str, queues: list[str], preset: str, jitter: bool, all: bool):
-    results = [get_result(benchmark, q, preset, jitter, all) for q in queues]
-    df = pd.concat(results, ignore_index=True)
-
-    df = df.melt(
-        id_vars=["queue", "run"],
-        value_vars=["RX", "TX"],
-        var_name="type",
-        value_name="duration"
-    )
-
+def gen_plot(df, filename: str, jitter: bool, all: bool):
     plt.figure(figsize=(8,6))
-    ax: Axes = sns.barplot(data=df, x="queue", y="duration", hue="type", errorbar=("ci", 95), capsize=0.1)
+    ax: Axes = sns.barplot(data=df, x="queue", y="duration", hue="type", errorbar=PLOT_ERRORBAR_TYPE, capsize=0.1)
 
     plt.ylabel("Duration (ns)")
     title = f"RX and TX for each Queue {"with" if jitter else "without"} jitter and while{"" if all else " not"} measuring failed operations"
     plt.title(title)
     plt.legend(title="Type")
     plt.tight_layout()
-    plt.savefig(f"{preset}_{benchmark}_{jitter}_{all}.png")
+    plt.savefig(filename)
+
+def gen_report(df, filename: str, preset: str, benchmark: str, jitter: bool, all: bool):
+    report = REPORT_HEADER_TEMPLATE.format(
+        preset=preset,
+        benchmark=benchmark,
+        jitter=jitter,
+        all=all,
+        errorbar_type=PLOT_ERRORBAR_TYPE,
+    )
+
+    summary = (
+        df.groupby(["queue", "type"])["duration"]
+        .agg(["mean", "std"])
+        .reset_index()
+    )
+
+    for _, row in summary.iterrows():
+        report += f"| {row['queue']} | {row['type']} | {row['mean']:.2f} | {row['std']:.2f} |\n"
+
+    report += "\n---\n\n"
+
+    with open(filename, "a") as f:
+        f.write(report)
 
 def gen_plot_quad(benchmark: str, queues: list[str], preset: str):
     for jitter in [True, False]:
         for all in [True, False]:
-            gen_plot(benchmark, queues, preset, jitter, all)
+            results = [get_result(benchmark, q, preset, jitter, all) for q in queues]
+            df = pd.concat(results, ignore_index=True)
+
+            df = df.melt(
+                id_vars=["queue", "run"],
+                value_vars=["RX", "TX"],
+                var_name="type",
+                value_name="duration"
+            )
+
+            gen_plot(df, f"{preset}_{benchmark}_{jitter}_{all}.png", jitter, all)
+            gen_report(df, f"report_{preset}.md", preset, benchmark, jitter, all)
             print(f"{benchmark} {jitter} {all} - done")
 
 if __name__ == "__main__":
