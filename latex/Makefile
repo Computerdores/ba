@@ -13,7 +13,8 @@ open: build
 # Create archive of source code, minus some builds to minimise archive size
 src.tar.gz: $(shell find ../src -type f)
 	tar -czf $@ -C .. \
-		--exclude=src/todo.md \
+		--exclude=todo.md \
+		--exclude=latex/build \
 		--exclude=src/build \
 		--exclude=src/cmake-build-debug \
 		--exclude=src/cmake-build-release \
