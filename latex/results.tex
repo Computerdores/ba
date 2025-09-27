@@ -6,7 +6,8 @@ significant changes in performance.
 This was also observed at times during the development of the benchmarks, but disappeared after applying bug fixes.
 
 Furthermore, regarding comparisons to the EQueue paper, three things are of note.
-First, the measurements from the EQueue paper include parts of their measurement code, my measurements do not\cite{EQueueGithub}.
+First, the measurements from the EQueue paper include parts of their measurement code, my measurements do
+not\cite{EQueueGithub}.
 However, it is not clear to me how significant the impact on their measurements would be.
 Second, I suspect that the measurements with different burst sizes from the EQueue paper were done in their
 cross-cpu configuration,
@@ -27,8 +28,6 @@ benchmark is, out of mine, most similar to those.
 \input{figures/plots/eq2k-bursty}
 \input{figures/plots/eq-basic}
 
-\todo{TODO: My numbers here are read from figures, replace them with the accurate values}
-
 \subsubsection{Bursty 65k-16k}
 As mentioned in \autoref{sec:framework}, the components give two options to be varied with each benchmark:
 jitter and whether failed operations are included in the measurements.
@@ -38,8 +37,8 @@ in the measurements is closest to the burst size $16,384$ test from the EQueue p
 
 According to the EQueue paper, EQueue reportedly took $\approx 60$ cycles per operation, which is
 $\approx \ns{36}$.
-My measurements show a time per operation for EQueue of $\approx \ns{24}$ for enqueue and
-$\approx \ns{26}$ for dequeue.
+My measurements show a time per operation for EQueue of $\approx \ns{24.4}$ for enqueue and
+$\approx \ns{25.8}$ for dequeue.
 These results suggest that my EQueue implementation does not exhibit major performance-flaws, because the
 observed difference can be adequately explained by the known differences between these test setups.
 It also gives credence to the idea that the impact of the differences between the benchmark and the EQueue
@@ -47,8 +46,8 @@ paper's testing is limited.
 
 The other queues tested in the EQueue paper (B-Queue, MCRingBuffer, and FastForward Queue) reportedly took
 around $\ns{112}$ per operation.
-In my measurements, these queues all performed similarly to EQueue at around $\ns{19}$ per enqueue operation
-and $\approx \ns{26}$ per dequeue operation.
+In my measurements, these queues all performed similarly to EQueue at around \ns{19}--\ns{21} per enqueue operation
+and around \ns{26}--\ns{27} per dequeue operation.
 This presents a major difference in results between my measurements and those of the EQueue paper.
 The reasons for this difference are unclear.
 They could for example be explained by differences in parameters for the other queues or perhaps by hardware
@@ -73,11 +72,11 @@ operations in the measurements is the closest to the test from the EQueue paper 
 
 According to the EQueue paper, at a burst size of $2,048$, all queues tested there (EQueue, B-Queue,
 MCRingBuffer, and FastForward Queue) took about $48$ cycles, which is about \ns{29}.
-In my measurements, all queues except for EQueue perform similarly to each other at around \ns{10}-\ns{20}.
+In my measurements, all queues except for EQueue perform similarly to each other at around \ns{10}-\ns{21}.
 This difference to the EQueue paper is about what we would expect, since it lines up with the one observed
 for EQueue in the previous benchmark and can therefore also be explained by the known differences between the
 benchmarks.
-However, at $\approx \ns{35}$ per enqueue operation, EQueue performs significantly worse than the other
+However, at $\approx \ns{34.4}$ per enqueue operation, EQueue performs significantly worse than the other
 queues in my measurements.
 When not measuring failed operations, this difference can not be seen, which means that it appears due to
 failed enqueue operations.
@@ -123,11 +122,13 @@ However, the performance is not identical to that measured in the FastForward pa
 expected given the differences in testing setups.
 
 This benchmark is also the most similar one, out of the ones included, to the testing in the B-Queue paper
-with 1 concurrent queue.
+with one concurrent queue.
 However, the testing in the B-Queue paper used much smaller queues, so some differences could be expected due to that.
 The B-Queue testing showed operation times of around \ns{8} for B-Queue, MCRingBuffer, and FastForward queue.
-My measurements also show very similar operation times for these three queues, however,
-the absolute operation times are at around \ns{10} for dequeue operations and at around \ns{19} for enqueue operations.
+My measurements also show that the operation times for FastForward queue, MCRingBuffer, and the dequeue
+operation of B-Queue are very similar to each other, however,
+the absolute operation times are at around \ns{10}--\ns{11} for dequeue operations and at around \ns{19} for
+enqueue operations.
 Since the B-Queue measurements were obtained by measuring the time, performing all queue operation, and
 measuring the time again, for them the maximum operation time between the enqueue operation time and the
 dequeue operation time is what they measured as the general operation time.
