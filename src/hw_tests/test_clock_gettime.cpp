@@ -3,8 +3,9 @@
 
 #include "utils.h"
 
+// tests the overhead of getting the time using clock_gettime(CLOCK_MONOTONIC_RAW, ...)
 int main() {
-    constexpr u64 ITERS = 10000;
+    constexpr u64 ITERS = 100000;
     timespec ts0 = {};
     timespec ts1 = {};
 
@@ -12,11 +13,12 @@ int main() {
 
     for (int i = 0; i < ITERS; i++) {
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts0);
+        asm volatile ("" ::: "memory");
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
-        if (ts0.tv_sec != ts1.tv_sec) continue;
+        u64 diff = (ts1.tv_sec - ts0.tv_sec) * NS_PER_S;
+        diff += ts1.tv_nsec - ts0.tv_nsec;
 
-        const u64 diff = ts1.tv_nsec - ts0.tv_nsec;
         std::cout << diff << std::endl;
         sum += diff;
     }

@@ -16,8 +16,6 @@ add_executable(benchmarks main.cpp)
 
 target_link_libraries(benchmarks PRIVATE tomlplusplus::tomlplusplus)
 
-add_executable(test_tsc_freq hw_tests/test_tsc_freq.cpp)
-add_executable(test_mc_sync hw_tests/test_mc_sync.cpp)
 add_executable(test_clock_gettime hw_tests/test_clock_gettime.cpp)
 add_executable(test_constant_tsc hw_tests/test_constant_tsc.cpp)
 add_executable(test_timestamp_methods hw_tests/test_timestamp_methods.cpp)

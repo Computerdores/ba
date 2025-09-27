@@ -2,14 +2,17 @@
 
 #include "utils.h"
 
+// tests the overhead of reading the timestamp counter using __rdtsc()
 int main() {
-    constexpr u64 ITERS = 1000000;
+    constexpr u64 ITERS = 100000;
 
     u64 sum = 0;
 
     for (int i = 0; i < ITERS; i++) {
         const u64 t0 = __rdtsc();
+        asm volatile ("" ::: "memory");
         const u64 t1 = __rdtsc();
+
         const u64 diff = t1 - t0;
         std::cout << diff << std::endl;
         sum += diff;
