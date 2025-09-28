@@ -1,6 +1,12 @@
 \subsection{Benchmarks}
 \todo{TODO: ``Querverweise'' -- ??}
 In this subsection I will start by explaining the different parameters to be set for each queue.
+While I will outline the purpose of each parameter, I will not provide an in-depth explanation of the inner
+workings of each queue.
+For detailed explanations, please refer to the original paper proposing the respective queues\footnote{Note,
+    however, that the FastFlow paper does not give a detailed explanation of the queue, and only states that its
+    ``core is based on efficient Single-Producer-Single-Consumer (SPSC) and Multiple-Producer-Multiple-Consumer
+(MPMC) FIFO queues, which are implemented in a lock-free and wait-free fashion''\cite{FastFlow}.}.
 I will then continue to outline the specifics of each benchmark, with one benchmark per subsection in the
 order from the benchmark with the smallest difference between the performance of the queues to the benchmark
 with the highest difference between the queues.
@@ -8,8 +14,9 @@ with the highest difference between the queues.
 \subsubsection{Parameters}
 \paragraph{BQueue}
 BQueue implements producer and consumer batching to avoid having to read ahead in the buffer on every
-operation in order to check if the operation will succeed. BQueue also dynamically adjusts the dequeue batch
-size. The queue is configured via the following values:
+operation in order to check if the operation will succeed \cite{B-Queue}.
+BQueue also dynamically adjusts the dequeue batch size.
+The queue is configured via the following values:
 \begin{itemize}
     \item \texttt{size} -- The size of the queue.
     \item \texttt{batch\_size} -- This parameter determines the size of the producer and consumer batches.
@@ -31,8 +38,9 @@ EQueue also dynamically adjusts the dequeue batch size. The following parameters
 \end{itemize}
 
 \paragraph{FastFlow Queue}
-FastFlow Queue uses a linked list of dynamically allocated buffers as the storage of the queue. The buffers
-are referred to as ``buckets.'' This behaviour is controlled by the following parameters:
+FastFlow Queue uses a linked list of dynamically allocated buffers as the storage of the queue\cite{FastFlowGithub}.
+The buffers are referred to as ``buckets.''
+This behaviour is controlled by the following parameters:
 \begin{itemize}
     \item \texttt{bucket\_size} -- This parameter sets the size of these buffers.
     \item \texttt{max\_bucket\_count} -- This parameter determines the maximum number of buckets that can be
@@ -40,23 +48,24 @@ are referred to as ``buckets.'' This behaviour is controlled by the following pa
 \end{itemize}
 
 \paragraph{MCRingBuffer}
-MCRingBuffer implements producer and consumer batching. The queue is configured using the following values:
+MCRingBuffer implements producer and consumer batching\cite{MCRingBuffer}.
+The queue is configured using the following values:
 \begin{itemize}
     \item \texttt{size} -- The size of the queue.
     \item \texttt{batch\_size} -- The size of the producer and consumer batches.
 \end{itemize}
 
 \paragraph{FastForward Queue}
-FastForward Queue delays dequeues via waiting to try to keep over one cacheline of data in the queue. The
-distance between head and tail that this creates is called the ``slip''. The following parameters can be used
-to control FastForward Queue's behaviour:
+FastForward Queue delays dequeues via waiting to try to keep over one cacheline of data in the queue\cite{FastForward}.
+The distance between head and tail that this creates is called the ``slip''.
+The following parameters can be used to control FastForward Queue's behaviour:
 \begin{itemize}
     \item \texttt{size} -- The size of the queue.
     \item \texttt{adjust\_slip\_interval} -- This parameter determines every how many dequeues the slip is adjusted.
 \end{itemize}
 
 \paragraph{Lamport Queue}
-The only parameter of Lamport Queue is the \texttt{size} parameter, which controls its size.
+The only parameter of Lamport Queue is the \texttt{size} parameter, which controls its size\cite{Lamport}.
 
 \subsubsection{Bursty 65k-16k / Bursty 65k-2k}
 \label{sec:bench-bursty-65k-16k}

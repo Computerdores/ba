@@ -36,20 +36,20 @@
 
 \newcommand{\ns}[1]{\SI{#1}{\nano\second}}
 
+\newcommand{\hidelinks}[1]{{\hypersetup{hidelinks}#1}}
+
 \begin{document}
 
 \todo{TODO: styling -- apply OSM template or similar}
 
-{
-    \hypersetup{hidelinks}
-    \listoftodos
-}
+\todo{TODO: Acronyms}
+
+\todo{TODO: list of tables, report data as appendix maybe?}
+
+\hidelinks{\listoftodos}
 \newpage
 
-{
-    \hypersetup{hidelinks}
-    \tableofcontents
-}
+\hidelinks{\tableofcontents}
 \newpage
 
 \input{abstract}
@@ -65,6 +65,8 @@
 \input{conclusion}
 
 \printbibliography
+
+\hidelinks{\listoffigures}
 
 \input{appendix}
 

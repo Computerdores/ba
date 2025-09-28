@@ -1,42 +1,44 @@
 \section{Framework}
 \label{sec:framework}
-In this section I will first outline the goals for the framework and will then continue by explaning its architecture and technical details.
+In this section, I will first outline the goals for the framework and will then explain the
+architectural and technical decisions I made to achieve them.
 
 \subsection{Goals}
 First and foremost, this framework should allow for benchmarking of different SPSC FIFO queues in different benchmarks.
-In oder to make it as straightforward as possible to add new queues or different benchmarks, large code
+In order to make it as straightforward as possible to add new queues or different benchmarks, large code
 duplications between different benchmarks should also be avoided.
 For this reason the framework should be kept modular to allow for simple reuse of existing code.
 However, duplicating the code shared between benchmarks would potentially allow the compiler to optimise more
-freely than naive modularisation would, which I would also expect to potentially be the case in real world
-applications -- the details of how this was avoided while still keeping the framework modular are outlined in
-\autoref{sec:framework-technical-details}.
+freely than na\"ive modularisation would. The details of how this was avoided while still keeping the
+framework modular are outlined in \autoref{sec:framework-technical-details}.
 Lastly, I want to specifically avoid mixing the code being benchmarked and the code responsible for said
 benchmarking, in order to keep the queue implementations self contained and easily usable by others.
 
 \subsection{Architecture}
 Typically benchmarks of FIFO queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
-Two separate threads will be started, one for enqueuing and one for dequeuing elements,
-each thread will perform an equal number of successful operations,
-they will take measurements of certain aspects of the behaviour of the operations,
-and a workload will be simulated in between queue operations.
+Two separate threads will be started, one for enqueuing and one for dequeuing elements
+(hereafter referred to as the producer and consumer threads respectively).
+Both threads will perform an equal number of successful operations, take measurements of certain
+aspects of the behaviour of the operations, and simulate a workload in between queue operations.
 What varies between these benchmarks is the type of workload that is simulated and how measurements are taken.
 
-With this in mind, I chose to center the framework around a Runner class which acts as a sort of ``skeleton benchmark.''
+With this in mind, I chose to center the framework around a \texttt{Runner} class, which can be regarded as a
+``skeleton benchmark.''
 This class implements the aforementioned shared aspects of different benchmarks, and makes use of swappable
 components for the varying waiting behaviour and measurement code.
 All components are implemented as classes with an interface specific to the type of component they implement.
 
 The producer and consumer threads are quite similar in structure, with the major differences only being
 related to the queue operation they perform.
-Each runs through a configurable number of iterations, repeatedly attempting their queue operation for each
+Both run through a configurable number of iterations, in each of which they repeatedly attempt their queue operation
 until it succeeds\footnote{This will not cause a deadlock to occur, since a correctly implemented queue will
 only fail on enqueue / dequeue operations, if the queue is full/empty respectively.}.
 Before and after each operation, the measurement component will be called in order to take measurements, with
 the measurement from before an operation possibly being repeated in case the operation failed and failed
 operations are not to be included in the measurements (whether they are to be included is configurable).
-After each successful operation's post operation measurements, the waiter will be called in order to simulate
-work related to the last performed operation.
+After each successful operation's post operation measurements, the workload simulation component (hereafter
+referred to as the waiter or the waiter component) will be called in order to simulate work related
+to the last performed operation.
 The waiter will also be called once before the first iteration, so it can adjust wait times based on the
 start time of the benchmark, in case this is needed for its specific implementation.
 

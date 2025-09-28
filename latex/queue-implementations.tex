@@ -1,5 +1,5 @@
 \section{Queue Implementations}
-All of the queues I will benchmark in this work, needed to either be ported to cpp, adapted to share the same
+All of the queues I will benchmark in this work needed to either be ported to cpp, adapted to share the same
 interface (see \autoref{fig:queue-interface}), or reimplemented because no source code was available.
 In the first subsection, I will explain how I reached out to authors of those queues for feedback on my implementations.
 In the following subsections, I will outline the considerations that were made for each queue one at a time.
@@ -11,7 +11,7 @@ source code for the original implementations or feedback on my implementations o
 One of the authors of the FastForward paper responded and was able to provide me with a partial
 implementation of the FastForward queue which was missing the slip adjustment code.
 The provided code was very similar to my implementation, suggesting that that part of my implementation is correct.
-I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-24, however, my
+I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-28, however, my
 original message could not be delivered to Tian Bu and Girish Chandranmenon since their E-Mail addresses,
 stated in the MCRingBuffer paper, are not valid anymore.
 
@@ -21,10 +21,11 @@ paper and source code\footnote{About a week after reaching out,
     I noticed that the EQueue repository on GitHub ceased to be available.
     For preservation purposes, I have reuploaded the repository to GitHub (See
     \href{https://github.com/Computerdores/equeue}{Computerdores/equeue}).
-    For the same reason, I have also forked a GitHub reupload of the, now unavailable, original B-Queue
-    repository (See \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).
+    For the same reason, I have also forked a GitHub reupload of the original B-Queue
+    repository, which had already been unavailable prior to my work here (See
+    \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).
 \label{equeue-bqueue-links}}.
-I have not received an answer to this E-Mail as of 2025-09-24 and for this reason not reached out separately
+I have not received an answer to this E-Mail as of 2025-09-28 and for this reason not reached out separately
 about feedback on my implementation.
 
 \input{figures/queue-interface}
