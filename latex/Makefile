@@ -2,7 +2,7 @@
 
 default: build
 
-build: src.tar.gz
+build: build/src.tar.gz
 	mkdir -p build
 	find . -mindepth 1 -maxdepth 1 -not -path './build' -not -path './.git' -exec cp -r {} build/ \; # copy everything except for .git/, build/ into build/
 	cd build; latexmk thesis.tex
@@ -11,14 +11,14 @@ open: build
 	xdg-open build/main.pdf
 
 # Create archive of source code, minus some builds to minimise archive size
-src.tar.gz: $(shell find ../src -type f)
-	tar -czf $@ -C .. \
+build/src.tar.gz: $(shell find .. -type f)
+	tar -czf $@ \
 		--exclude=todo.md \
 		--exclude=latex/build \
 		--exclude=src/build \
 		--exclude=src/cmake-build-debug \
 		--exclude=src/cmake-build-release \
-		src
+		../src ../latex ../plots ../*.md ../flake.*
 
 clean:
 	rm -rf build/*
