@@ -18,6 +18,8 @@ set -e
 
 cmake --build build/ -- -j 8
 
+build/test_timestamp_methods || { echo "Aborting: The get_tsc_timestamp method has a larger difference to the get_clock_timestamp method than expected." >&2; exit 1; }
+
 sudo "$CPUPOWER" frequency-set -f "2.8G" >/dev/null
 
 for benchmark in basic bursty; do
