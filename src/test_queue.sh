@@ -20,7 +20,7 @@ total_rx="0"
 total_tx="0"
 for i in $(seq 1 $ITERATIONS); do
     build/benchmarks -o "$datafile" $@
-    jupyter/print_basic_stats.py "$datafile" | tee "$analysisfile"
+    analysis/print_basic_stats.py "$datafile" | tee "$analysisfile"
 
     rx_mean=$(cat "$analysisfile" | awk '/Mean:/{flag=1;next} flag && /RX_TIME/{print $2; exit}')
     tx_mean=$(cat "$analysisfile" | awk '/Mean:/{flag=1;next} flag && /TX_TIME/{print $2; exit}')
