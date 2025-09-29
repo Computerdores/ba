@@ -1,9 +1,9 @@
-\section{Framework}
-\label{sec:framework}
+\chapter{Framework}
+\label{ch:framework}
 In this section, I will first outline the goals for the framework and will then explain the
 architectural and technical decisions I made to achieve them.
 
-\subsection{Goals}
+\section{Goals}
 First and foremost, this framework should allow for benchmarking of different SPSC FIFO queues in different benchmarks.
 In order to make it as straightforward as possible to add new queues or different benchmarks, large code
 duplications between different benchmarks should also be avoided.
@@ -14,7 +14,7 @@ framework modular are outlined in \autoref{sec:framework-technical-details}.
 Lastly, I want to specifically avoid mixing the code being benchmarked and the code responsible for said
 benchmarking, in order to keep the queue implementations self contained and easily usable by others.
 
-\subsection{Architecture}
+\section{Architecture}
 Typically benchmarks of FIFO queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
 Two separate threads will be started, one for enqueuing and one for dequeuing elements
 (hereafter referred to as the producer and consumer threads respectively).
@@ -45,7 +45,7 @@ start time of the benchmark, in case this is needed for its specific implementat
 As I set out in the previous subsection, this architecture allows us to implement different benchmarks for
 different queues, without unnecessary code duplication, by implementing, and making use of, different components.
 
-\subsection{Technical Details}
+\section{Technical Details}
 \label{sec:framework-technical-details}
 
 \input{figures/runner-class-code}
@@ -79,7 +79,7 @@ and then starts an instance of the runner class with the appropriate components,
 arguments it was provided.
 After the benchmark has finished, it causes the measurement data to be saved.
 
-\subsubsection{Time Measurement}
+\subsection{Time Measurement}
 Both the waiter implementations and the measurer implementation need to measure time intervals.
 The basis of this is the \texttt{RDTSC} instruction which reads the Timestamp Counter (TSC), which is a
 feature of x86 CPUs.
@@ -88,17 +88,17 @@ a constant rate, equal to the base frequency of the CPU.
 This means that in order to provide time interval measurements in nanoseconds, the TSC difference needs to be
 divided by the CPU's base frequency to arrive at the correct unit.
 
-\subsubsection{Waiter Implementations}
+\subsection{Waiter Implementations}
 \label{sec:waiter-implementations}
 As outlined previously, waiter components cause a delay between queue operations, in order to simulate the
 enqueue and dequeue patterns, caused by real-world workloads.
 For the benchmarks in this thesis I have implemented three different waiter components.
 
-\paragraph{Constant Wait}
+\subsubsection*{Constant Wait}
 This component waits a constant amount of time between operations.
 It aims to simulate work loads with very consistent time expenditure per item enqueued or dequeued.
 
-\paragraph{Constant Rate}
+\subsubsection*{Constant Rate}
 This component tries to maintain a constant time difference between the starts of queue operations.
 It is used in order to isolate the differing operation times of different queue implementations from the rate
 at which operations are performed.
@@ -107,7 +107,7 @@ operations if the specified en-/dequeue rate is maintained exactly) is \ns{200},
 to a \ns{280} delay between the starts of operations, while Constant Rate will lead to a \ns{200} delay
 between starts of operations, because it would only waits $\ns{200}-\ns{80}=\ns{120}$.
 
-\paragraph{Bursty}
+\subsubsection*{Bursty}
 This waiter behaves similarly to the Constant Rate component, however it defers wait operations, in order to
 produce blocks of BURST\_SIZE operations with little to no delay, similar to network applications where
 network packets often arrive in bursts.
@@ -117,7 +117,7 @@ delay between starts of operations of \ns{100}).
 Lastly, this component and the Constant Rate waiter also allow for jitter to be enabled, which adds pseudo
 random variance to the wait times (this was also done in the FastForward paper\cite{FastForward}).
 
-\subsubsection{Measurer Implementations}
+\subsection{Measurer Implementations}
 I have only implemented a single measurer component, however, measurer components could be used to, for
 example, use different timestamp sources than the \texttt{RDTSC} instruction used here as it is only supported on x86.
 It could also be used to measure other aspects of the queue/benchmark behaviour, such as cache statistic, the

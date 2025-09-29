@@ -23,6 +23,43 @@
                     cleveref
                     attachfile2
 
+                    # osm template bloat
+                    koma-script
+                    nag
+                    chngcntr
+                    booktabs
+                    csquotes
+                    datetime
+                    fmtcount
+                    enumitem
+                    mdwtools
+                    fnpct
+                    translations
+                    listings
+                    algorithm2e
+                    ifoddpage
+                    relsize
+                    multirow
+                    scrhack
+                    floatbytocbasic
+                    microtype
+                    textcase
+                    doclicense
+                    xifthen
+                    ifmtarg
+                    xstring
+                    ccicons
+                    mathpazo
+                    babel
+                    babel-german
+                    babel-english
+                    collection-fontsextra
+                    fontspec
+                    hyperxmp
+                    luacode
+                    luatexbase
+
+                    # basic latex stuff
                     latexmk
                     biber
                     biblatex

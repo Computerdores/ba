@@ -1,13 +1,14 @@
-\begin{figure}
-    \begin{minted}{cpp}
+\begin{listing}
+\begin{minted}{cpp}
 /* ... */
-template <IsQueueWith<u64> Q, IsMeasurerPair M, IsWaiterPair W, bool MEASURE_FAILED = false>
+template <IsQueueWith<u64> Q, IsMeasurerPair M,
+    IsWaiterPair W, bool MEASURE_FAILED = false>
 class Runner {
   public:
     template <typename P>
     explicit Runner(Q* queue, const P& params)
-        : _queue(queue), _measurer(M(params.msg_count)), _waiter(W(params)),
-          _msg_count(params.msg_count) {}
+        : _queue(queue), _measurer(M(params.msg_count)),
+          _waiter(W(params)), _msg_count(params.msg_count) {}
 
     void run() { /* ... */ }
 
@@ -54,7 +55,7 @@ class Runner {
         }
     }
 };
-    \end{minted}
-    \caption{The implementation of the runner class in C++, with some parts ommited.}
-    \label{fig:runner-class-code}
-\end{figure}
+\end{minted}
+\caption{The implementation of the runner class in C++, with some parts ommited.}
+\label{fig:runner-class-code}
+\end{listing}

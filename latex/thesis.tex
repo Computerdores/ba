@@ -1,0 +1,101 @@
+\documentclass{scrreprt} % <= Druckversion: "scrbook" / Bildschirmversion: "scrreprt"
+\usepackage[english,biber]{osm-thesis}
+
+\usepackage{subcaption}
+\usepackage{attachfile2}
+
+\usepackage{minted}
+\providecommand*{\listingautorefname}{Listing}
+\providecommand*{\listingautorefname}{Listing}
+
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\usepackage[per-mode=symbol]{siunitx}
+\DeclareSIUnit\transfer{T}
+\sisetup{
+    group-digits = integer,
+    group-minimum-digits = 4,
+    group-separator = {,},
+    output-decimal-marker = {.},
+}
+
+\setuptodonotes{inline}
+
+\newcommand{\ns}[1]{\SI{#1}{\nano\second}}
+
+
+% ABOUT
+\newcommand{\thesistype}{Arbeit zur Erlangung des Grades \enquote{Bachelor~of~Science} der Digital-Engineering-Fakultät der Universität~Potsdam}
+\newcommand{\thesisauthor}{Jann Peter Vincent Stute}
+\newcommand{\thesistitle}{TODO Title English}
+\newcommand{\thesistitleother}{TODO Title German}
+
+% LICENSE
+\usepackage[type={CC},modifier={by-sa},version={4.0},lang=English]{doclicense}
+
+% ADVISOR & REVIEWERS
+\newcommand{\thesisadvisorlabel}{Betreuer:in}%
+\newcommand{\thesisadvisor}{%
+	Prof.\,Dr.\,Holger Karl\\
+	Universität Potsdam,\\
+	Digital Engineering-Fakultät, \\
+	Fachgebiet für Internet-Technologien und Softwarization}
+\newcommand{\thesisreviewerlabel}{Gutachter:in}%
+\newcommand{\thesisreviewers}{%
+	Prof.\,Dr.\,Jack Alsohere\\
+	University of San Serife\\
+	Facultiy of Computer Doings%
+	\and
+	Amelia van der Beenherelong\\
+	ACME Cooperation}
+
+% IMPORTANT DATES
+\newcommand{\thesishandindate}{\formatdate{30}{9}{2025}}%
+
+% DOCUMENT
+\bibliography{refs}
+
+\begin{document}
+
+    {
+        \todo{TODO: check formalities}
+        \todo{TODO: Title}
+        \todo{TODO: Acronyms}
+        \todo{TODO: report data as appendix maybe?}
+
+        \let\clearpage\relax
+        \let\cleardoublepage\relax
+
+        \listoftodos
+    }
+
+	% Einband
+	\pagenumbering{alph}
+	\ifisbook\include{coverpage}\fi
+	\ifisbook\cleardoubleemptypage\fi
+
+	% (Haupt-)Titelseite, Abstract, ggf. Danksagung & Inhaltsverzeichnis
+	\pagenumbering{roman}
+	\include{titlepage}
+	\ifisbook\cleardoubleemptypage\fi\include{abstract}
+	\tableofcontents
+	\cleardoublepage
+
+	% Textteil
+	\pagenumbering{arabic}
+    \include{introduction}
+    \include{framework}
+    \include{queue-implementations}
+    \include{queue-evaluation}
+    \include{conclusion}
+
+	% Bibliographie
+	\ifisbook\cleardoubleemptypage\fi
+	\phantomsection\addcontentsline{toc}{chapter}{\refname}
+	\printbibliography[category=cited]
+
+	% Anhang
+	\appendix\include{appendix}
+
+\end{document}

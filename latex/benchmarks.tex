@@ -1,4 +1,4 @@
-\subsection{Benchmarks}
+\section{Benchmarks}
 \todo{TODO: ``Querverweise'' -- ??}
 In this subsection I will start by explaining the different parameters to be set for each queue.
 While I will outline the purpose of each parameter, I will not provide an in-depth explanation of the inner
@@ -11,8 +11,8 @@ I will then continue to outline the specifics of each benchmark, with one benchm
 order from the benchmark with the smallest difference between the performance of the queues to the benchmark
 with the highest difference between the queues.
 
-\subsubsection{Parameters}
-\paragraph{BQueue}
+\subsection{Parameters}
+\subsubsection*{BQueue}
 BQueue implements producer and consumer batching to avoid having to read ahead in the buffer on every
 operation in order to check if the operation will succeed \cite{B-Queue}.
 BQueue also dynamically adjusts the dequeue batch size.
@@ -26,7 +26,7 @@ The queue is configured via the following values:
         of time when a new candidate is chosen. This parameter determines the duration of each of those waits.
 \end{itemize}
 
-\paragraph{EQueue}
+\subsubsection*{EQueue}
 EQueue dynamically adjusts the size of the queue to optimise cache access times\cite{EQueue}. Furthermore,
 EQueue also dynamically adjusts the dequeue batch size. The following parameters influence these behaviours:
 \begin{itemize}
@@ -37,7 +37,7 @@ EQueue also dynamically adjusts the dequeue batch size. The following parameters
         time when a new candidate is chosen. This parameter determines the length of those waits.
 \end{itemize}
 
-\paragraph{FastFlow Queue}
+\subsubsection*{FastFlow Queue}
 FastFlow Queue uses a linked list of dynamically allocated buffers as the storage of the queue\cite{FastFlowGithub}.
 The buffers are referred to as ``buckets.''
 This behaviour is controlled by the following parameters:
@@ -47,7 +47,7 @@ This behaviour is controlled by the following parameters:
         allocated by the queue.
 \end{itemize}
 
-\paragraph{MCRingBuffer}
+\subsubsection*{MCRingBuffer}
 MCRingBuffer implements producer and consumer batching\cite{MCRingBuffer}.
 The queue is configured using the following values:
 \begin{itemize}
@@ -55,7 +55,7 @@ The queue is configured using the following values:
     \item \texttt{batch\_size} -- The size of the producer and consumer batches.
 \end{itemize}
 
-\paragraph{FastForward Queue}
+\subsubsection*{FastForward Queue}
 FastForward Queue delays dequeues via waiting to try to keep over one cacheline of data in the queue\cite{FastForward}.
 The distance between head and tail that this creates is called the ``slip''.
 The following parameters can be used to control FastForward Queue's behaviour:
@@ -64,10 +64,10 @@ The following parameters can be used to control FastForward Queue's behaviour:
     \item \texttt{adjust\_slip\_interval} -- This parameter determines every how many dequeues the slip is adjusted.
 \end{itemize}
 
-\paragraph{Lamport Queue}
+\subsubsection*{Lamport Queue}
 The only parameter of Lamport Queue is the \texttt{size} parameter, which controls its size\cite{Lamport}.
 
-\subsubsection{Bursty 65k-16k / Bursty 65k-2k}
+\subsection{Bursty 65k-16k / Bursty 65k-2k}
 \label{sec:bench-bursty-65k-16k}
 
 The Bursty 65k-16k and Bursty 65k-2k benchmarks are based on the tests performed in the EQueue paper,
@@ -101,7 +101,7 @@ The full configurations for both of these benchmarks can be found in \texttt{equ
 
 \input{figures/toml-bursty-65k}
 
-\paragraph{BQueue}
+\subsubsection*{BQueue}
 The \texttt{batch\_size} parameter was set to a sixteenth of the queue size as specified by the original
 B-Queue source code.
 In turn, the \texttt{batch\_increment} parameter was set to half of the \texttt{batch\_size} parameter as
@@ -109,29 +109,29 @@ also specified by the source code.
 Lastly, the \texttt{wait\_time} parameter was set to \SI{358}{\nano\second} in accordance with the
 $1,000\text{ cycles}$ value from the source code.
 
-\paragraph{EQueue}
+\subsubsection*{EQueue}
 For the \texttt{initial\_size} value of EQueue, no value was specified in the paper, and it was thus tuned
 from scratch\footnote{Note that all of the parameter tuning was done at significantly lower sample counts
 than the final benchmarks, because of the unfeasibly large amount of time this would otherwise have taken.}.
 The other unaccounted for parameter, \texttt{wait\_time}, was specified in paper and source code as 1000
 Cycles and was thus set to the equivalent \SI{358}{\nano\second}.
 
-\paragraph{FastFlow Queue}
+\subsubsection*{FastFlow Queue}
 For FastFlow queue there are two parameters; \texttt{bucket\_size} for which there is no specified default
 value and which was thus tuned from scratch, and \texttt{max\_bucket\_count} which was entirely predetermined by
 the bucket size and the targeted maximum size of the queue.
 
-\paragraph{MCRingBuffer}
+\subsubsection*{MCRingBuffer}
 The \texttt{batch\_size} parameter was tuned -- with the constraint that it needed to be a divisor of the
 number of enqueue / dequeue operations in order to avoid the aforementioned deadlock issue.
 
-\paragraph{FastForward Queue}
+\subsubsection*{FastForward Queue}
 The value for \texttt{adjust\_slip\_interval} was taken from the FastForward paper as is and then verfied via tuning.
 
-\paragraph{Lamport Queue}
+\subsubsection*{Lamport Queue}
 The Lamport queue has no parameters, but the size.
 
-\subsubsection{Basic 65k}
+\subsection{Basic 65k}
 The Basic 65k benchmark is identical to the Bursty benchmarks, except that the Constant Rate waiter was used
 for the enqueue thread instead of the Bursty waiter.
 The EQueue paper does not include a test with constant rate or constant wait enqueueing, but this

@@ -1,17 +1,17 @@
-\section{Queue Implementations}
+\chapter{Queue Implementations}
 All of the queues I will benchmark in this work needed to either be ported to cpp, adapted to share the same
 interface (see \autoref{fig:queue-interface}), or reimplemented because no source code was available.
 In the first subsection, I will explain how I reached out to authors of those queues for feedback on my implementations.
 In the following subsections, I will outline the considerations that were made for each queue one at a time.
 
-\subsection{Feedback}
-\todo{TODO: update the 'as of now' dates later}
+\section{Feedback}
+\todo{TODO: validate 'as of now' dates on 2025-09-30}
 On 2025-09-04, I reached out via E-Mail to the authors of the MCRingBuffer and FastForward papers seeking
 source code for the original implementations or feedback on my implementations of their queues.
 One of the authors of the FastForward paper responded and was able to provide me with a partial
 implementation of the FastForward queue which was missing the slip adjustment code.
 The provided code was very similar to my implementation, suggesting that that part of my implementation is correct.
-I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-28, however, my
+I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-30, however, my
 original message could not be delivered to Tian Bu and Girish Chandranmenon since their E-Mail addresses,
 stated in the MCRingBuffer paper, are not valid anymore.
 
@@ -25,14 +25,14 @@ paper and source code\footnote{About a week after reaching out,
     repository, which had already been unavailable prior to my work here (See
     \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).
 \label{equeue-bqueue-links}}.
-I have not received an answer to this E-Mail as of 2025-09-28 and for this reason not reached out separately
+I have not received an answer to this E-Mail as of 2025-09-30 and for this reason not reached out separately
 about feedback on my implementation.
 
 \input{figures/queue-interface}
 
 \todo{TODO: Add link to repository for code of each queue}
 
-\subsection{BQueue}
+\section{BQueue}
 This queue was initally reimplemented, because the original source code repository linked in the B-Queue
 paper had become unavailable\cite{B-Queue}.
 As such a full B-Queue implemention, including self-adaptive backtracking and producer and consumer batching, was made.
@@ -44,7 +44,7 @@ Second, another check was added to prevent the head from overtaking the tail in 
     This check does not appear to be necessary for the benchmarks anymore, however, I did not remove it,
 because it makes the implementation more robust and I did not observe any performance difference due to it.}.
 
-\subsection{EQueue}
+\section{EQueue}
 EQueue was ported to C++ with small differences, because the released source code and the paper differed\cite{EQueue}.
 Furthermore, their queue implementation is also not entirely self contained (see traffic counters).
 I tried to reconcile the differences between the paper and their code appropriately.
@@ -66,7 +66,7 @@ For my implementation, I increment it as part of the \texttt{enqueue} method, si
 Lastly, I did not implement their LT-CAS primitive, since their implementation does not make use of it as
 part of the queue either (it only contains a demonstration of the primitive).
 
-\subsection{MCRingBuffer}
+\section{MCRingBuffer}
 The queue from the MCRingBuffer paper was implemented from scratch, as there does not seem to be any publicly
 available source code\cite{MCRingBuffer}.
 I made sure to add padding between shared, consumer local, producer local, and read only variables, to
@@ -77,14 +77,14 @@ specified in the paper, the operation instead fails, to conform with the interfa
 It is also worth mentioning that this queue deadlocks under certain conditions, however, fixing this issue
 was not pursued here, for the same reasons also outlined in the B-Queue paper\cite{B-Queue}.
 
-\subsection{FastFlow Queue}
+\section{FastFlow Queue}
 FastFlow Queue was largely taken as is and only extended to conform with the general queue
 interface\cite{FastFlowGithub}.
 This was done since FastFlow Queue has a prepare + commit interface for enqueue and dequeue.
 To fix this interface discrepancy, wrapper methods were implemented, which make use of the prepare + commit
 interface to implement the typical enqueue and dequeue semantics.
 
-\subsection{FastForward Queue}
+\section{FastForward Queue}
 Like MCRingBuffer, FastForward queue was implemented from scratch, because I was not able to find source code
 for it\cite{FastForward}.
 Also like MCRingBuffer, padding was added to make sure that the \texttt{head}, \texttt{tail}, and
@@ -93,7 +93,7 @@ Furthermore, volatile markings and volatile references were added to prevent opt
 Lastly, the implementation of the distance function was not specified in the paper and was implemented via
 access to the, otherwise thread local, \texttt{head} and \texttt{tail} variables.
 
-\subsection{Lamport Queue}
+\section{Lamport Queue}
 This queue was also reimplemented due to no source code being available, which had seemingly also been done
 for the FastForward paper.
 Similar to the other queues, padding was added between \texttt{head}, \texttt{tail}, and the read only

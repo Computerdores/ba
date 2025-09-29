@@ -1,19 +1,19 @@
-\begin{figure}
-    \begin{minted}{cpp}
-        template <typename T>
-        class Queue {
-          public:
-            using Item = T;
+\begin{listing}
+\begin{minted}{cpp}
+template <typename T>
+class Queue {
+  public:
+    using Item = T;
 
-            // non-blocking on failure
-            virtual bool enqueue(T item) = 0;
+    // non-blocking on failure
+    virtual bool enqueue(T item) = 0;
 
-            // non-blocking on failure
-            virtual std::optional<T> dequeue() = 0;
+    // non-blocking on failure
+    virtual std::optional<T> dequeue() = 0;
 
-            virtual ~Queue() = default;
-        };
-    \end{minted}
-    \caption{The \texttt{Queue<T>} interface.}
-    \label{fig:queue-interface}
-\end{figure}
+    virtual ~Queue() = default;
+};
+\end{minted}
+\caption{The \texttt{Queue<T>} interface.}
+\label{fig:queue-interface}
+\end{listing}

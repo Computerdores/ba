@@ -5,7 +5,7 @@ default: build
 build: src.tar.gz
 	mkdir -p build
 	find . -mindepth 1 -maxdepth 1 -not -path './build' -not -path './.git' -exec cp -r {} build/ \; # copy everything except for .git/, build/ into build/
-	cd build; latexmk main.tex
+	cd build; latexmk thesis.tex
 
 open: build
 	xdg-open build/main.pdf

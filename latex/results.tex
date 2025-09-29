@@ -1,4 +1,4 @@
-\subsection{Results}
+\section{Results}
 It can generally be noted that the jitter on the TX side does not have an impact on any of the results
 (See \cref{fig:results-bursty-65k-16k,fig:results-bursty-65k-2k,fig:results-basic-65k}).
 Jitter having a significant impact can be a problem where the precise timing by the benchmark causes
@@ -24,12 +24,9 @@ they also used bursty enqueue timing.
 Lastly, for the Basic benchmark I compare my results to those of the B-Queue and FastForward papers as this
 benchmark is, out of mine, most similar to those.
 
+\subsection{Bursty 65k-16k}
 \input{figures/plots/eq16k-bursty}
-\input{figures/plots/eq2k-bursty}
-\input{figures/plots/eq-basic}
-
-\subsubsection{Bursty 65k-16k}
-As mentioned in \autoref{sec:framework}, the components give two options to be varied with each benchmark:
+As mentioned in \autoref{ch:framework}, the components give two options to be varied with each benchmark:
 jitter and whether failed operations are included in the measurements.
 The four variations of this benchmark can be seen in \autoref{fig:results-bursty-65k-16k}.
 The variation in \autoref{fig:results-bursty-65k-16k-b} without jitter and which includes failed operations
@@ -64,7 +61,8 @@ Overall, it can be observed that all queues perform similarly in this benchmark,
 which performs better than the other queues on the dequeue operations.
 However, it is not clear whether this would lead to a real world performance advantage for Lamport queue.
 
-\subsubsection{Bursty 65k-2k}
+\subsection{Bursty 65k-2k}
+\input{figures/plots/eq2k-bursty}
 The results from the four variations of this benchmark can be seen in \autoref{fig:results-bursty-65k-2k}.
 As with the previous benchmark, the variant of this benchmark without jitter and while including failed
 operations in the measurements is the closest to the test from the EQueue paper with burst size $2,048$ (see
@@ -93,7 +91,8 @@ to the other queues.
 Overall, it can be said that the queues all perform relatively similar in this benchmark with the enqueue
 operation of EQueue as an outlier and the dequeue operation of MCRingBuffer as another, smaller, outlier.
 
-\subsubsection{Basic 65k}
+\subsection{Basic 65k}
+\input{figures/plots/eq-basic}
 For this benchmark the results of the four variations can be seen in \autoref{fig:results-basic-65k}.
 In the case for the results of the variation without jitter and while measuring failed operations,
 it can be observed that the most of the results are almost identical to those of the Bursty 65k-16k benchmark,
