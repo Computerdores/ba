@@ -1,5 +1,6 @@
 \documentclass{scrreprt} % <= Druckversion: "scrbook" / Bildschirmversion: "scrreprt"
 \usepackage[english,biber]{osm-thesis}
+\PassOptionsToPackage{style=ieee}{biblatex}
 
 \usepackage{subcaption}
 \usepackage{attachfile2}
@@ -26,41 +27,18 @@
 
 
 % ABOUT
-\newcommand{\thesistype}{Arbeit zur Erlangung des Grades \enquote{Bachelor~of~Science} der Digital-Engineering-Fakultät der Universität~Potsdam}
 \newcommand{\thesisauthor}{Jann Peter Vincent Stute}
-\newcommand{\thesistitle}{TODO Title English}
-\newcommand{\thesistitleother}{TODO Title German}
+\newcommand{\thesistitle}{A Modular Framework for Benchmarking FIFO Queues}
+\newcommand{\thesistitleother}{Ein modularer Framework zum Benchmarking von FIFO Queues}
 
-% LICENSE
-\usepackage[type={CC},modifier={by-sa},version={4.0},lang=English]{doclicense}
-
-% ADVISOR & REVIEWERS
-\newcommand{\thesisadvisorlabel}{Betreuer:in}%
-\newcommand{\thesisadvisor}{%
-	Prof.\,Dr.\,Holger Karl\\
-	Universität Potsdam,\\
-	Digital Engineering-Fakultät, \\
-	Fachgebiet für Internet-Technologien und Softwarization}
-\newcommand{\thesisreviewerlabel}{Gutachter:in}%
-\newcommand{\thesisreviewers}{%
-	Prof.\,Dr.\,Jack Alsohere\\
-	University of San Serife\\
-	Facultiy of Computer Doings%
-	\and
-	Amelia van der Beenherelong\\
-	ACME Cooperation}
-
-% IMPORTANT DATES
+\newcommand{\thesisadvisor}{Prof.\,Dr.\,Holger Karl}
 \newcommand{\thesishandindate}{\formatdate{30}{9}{2025}}%
 
-% DOCUMENT
 \bibliography{refs}
 
 \begin{document}
 
     {
-        \todo{TODO: check formalities}
-        \todo{TODO: Title}
         \todo{TODO: Acronyms}
         \todo{TODO: report data as appendix maybe?}
 
@@ -69,11 +47,6 @@
 
         \listoftodos
     }
-
-	% Einband
-	\pagenumbering{alph}
-	\ifisbook\include{coverpage}\fi
-	\ifisbook\cleardoubleemptypage\fi
 
 	% (Haupt-)Titelseite, Abstract, ggf. Danksagung & Inhaltsverzeichnis
 	\pagenumbering{roman}
