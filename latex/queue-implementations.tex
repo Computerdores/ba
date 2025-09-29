@@ -30,11 +30,10 @@ about feedback on my implementation.
 
 \input{figures/queue-interface}
 
-\todo{TODO: Add link to repository for code of each queue}
-
 \section{BQueue}
 This queue was initally reimplemented, because the original source code repository linked in the B-Queue
-paper had become unavailable\cite{B-Queue}.
+paper had become unavailable (see
+\href{https://github.com/Computerdores/ba/blob/main/src/queues/b_queue.h}{queues/b\_queue.h})\cite{B-Queue}.
 As such a full B-Queue implemention, including self-adaptive backtracking and producer and consumer batching, was made.
 I have since found a copy of the original repository and validated that my implementation shows the same
 performance characteristics in my benchmarks.
@@ -45,7 +44,8 @@ Second, another check was added to prevent the head from overtaking the tail in 
 because it makes the implementation more robust and I did not observe any performance difference due to it.}.
 
 \section{EQueue}
-EQueue was ported to C++ with small differences, because the released source code and the paper differed\cite{EQueue}.
+EQueue was ported to C++ with small differences, because the released source code and the paper differed
+(see \href{https://github.com/Computerdores/ba/blob/main/src/queues/equeue.h}{queues/equeue.h})\cite{EQueue}.
 Furthermore, their queue implementation is also not entirely self contained (see traffic counters).
 I tried to reconcile the differences between the paper and their code appropriately.
 
@@ -68,7 +68,8 @@ part of the queue either (it only contains a demonstration of the primitive).
 
 \section{MCRingBuffer}
 The queue from the MCRingBuffer paper was implemented from scratch, as there does not seem to be any publicly
-available source code\cite{MCRingBuffer}.
+available source code (see \href{https://github.com/Computerdores/ba/blob/main/src/queues/mc_ring_buffer.h}
+{queues/mc\_ring\_buffer.h})\cite{MCRingBuffer}.
 I made sure to add padding between shared, consumer local, producer local, and read only variables, to
 prevent false sharing by making sure these blocks of variables are on different cache lines.
 I also added volatile markings for the variables \texttt{read}, \texttt{write}, and \texttt{buffer}.
@@ -79,14 +80,16 @@ was not pursued here, for the same reasons also outlined in the B-Queue paper\ci
 
 \section{FastFlow Queue}
 FastFlow Queue was largely taken as is and only extended to conform with the general queue
-interface\cite{FastFlowGithub}.
+interface (see \href{https://github.com/Computerdores/ba/blob/main/src/queues/ff_queue.h}
+{queues/ff\_queue.h})\cite{FastFlowGithub}.
 This was done since FastFlow Queue has a prepare + commit interface for enqueue and dequeue.
 To fix this interface discrepancy, wrapper methods were implemented, which make use of the prepare + commit
 interface to implement the typical enqueue and dequeue semantics.
 
 \section{FastForward Queue}
 Like MCRingBuffer, FastForward queue was implemented from scratch, because I was not able to find source code
-for it\cite{FastForward}.
+for it (see \href{https://github.com/Computerdores/ba/blob/main/src/queues/fast_forward.h}
+{queues/fast\_forward.h})\cite{FastForward}.
 Also like MCRingBuffer, padding was added to make sure that the \texttt{head}, \texttt{tail}, and
 \texttt{buffer} variables are on different cache lines, to prevent false sharing.
 Furthermore, volatile markings and volatile references were added to prevent optimisation errors by the compiler.
@@ -95,7 +98,8 @@ access to the, otherwise thread local, \texttt{head} and \texttt{tail} variables
 
 \section{Lamport Queue}
 This queue was also reimplemented due to no source code being available, which had seemingly also been done
-for the FastForward paper.
+for the FastForward paper (see \href{https://github.com/Computerdores/ba/blob/main/src/queues/lamport.h}
+{queues/lamport.h})\cite{Lamport}.
 Similar to the other queues, padding was added between \texttt{head}, \texttt{tail}, and the read only
 variables and volatile references were added as well.
 It is also worth noting that, as with MCRingBuffer, instead of waiting when an operation does not succeed
