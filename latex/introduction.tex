@@ -4,13 +4,13 @@ A common example of such a utilization of multi-core architectures, are network 
 of pipeline parallelism\cite{Upadhyaya2007,WangCheng2009}.
 This allows utilising multiple threads by decomposing these network applications into sequential tasks that can be
 parallelised\cite{WangCheng2009}.
-In such applications, FIFO queues play an important role as communication channels between these sequential
+In such applications, \acrshort{fifo} queues play an important role as communication channels between these sequential
 tasks, which can also often be located on different CPU cores.
 However, the performance of these communication channels can be critical to effectively making use of
 parallelisation, ``take [a] 10 Gbps network as an example, a minimal 64-byte Ethernet frame must be processed
 in amortized time of 67 ns, which is about one DRAM access time''\cite{B-Queue}.
 
-Because of this there are many different SPSC FIFO queue designs aiming to improve, relative to previous
+Because of this there are many different \acrshort{spsc} \acrshort{fifo} queue designs aiming to improve, relative to previous
 iterations, the time spent per enqueue/dequeue operation\cite{B-Queue,EQueue,FastForward,FastFlowGithub,MCRingBuffer}.
 However, choosing one of these implementations can be diffcult for several reasons.
 Each paper concludes that its proposed design surpasses the performance of existing designs in some

@@ -22,6 +22,7 @@
                     caption
                     cleveref
                     attachfile2
+                    glossaries
 
                     # osm template bloat
                     koma-script

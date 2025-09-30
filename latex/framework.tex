@@ -4,7 +4,8 @@ In this section, I will first outline the goals for the framework and will then 
 architectural and technical decisions I made to achieve them.
 
 \section{Goals}
-First and foremost, this framework should allow for benchmarking of different SPSC FIFO queues in different benchmarks.
+First and foremost, this framework should allow for benchmarking of different \acrshort{spsc} \acrshort{fifo}
+queues in different benchmarks.
 In order to make it as straightforward as possible to add new queues or different benchmarks, large code
 duplications between different benchmarks should also be avoided.
 For this reason the framework should be kept modular to allow for simple reuse of existing code.
@@ -15,7 +16,7 @@ Lastly, I want to specifically avoid mixing the code being benchmarked and the c
 benchmarking, in order to keep the queue implementations self contained and easily usable by others.
 
 \section{Architecture}
-Typically benchmarks of FIFO queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
+Typically benchmarks of \acrshort{fifo} queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
 Two separate threads will be started, one for enqueuing and one for dequeuing elements
 (hereafter referred to as the producer and consumer threads respectively).
 Both threads will perform an equal number of successful operations, take measurements of certain
@@ -81,11 +82,11 @@ After the benchmark has finished, it causes the measurement data to be saved.
 
 \subsection{Time Measurement}
 Both the waiter implementations and the measurer implementation need to measure time intervals.
-The basis of this is the \texttt{RDTSC} instruction which reads the Timestamp Counter (TSC), which is a
+The basis of this is the \texttt{RDTSC} instruction which reads the \acrfull{tsc}, which is e
 feature of x86 CPUs.
-On all CPUs with an invariant TSC, like the one used for the benchmarks here, this counter is incremented at
+On all CPUs with an invariant \acrshort{tsc}, like the one used for the benchmarks here, this counter is incremented at
 a constant rate, equal to the base frequency of the CPU.
-This means that in order to provide time interval measurements in nanoseconds, the TSC difference needs to be
+This means that in order to provide time interval measurements in nanoseconds, the \acrshort{tsc} difference needs to be
 divided by the CPU's base frequency to arrive at the correct unit.
 
 \subsection{Waiter Implementations}

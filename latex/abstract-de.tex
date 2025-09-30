@@ -3,13 +3,13 @@
 
 \chapter{Kurzfassung}
 
-\noindent First In, First Out (FIFO)-Queues spielen eine wichtige Rolle in der Implementierung von
+\noindent \acrfull{fifo}-Queues spielen eine wichtige Rolle in der Implementierung von
 parallelisierten Architekturen als Kommunikationskanäle zwischen unterschiedlichen
 Anwendungskomponenten\cite{WangCheng2009}.
 Diese Kommunikationskanäle können oft zentral für die Leistung solcher Anwendungen sein, insbesondere für
 Netzwerkanwendungen, da diese häufig Pipeline-Parallelismus nutzen\cite{Upadhyaya2007,WangCheng2009}.
-Es gibt jedoch viele unterschiedliche Implementierungen von Single Producer Single Consumer (SPSC)
-FIFO-Queues, die jeweils unterschiedlich getestet werden, was Vergleiche erschwert.
+Es gibt jedoch viele unterschiedliche Implementierungen von \acrfull{spsc}
+\acrshort{fifo}-Queues, die jeweils unterschiedlich getestet werden, was Vergleiche erschwert.
 Aufgrund dessen ist es schwierig, die optimale Queue für einen Anwendungsfall zu wählen, ohne alle in
 Betracht gezogenen Kandidaten zu implementieren und zu testen.
 Um diesem Problem entgegenzuwirken, entwickle ich ein Benchmarking Framework, welches das Testen

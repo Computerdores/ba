@@ -22,7 +22,6 @@ build/src.tar.gz: $(shell find .. -type f)
 
 clean:
 	rm -rf build/*
-	rm src.tar.gz
 
 format:
 	tex-fmt $(shell find . -not -path './build/*' -a -name '*.tex')
