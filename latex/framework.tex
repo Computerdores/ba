@@ -1,6 +1,6 @@
 \chapter{Framework}
 \label{ch:framework}
-In this section, I will first outline the goals for the framework and will then explain the
+In this chapter, I will first outline the goals for the framework and will then explain the
 architectural and technical decisions I made to achieve them.
 
 \section{Goals}
@@ -43,7 +43,7 @@ to the last performed operation.
 The waiter will also be called once before the first iteration, so it can adjust wait times based on the
 start time of the benchmark, in case this is needed for its specific implementation.
 
-As I set out in the previous subsection, this architecture allows us to implement different benchmarks for
+As I set out in the previous section, this architecture allows us to implement different benchmarks for
 different queues, without unnecessary code duplication, by implementing and making use of different components.
 
 \section{Technical Details}
