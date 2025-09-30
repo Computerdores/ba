@@ -10,13 +10,43 @@ It was tested and confirmed to work in Firefox version 141.0 on Linux.
 
 \chapter{Search Queries}
 \label{app:repro-search-queries}
-All queries were done using Google Scholar.
-I performed the following queries and examined the stated number of pages of the results:
+In order to find papers that compare different \acrshort{spsc} \acrshort{fifo} queue implementations,
+I performed the following queries using Google Scholar and examined the first five pages of the results for each query:
 \begin{itemize}
-    \item ``B-Queue'', 5 pages
+    \item \texttt{SPSC FIFO queue benchmark comparison}
+    \item \texttt{FIFO queue "benchmark"}
+    \item \texttt{FIFO queue comparison}
+    \item \texttt{FIFO queue performance evaluation}
+    \item \texttt{"multi-core" "queue" benchmark}
+    \item \texttt{B-Queue}
 \end{itemize}
 
-\todo{TODO: add rest of list}
+These results did not include any papers focusing on comparing different implementations;
+however, the results did contain several papers presenting novel queue designs, which may be of future interest:
+\begin{itemize}
+    \item \textit{A Memory Efficient Lock-Free Circular Queue},
+        DOI: \href{https://doi.org/10.1109/ISCAS51556.2021.9401239}{10.1109/ISCAS51556.2021.9401239}
+    \item \textit{A cache-friendly concurrent lock-free queue for efficient inter-core communication},
+        DOI: \href{https://doi.org/10.1109/ICCSN.2017.8230170}{10.1109/ICCSN.2017.8230170}
+    \item \textit{Correct and Efficient Bounded FIFO Queues},
+        DOI: \href{https://doi.org/10.1109/SBAC-PAD.2013.8}{10.1109/SBAC-PAD.2013.8}
+    \item \textit{The Broker Queue: A Fast, Linearizable FIFO Queue for Fine-Granular Work Distribution on the GPU},
+        DOI: \href{https://doi.org/10.1145/3205289.3205291}{10.1145/3205289.3205291}
+    \item \textit{Using elimination to implement scalable and lock-free FIFO queues},
+        DOI: \href{https://doi.org/10.1145/1073970.1074013}{10.1145/1073970.1074013}
+    \item \textit{An Efficient Unbounded Lock-Free Queue for Multi-core Systems},
+        DOI: \href{https://doi.org/10.1007/978-3-642-32820-6_65}{10.1007/978-3-642-32820-6\_65}
+    \item \textit{Enabling Extremely Fine-grained Parallelism via Scalable Concurrent Queues on Modern Many-core Architectures},
+        DOI: \href{https://doi.org/10.1109/MASCOTS53633.2021.9614292}{10.1109/MASCOTS53633.2021.9614292}
+    \item \textit{Fast concurrent queues for x86 processors},
+        DOI: \href{https://doi.org/10.1145/2442516.2442527}{10.1145/2442516.2442527}
+    \item \textit{The Baskets Queue},
+        DOI: \href{https://doi.org/10.1007/978-3-540-77096-1_29}{10.1007/978-3-540-77096-1\_29}
+    \item \textit{A wait-free queue as fast as fetch-and-add},
+        DOI: \href{https://doi.org/10.1145/2851141.2851168}{10.1145/2851141.2851168}
+    \item \textit{wCQ: A Fast Wait-Free Queue with Bounded Memory Usage},
+        DOI: \href{https://doi.org/10.1145/3490148.3538572}{10.1145/3490148.3538572}
+\end{itemize}
 
 \input{abstract-de}
 
