@@ -18,7 +18,7 @@ build/src.tar.gz: $(shell find .. -type f)
 		--exclude=src/build \
 		--exclude=src/cmake-build-debug \
 		--exclude=src/cmake-build-release \
-		../src ../latex ../plots ../*.md ../flake.*
+		../src ../latex ../plots ../*.md ../flake.* ../LICENSE ../.gitignore
 
 clean:
 	rm -rf build/*
