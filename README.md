@@ -14,3 +14,4 @@ A couple of plots/reports about the data of the plots can be found in `plots/`.
     - https://psy-lob-saw.blogspot.com/2013/11/spsc-iv-look-at-bqueue.html
 - [CFCLF Queue](https://doi.org/10.1109/ICCSN.2017.8230170)
 - [MCRingBuffer](https://doi.org/10.1145/1882486.1882508)
+- Not a link, but also worth mentioning: "Style: Ten Lessons In Clarity And Grace" by Joseph Williams
