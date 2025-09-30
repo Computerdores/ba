@@ -52,7 +52,7 @@
                     ccicons
                     mathpazo
                     babel
-                    babel-german
+                    collection-langgerman
                     babel-english
                     collection-fontsextra
                     fontspec
