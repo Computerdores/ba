@@ -82,7 +82,7 @@ After the benchmark has finished, it causes the measurement data to be saved.
 
 \subsection{Time Measurement}
 Both the waiter implementations and the measurer implementation need to measure time intervals.
-The basis of this is the \texttt{RDTSC} instruction which reads the \acrfull{tsc}, which is e
+The basis of this is the \texttt{RDTSC} instruction which reads the \acrfull{tsc}, which is a
 feature of x86 CPUs.
 On all CPUs with an invariant \acrshort{tsc}, like the one used for the benchmarks here, this counter is incremented at
 a constant rate, equal to the base frequency of the CPU.

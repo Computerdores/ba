@@ -72,9 +72,11 @@ The only parameter of Lamport Queue is the \texttt{size} parameter, which contro
 The Bursty 65k-16k and Bursty 65k-2k benchmarks are based on the tests performed in the EQueue paper,
 specifically the tests with a burst size of $16,384$ and $2,048$ elements respectively.
 The benchmark performs $1,000,000$ operations at a targeted rate for enqueue and dequeue of $1,000,000$
-operations per second\footnote{This rate differs from the rate in the EQueue paper, where they targeted
+operations per second\footnote{This rate differs from the rate used in the EQueue paper, where they targeted
     $\approx 20,000,000$ operations per second (specified as a wait time of $85\text{ cycles}\approx \ns{50}$).
-\todo{TODO: Give reason here? If so, is ``should test robustness of existing results'' a good enough reason?}}.
+    The differing rate was selected, because according to the results from the EQueue paper, some, but not all, of the
+    queues tested would not be able to operate at a rate of $20,000,000$ operations per second, due to their
+operation time being larger than \ns{50}\cite{EQueue}.}.
 All benchmarks (including Basic 65k) were repeated 100 times, with the operation times being averaged for
 every repetition.
 

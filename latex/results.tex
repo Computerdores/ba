@@ -45,11 +45,12 @@ The other queues tested in the EQueue paper (B-Queue, MCRingBuffer, and FastForw
 around $\ns{112}$ per operation.
 In my measurements, these queues all performed similarly to EQueue at around \ns{19}--\ns{21} per enqueue operation
 and around \ns{26}--\ns{27} per dequeue operation.
-This presents a major difference in results between my measurements and those of the EQueue paper.
+This represents a significant difference between my measurements and those reported in the EQueue paper.
 The reasons for this difference are unclear.
-They could for example be explained by differences in parameters for the other queues or perhaps by hardware
+It could, for example, be explained by differences in parameters for the other queues or by hardware
 differences that specifically favor EQueue on the hardware used in that paper.
-However, more research would be needed to determine with confidence the reasons for this discrepancy.
+Another possible explanation is the difference in the rate at which operations are performed;
+however, further research would be required to determine the exact causes with confidence.
 
 It can also be observed that all queues, except for Lamport queue, show a $\approx 50\%$ better dequeue
 operation time when not including failed operations in the measurements.
