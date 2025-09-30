@@ -1,6 +1,7 @@
 \ProvidesPackage{osm-thesis}
 % Changes:
 % - disabled listings package; using minted instead
+% - changes to how citations are displayed (uses IEEE format now)
 
 % language options
 \DeclareOption{ngerman}{
@@ -13,8 +14,6 @@
 	\PassOptionsToPackage{english}{algorithm2e}
 	\AtBeginDocument{\selectlanguage{english}}
 }
-\DeclareOption{bibtex}{\PassOptionsToPackage{backend=bibtex}{biblatex}}
-\DeclareOption{biber}{\PassOptionsToPackage{backend=biber}{biblatex}}
 \ProcessOptions\relax
 
 \RequirePackage[l2tabu,orthodox]{nag}    % Detecting and warning about obsolete LaTeX commands
@@ -22,7 +21,7 @@
 \RequirePackage{textcomp}         % LaTeX support for the Text Companion fonts
 \RequirePackage[utf8]{inputenc}   % Accept different input encodings
 \RequirePackage[dvipsnames,usenames]{xcolor}    % Driver-independent color extensions for LaTeX and pdfLaTeX
-\RequirePackage[bibencoding=utf8,sorting=nyt,defernumbers=true]{biblatex}    % Sophisticated Bibliographies in LaTeX
+\RequirePackage[style=ieee,backend=biber,bibencoding=utf8]{biblatex}    % Sophisticated Bibliographies in LaTeX
 \RequirePackage{amsmath}          % AMS mathematical facilities for LaTeX
 \RequirePackage{amssymb}          % defines all the symbols found in the AMS symbol fonts
 \RequirePackage{array}            % Extending the array and tabular environments
@@ -41,7 +40,6 @@
 \RequirePackage{footnote}         % Improve on LaTeX's footnote handling
 \RequirePackage{fnpct}\setfnpct{after-punct-space={-.2em}}    % Manage footnote marks’ interaction with punctuation
 \RequirePackage{graphicx}         % Enhanced support for graphics
-% \RequirePackage{listings}         % Typeset source code listings using LaTeX
 \RequirePackage[algochapter]{algorithm2e}    %  Floating algorithm environment with algorithmic keywords
 \RequirePackage{caption}          % Customising captions in floating environments
 \RequirePackage{makeidx}          % Standard LaTeX package for creating indexes
@@ -102,11 +100,8 @@
 \setcounter{tocdepth}{3}
 \setcounter{secnumdepth}{3}
 
-% names
-% \let\defaultlstlistingname\lstlistingname\renewcommand\lstlistingname{\iflanguage{ngerman}{Quelltext}{\defaultlstlistingname}}
-
 % bibliography
-\ExecuteBibliographyOptions{backref=true,backrefstyle=three+,url=true,urldate=comp,abbreviate=false,maxbibnames=20}
+\ExecuteBibliographyOptions{url=true,urldate=comp,abbreviate=false,maxbibnames=20}
 \DeclareBibliographyCategory{cited}
 \let\defaultcite\cite\renewcommand*\cite[2][]{\addtocategory{cited}{#2}\defaultcite[#1]{#2}}
 \let\defaulttextcite\textcite\renewcommand*\textcite[2][]{\addtocategory{cited}{#2}\defaulttextcite[#1]{#2}}
@@ -116,22 +111,6 @@
 \AfterPackage{biblatex}{
 	\PreventPackageFromLoading[\errmessage{You tried to load the cite package that is not compatible with biblatex.}]{cite}
 }
-% bibliography: hide url if doi is present
-\renewbibmacro*{doi+eprint+url}{%
-	\iftoggle{bbx:url}
-	{\iffieldundef{doi}{\usebibmacro{url+urldate}}{}}
-	{}%
-	\newunit\newblock
-	\iftoggle{bbx:eprint}
-	{\usebibmacro{eprint}}
-	{}%
-	\newunit\newblock
-	\iftoggle{bbx:doi}
-	{\printfield{doi}}
-	{}%
-}
-% do not show "visited on" for bibliography
-\DeclareFieldFormat{urldate}{}
 
 % captions
 \addtokomafont{caption}{\small}
@@ -144,16 +123,7 @@
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0cm}}m{#1}}
 \captionsetup[table]{belowskip=.5\baselineskip,aboveskip=.5\baselineskip}
 
-% listings
-% \lstset{basicstyle=\linespread{1}\ttfamily\small,floatplacement=htbp,captionpos=t,abovecaptionskip=.5\baselineskip,belowcaptionskip=.5\baselineskip,upquote=true,showstringspaces=false,inputencoding=utf8,tabsize=4}
-% \lstset{literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1 {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1 {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1 {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1 {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1 {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1 {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1 {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1 {€}{{\EUR}}1 {£}{{\pounds}}1 {~}{{\textasciitilde}}1 {-}{{-}}1 }
-% \makeatletter\renewcommand\verbatim@font{\ttfamily}\makeatother
-% \makeatletter\renewcommand\lstinline[1][]{ \errmessage{In diesem Template bitte die 'code'-Umgebung nutzen (an Stelle von 'lstinline').} }\makeatother
-% \code-Umgebung mit Silbentrennung (Alternative für lstinline)
-\newcommand*{\code}[1]{\foreignlanguage{english}{\texttt{#1}}}
-
 % normalfont comment boxes (for listings)
-% \lstset{escapeinside={(*@}{@*)}}
 \newcommand{\commentbox}[2][,] { %
 	\begin{tikzpicture}[overlay,auto,>=latex] %
 		\normalfont %
