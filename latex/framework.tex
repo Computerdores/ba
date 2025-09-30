@@ -8,24 +8,24 @@ First and foremost, this framework should allow for benchmarking of different \a
 queues in different benchmarks.
 In order to make it as straightforward as possible to add new queues or different benchmarks, large code
 duplications between different benchmarks should also be avoided.
-For this reason the framework should be kept modular to allow for simple reuse of existing code.
+For this reason, the framework should be kept modular to allow for simple reuse of existing code.
 However, duplicating the code shared between benchmarks would potentially allow the compiler to optimise more
 freely than na\"ive modularisation would. The details of how this was avoided while still keeping the
 framework modular are outlined in \autoref{sec:framework-technical-details}.
 Lastly, I want to specifically avoid mixing the code being benchmarked and the code responsible for said
-benchmarking, in order to keep the queue implementations self contained and easily usable by others.
+benchmarking, in order to keep the queue implementations self-contained and easily usable by others.
 
 \section{Architecture}
-Typically benchmarks of \acrshort{fifo} queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
+Typically, benchmarks of \acrshort{fifo} queues are quite similar\cite{EQueue,B-Queue,MCRingBuffer}:
 Two separate threads will be started, one for enqueuing and one for dequeuing elements
-(hereafter referred to as the producer and consumer threads respectively).
+(hereafter referred to as the producer and consumer threads, respectively).
 Both threads will perform an equal number of successful operations, take measurements of certain
 aspects of the behaviour of the operations, and simulate a workload in between queue operations.
 What varies between these benchmarks is the type of workload that is simulated and how measurements are taken.
 
-With this in mind, I chose to center the framework around a \texttt{Runner} class, which can be regarded as a
+With this in mind, I chose to centre the framework around a \texttt{Runner} class, which can be regarded as a
 ``skeleton benchmark.''
-This class implements the aforementioned shared aspects of different benchmarks, and makes use of swappable
+This class implements the aforementioned shared aspects of different benchmarks and makes use of swappable
 components for the varying waiting behaviour and measurement code.
 All components are implemented as classes with an interface specific to the type of component they implement.
 
@@ -33,7 +33,7 @@ The producer and consumer threads are quite similar in structure, with the major
 related to the queue operation they perform.
 Both run through a configurable number of iterations, in each of which they repeatedly attempt their queue operation
 until it succeeds\footnote{This will not cause a deadlock to occur, since a correctly implemented queue will
-only fail on enqueue / dequeue operations, if the queue is full/empty respectively.}.
+only fail on enqueue / dequeue operations, if the queue is full/empty, respectively.}.
 Before and after each operation, the measurement component will be called in order to take measurements, with
 the measurement from before an operation possibly being repeated in case the operation failed and failed
 operations are not to be included in the measurements (whether they are to be included is configurable).
@@ -44,7 +44,7 @@ The waiter will also be called once before the first iteration, so it can adjust
 start time of the benchmark, in case this is needed for its specific implementation.
 
 As I set out in the previous subsection, this architecture allows us to implement different benchmarks for
-different queues, without unnecessary code duplication, by implementing, and making use of, different components.
+different queues, without unnecessary code duplication, by implementing and making use of different components.
 
 \section{Technical Details}
 \label{sec:framework-technical-details}
@@ -54,25 +54,25 @@ different queues, without unnecessary code duplication, by implementing, and mak
 As can be seen in \autoref{fig:runner-class-code}, the integration of the components into the runner class
 was implemented via template parameters\footnote{You may observe the template parameters being pairs of
 components, this was done to simplify the construction of the runner class and is not relevant here.}.
-Furthermore, the components are stored as part of the data of the runner class, which in combination with the
+Furthermore, the components are stored as part of the data of the runner class, which, in combination with the
 components being defined in Header files, means that the compiler will inline both data and method
 implementations into the runner class.
 This was verified using the software reverse engineering framework Ghidra.
-Due to this inlining the result of compilation, will be near identical to duplicating the runner class and
-copying the components code into it by hand.
+Due to this inlining, the result of compilation will be nearly identical to duplicating the runner class and
+copying the component's code into it by hand.
 This means that, as I set out to achieve, the modularisation makes it easier to work with, but it does not
 impact the performance of the benchmark and should thus not have an impact on the results.
 Furthermore, the type of the queue implementation is also specified as a template parameter, with the
 implementation being passed as a parameter to the constructor.
-Thus there is also full separation between the queue implementation and the benchmarking code, as the runner
+Thus, there is also full separation between the queue implementation and the benchmarking code, as the runner
 class can thus only rely on the common interface of all queues (see \autoref{fig:queue-interface}).
 
 \autoref{fig:runner-class-code} also shows which methods of the waiter and measurer components are being used.
-First of, there is the \texttt{start} method of the waiter, which marks the beginning of the benchmark,
+First of all, there is the \texttt{start} method of the waiter, which marks the beginning of the benchmark,
 and the \texttt{wait} method of the waiter, which triggers a wait time according to the waiter's implementation.
-Secondly, there is the \texttt{pre} method of the measurer, which gets called to record timestamp before each
+Secondly, there is the \texttt{pre} method of the measurer, which gets called to record a timestamp before each
 attempted operation and overwrites the last recorded measurement if called again before the \texttt{post}
-method is called, which is used to take a measurement after each sucessful operation.
+method is called, which is used to take a measurement after each successful operation.
 
 Lastly, it is worth mentioning the main function, which prepares, runs, and cleans up the benchmark.
 It first loads parameters related to the instantiation of the queues and regarding the benchmark from a config file,
@@ -82,7 +82,7 @@ After the benchmark has finished, it causes the measurement data to be saved.
 
 \subsection{Time Measurement}
 Both the waiter implementations and the measurer implementation need to measure time intervals.
-The basis of this is the \texttt{RDTSC} instruction which reads the \acrfull{tsc}, which is a
+The basis of this is the \texttt{RDTSC} instruction, which reads the \acrfull{tsc}, which is a
 feature of x86 CPUs.
 On all CPUs with an invariant \acrshort{tsc}, like the one used for the benchmarks here, this counter is incremented at
 a constant rate, equal to the base frequency of the CPU.
@@ -91,13 +91,13 @@ divided by the CPU's base frequency to arrive at the correct unit.
 
 \subsection{Waiter Implementations}
 \label{sec:waiter-implementations}
-As outlined previously, waiter components cause a delay between queue operations, in order to simulate the
-enqueue and dequeue patterns, caused by real-world workloads.
-For the benchmarks in this thesis I have implemented three different waiter components.
+As outlined previously, waiter components cause a delay between queue operations in order to simulate the
+enqueue and dequeue patterns caused by real-world workloads.
+For the benchmarks in this thesis, I have implemented three different waiter components.
 
 \subsubsection*{Constant Wait}
 This component waits a constant amount of time between operations.
-It aims to simulate work loads with very consistent time expenditure per item enqueued or dequeued.
+It aims to simulate workloads with very consistent time expenditure per item enqueued or dequeued.
 
 \subsubsection*{Constant Rate}
 This component tries to maintain a constant time difference between the starts of queue operations.
@@ -109,18 +109,18 @@ to a \ns{280} delay between the starts of operations, while Constant Rate will l
 between starts of operations, because it would only waits $\ns{200}-\ns{80}=\ns{120}$.
 
 \subsubsection*{Bursty}
-This waiter behaves similarly to the Constant Rate component, however it defers wait operations, in order to
+This waiter behaves similarly to the Constant Rate component; however, it defers wait operations in order to
 produce blocks of BURST\_SIZE operations with little to no delay, similar to network applications where
 network packets often arrive in bursts.
 For example, with a BURST\_SIZE of 20, a wait time of \ns{100}, and an average operation duration of \ns{20},
-20 elements will be enqueued followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$ (leading to an average
+20 elements will be enqueued, followed by a wait of $20\cdot(\ns{100} - \ns{20}) = \ns{1600}$ (leading to an average
 delay between starts of operations of \ns{100}).
-Lastly, this component and the Constant Rate waiter also allow for jitter to be enabled, which adds pseudo
-random variance to the wait times (this was also done in the FastForward paper\cite{FastForward}).
+Lastly, this component and the Constant Rate waiter also allow for jitter to be enabled, which adds pseudo-random
+variance to the wait times (this was also done in the FastForward paper\cite{FastForward}).
 
 \subsection{Measurer Implementations}
-I have only implemented a single measurer component, however, measurer components could be used to, for
-example, use different timestamp sources than the \texttt{RDTSC} instruction used here as it is only supported on x86.
-It could also be used to measure other aspects of the queue/benchmark behaviour, such as cache statistic, the
+I have only implemented a single measurer component; however, measurer components could be used to, for
+example, use different timestamp sources than the \texttt{RDTSC} instruction used here, as it is only supported on x86.
+It could also be used to measure other aspects of the queue/benchmark behaviour, such as cache statistics, the
 number of failed operations, etc.
 Due to being the only implemented measurer, it is used for every benchmark here.

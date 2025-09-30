@@ -1,20 +1,20 @@
 \chapter{Queue Implementations}
-All of the queues I will benchmark in this work needed to either be ported to cpp, adapted to share the same
+All of the queues I will benchmark in this work needed to either be ported to C++, adapted to share the same
 interface (see \autoref{fig:queue-interface}), or reimplemented because no source code was available.
 In the first subsection, I will explain how I reached out to authors of those queues for feedback on my implementations.
 In the following subsections, I will outline the considerations that were made for each queue one at a time.
 
 \section{Feedback}
-On 2025-09-04, I reached out via E-Mail to the authors of the MCRingBuffer and FastForward papers seeking
+On 2025-09-04, I reached out via email to the authors of the MCRingBuffer and FastForward papers, seeking
 source code for the original implementations or feedback on my implementations of their queues.
 One of the authors of the FastForward paper responded and was able to provide me with a partial
-implementation of the FastForward queue which was missing the slip adjustment code.
-The provided code was very similar to my implementation, suggesting that that part of my implementation is correct.
-I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-30, however, my
-original message could not be delivered to Tian Bu and Girish Chandranmenon since their E-Mail addresses,
-stated in the MCRingBuffer paper, are not valid anymore.
+implementation of the FastForward queue, which was missing the slip adjustment code.
+The provided code was very similar to my implementation, suggesting that part of my implementation is correct.
+I have not received an answer from the authors of the MCRingBuffer paper as of 2025-09-30; however, my
+original message could not be delivered to Tian Bu and Girish Chandranmenon since their email addresses (as
+stated in the MCRingBuffer paper) are not valid anymore.
 
-I reached out via E-Mail to Yangfeng Tian and Xiong Fu, who are authors of the EQueue paper, and Junchang
+I reached out via email to Yangfeng Tian and Xiong Fu, who are authors of the EQueue paper, and Junchang
 Wang, who is an author of the B-Queue and EQueue papers, on 2025-05-28 with some questions about the EQueue
 paper and source code\footnote{About a week after reaching out,
     I noticed that the EQueue repository on GitHub ceased to be available.
@@ -24,40 +24,40 @@ paper and source code\footnote{About a week after reaching out,
     repository, which had already been unavailable prior to my work here (See
     \href{https://github.com/Computerdores/b-queue}{Computerdores/b-queue}).
 \label{equeue-bqueue-links}}.
-I have not received an answer to this E-Mail as of 2025-09-30 and for this reason not reached out separately
+I have not received an answer to this email as of 2025-09-30, and for this reason, I have not reached out separately
 about feedback on my implementation.
 
 \input{figures/queue-interface}
 
 \section{BQueue}
-This queue was initally reimplemented, because the original source code repository linked in the B-Queue
+This queue was initially reimplemented, because the original source code repository linked in the B-Queue
 paper had become unavailable (see
 \href{https://github.com/Computerdores/ba/blob/main/src/queues/b_queue.h}{queues/b\_queue.h})\cite{B-Queue}.
-As such a full B-Queue implemention, including self-adaptive backtracking and producer and consumer batching, was made.
+As such, a full B-Queue implementation, including self-adaptive backtracking and producer and consumer batching, was made.
 I have since found a copy of the original repository and validated that my implementation shows the same
 performance characteristics in my benchmarks.
 The implementation has two small divergences from the pseudo code in the paper, which are present to fix bugs.
 First, a check was added to prevent the tail from overtaking the batch tail.
 Second, another check was added to prevent the head from overtaking the tail in certain circumstances\footnote{
-    This check does not appear to be necessary for the benchmarks anymore, however, I did not remove it,
-because it makes the implementation more robust and I did not observe any performance difference due to it.}.
+    This check does not appear to be necessary for the benchmarks anymore; however, I did not remove it
+because it makes the implementation more robust, and I did not observe any performance difference due to it.}.
 
 \section{EQueue}
 EQueue was ported to C++ with small differences, because the released source code and the paper differed
 (see \href{https://github.com/Computerdores/ba/blob/main/src/queues/equeue.h}{queues/equeue.h})\cite{EQueue}.
-Furthermore, their queue implementation is also not entirely self contained (see traffic counters).
+Furthermore, their queue implementation is also not entirely self-contained (see traffic counters).
 I tried to reconcile the differences between the paper and their code appropriately.
 
-First, I added a check to make sure the used portion of the buffer does not exceed the buffer in size, which
+First, I added a check to make sure the used portion of the buffer does not exceed the buffer size, which
 is also present in their code.
 Secondly, the structure of \texttt{\_enqueue\_detect\_batching\_size} differs between the EQueue paper and
 their implementation; my version of it is closer to their implementation than to the paper.
-Thirdly, according to the paper, the \texttt{traffic\_empty} counter should be increased in \texttt{dequeue},
-however their implementation does this outside of the queue implementation.
-To keep my implementation self contained, I moved this into the \texttt{dequeue} method, as specified by the paper.
+Thirdly, according to the paper, the \texttt{traffic\_empty} counter should be increased in \texttt{dequeue};
+however, their implementation does this outside of the queue implementation.
+To keep my implementation self-contained, I moved this into the \texttt{dequeue} method, as specified by the paper.
 Fourthly, the EQueue paper's pseudo code does not increment \texttt{traffic\_full} in the batched version of
 \texttt{enqueue}.
-In my opinion this does not make a lot of sense, since the core mechanism to resize the used portion of the
+This seems illogical, since the core mechanism to resize the used portion of the
 buffer relies on this being incremented.
 Furthermore, their implementation also increments it, but does so outside of the queue implementation.
 For my implementation, I increment it as part of the \texttt{enqueue} method, similarly to the
@@ -74,7 +74,7 @@ prevent false sharing by making sure these blocks of variables are on different 
 I also added volatile markings for the variables \texttt{read}, \texttt{write}, and \texttt{buffer}.
 The last change I made is that when enqueue or dequeue don't immediately succeed, instead of waiting as
 specified in the paper, the operation instead fails, to conform with the interface\cite{MCRingBuffer}.
-It is also worth mentioning that this queue deadlocks under certain conditions, however, fixing this issue
+It is also worth mentioning that this queue deadlocks under certain conditions; however, fixing this issue
 was not pursued here, for the same reasons also outlined in the B-Queue paper\cite{B-Queue}.
 
 \section{FastFlow Queue}
@@ -93,13 +93,13 @@ Also like MCRingBuffer, padding was added to make sure that the \texttt{head}, \
 \texttt{buffer} variables are on different cache lines, to prevent false sharing.
 Furthermore, volatile markings and volatile references were added to prevent optimisation errors by the compiler.
 Lastly, the implementation of the distance function was not specified in the paper and was implemented via
-access to the, otherwise thread local, \texttt{head} and \texttt{tail} variables.
+access to the otherwise thread-local \texttt{head} and \texttt{tail} variables.
 
 \section{Lamport Queue}
 This queue was also reimplemented due to no source code being available, which had seemingly also been done
 for the FastForward paper (see \href{https://github.com/Computerdores/ba/blob/main/src/queues/lamport.h}
 {queues/lamport.h})\cite{Lamport}.
-Similar to the other queues, padding was added between \texttt{head}, \texttt{tail}, and the read only
+Similar to the other queues, padding was added between the \texttt{head}, \texttt{tail}, and the read-only
 variables and volatile references were added as well.
 It is also worth noting that, as with MCRingBuffer, instead of waiting when an operation does not succeed
-immediately like the paper specifies, the queue operations fail instead\cite{Lamport}.
+immediately, like the paper specifies, the queue operations fail instead\cite{Lamport}.

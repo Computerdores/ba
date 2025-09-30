@@ -1,5 +1,5 @@
 \section{Benchmarks}
-In this subsection I will start by explaining the different parameters to be set for each queue.
+In this section, I will start by explaining the different parameters to be set for each queue.
 While I will outline the purpose of each parameter, I will not provide an in-depth explanation of the inner
 workings of each queue.
 For detailed explanations, please refer to the original paper proposing the respective queues\footnote{Note,
@@ -60,7 +60,8 @@ The distance between head and tail that this creates is called the ``slip''.
 The following parameters can be used to control FastForward Queue's behaviour:
 \begin{itemize}
     \item \texttt{size} -- The size of the queue.
-    \item \texttt{adjust\_slip\_interval} -- This parameter determines every how many dequeues the slip is adjusted.
+    \item \texttt{adjust\_slip\_interval} -- This parameter specifies the interval, in terms of the number of dequeues,
+        at which the slip is adjusted.
 \end{itemize}
 
 \subsubsection*{Lamport Queue}
@@ -70,56 +71,57 @@ The only parameter of Lamport Queue is the \texttt{size} parameter, which contro
 \label{sec:bench-bursty-65k-16k}
 
 The Bursty 65k-16k and Bursty 65k-2k benchmarks are based on the tests performed in the EQueue paper,
-specifically the tests with a burst size of $16,384$ and $2,048$ elements respectively.
+specifically the tests with a burst size of $16,384$ and $2,048$ elements, respectively.
 The benchmark performs $1,000,000$ operations at a targeted rate for enqueue and dequeue of $1,000,000$
 operations per second\footnote{This rate differs from the rate used in the EQueue paper, where they targeted
     $\approx 20,000,000$ operations per second (specified as a wait time of $85\text{ cycles}\approx \ns{50}$).
-    The differing rate was selected, because according to the results from the EQueue paper, some, but not all, of the
+    The differing rate was selected because, according to the results from the EQueue paper, some, but not all, of the
     queues tested would not be able to operate at a rate of $20,000,000$ operations per second, due to their
 operation time being larger than \ns{50}\cite{EQueue}.}.
 All benchmarks (including Basic 65k) were repeated 100 times, with the operation times being averaged for
 every repetition.
 
 The benchmark uses the Bursty waiter component to simulate bursty enqueue patterns, similar to the EQueue paper.
-The burst sizes of $16,384$ and $2,048$ were selected, because both were tested in the EQueue paper and showed
+The burst sizes of $16,384$ and $2,048$ were selected because both were tested in the EQueue paper and showed
 very different results.
 The concrete selection of the burst size $16,384$ over the burst size $32,768$ was arbitrary due to the small
 difference between the reported results.
-It is further worth noting, that the implementation of the bursty enqueue pattern differes slightly from the
+It is further worth noting that the implementation of the bursty enqueue pattern differs slightly from the
 one used in the EQueue paper, because the Bursty waiter adjusts for the time the operation takes, as outlined
 in \autoref{sec:waiter-implementations}.
 The waiter for the consumer thread is a Constant Wait component, selected because it is closest to the
 implementation from the EQueue paper.
 
-The minimum and maximum size of EQueue is set to $256$ and $65,536$ respectively, as it also is in the EQueue paper.
-The paper does not specifiy the queue sizes used for queues other than EQueue.
-For this reason I chose $65,536$ as the (maximum) queue size for all other queues in order to have a
+The minimum and maximum sizes of EQueue are set to $256$ and $65,536$, respectively,
+as also stated in the EQueue paper.
+The paper does not specify the queue sizes used for queues other than EQueue.
+For this reason, I chose $65,536$ as the (maximum) queue size for all other queues in order to have a
 like-for-like comparison.
 In the next paragraphs, I will outline the reasons for the remaining queue parameter values.
 The configuration containing all of these values can be seen in \autoref{fig:toml-bursty-65k}.
 The full configurations for both of these benchmarks can be found in \texttt{equeue\_repro\_16k.toml} and
-\texttt{equeue\_repro\_2k.toml} respectively.
+\texttt{equeue\_repro\_2k.toml}, respectively.
 
 \input{figures/toml-bursty-65k}
 
 \subsubsection*{BQueue}
 The \texttt{batch\_size} parameter was set to a sixteenth of the queue size as specified by the original
 B-Queue source code.
-In turn, the \texttt{batch\_increment} parameter was set to half of the \texttt{batch\_size} parameter as
+In turn, the \texttt{batch\_increment} parameter was set to half of the \texttt{batch\_size} parameter, as
 also specified by the source code.
-Lastly, the \texttt{wait\_time} parameter was set to \SI{358}{\nano\second} in accordance with the
+Lastly, the \texttt{wait\_time} parameter was set to \ns{358} in accordance with the
 $1,000\text{ cycles}$ value from the source code.
 
 \subsubsection*{EQueue}
 For the \texttt{initial\_size} value of EQueue, no value was specified in the paper, and it was thus tuned
 from scratch\footnote{Note that all of the parameter tuning was done at significantly lower sample counts
 than the final benchmarks, because of the unfeasibly large amount of time this would otherwise have taken.}.
-The other unaccounted for parameter, \texttt{wait\_time}, was specified in paper and source code as 1000
-Cycles and was thus set to the equivalent \SI{358}{\nano\second}.
+The other unaccounted for parameter, \texttt{wait\_time}, was specified in the paper and source code as 1000
+Cycles and was thus set to the equivalent \ns{358}.
 
 \subsubsection*{FastFlow Queue}
-For FastFlow queue there are two parameters; \texttt{bucket\_size} for which there is no specified default
-value and which was thus tuned from scratch, and \texttt{max\_bucket\_count} which was entirely predetermined by
+For FastFlow queue, there are two parameters: \texttt{bucket\_size}, for which there is no specified default
+value and which was thus tuned from scratch, and \texttt{max\_bucket\_count}, which was entirely predetermined by
 the bucket size and the targeted maximum size of the queue.
 
 \subsubsection*{MCRingBuffer}
@@ -127,14 +129,14 @@ The \texttt{batch\_size} parameter was tuned -- with the constraint that it need
 number of enqueue / dequeue operations in order to avoid the aforementioned deadlock issue.
 
 \subsubsection*{FastForward Queue}
-The value for \texttt{adjust\_slip\_interval} was taken from the FastForward paper as is and then verfied via tuning.
+The value for \texttt{adjust\_slip\_interval} was taken from the FastForward paper as is and then verified via tuning.
 
 \subsubsection*{Lamport Queue}
-The Lamport queue has no parameters, but the size.
+The Lamport queue has no parameters, except for the \texttt{size} parameter.
 
 \subsection{Basic 65k}
 The Basic 65k benchmark is identical to the Bursty benchmarks, except that the Constant Rate waiter was used
 for the enqueue thread instead of the Bursty waiter.
-The EQueue paper does not include a test with constant rate or constant wait enqueueing, but this
+The EQueue paper does not include a test with a constant rate or constant wait enqueueing, but this
 benchmark is more similar to the testing in B-Queue and FastForward queue than the Bursty benchmarks are.
 The configuration file for this benchmark is \texttt{equeue\_repro\_16k.toml}.

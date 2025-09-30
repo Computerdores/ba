@@ -1,19 +1,18 @@
 \section{Results}
 It can generally be noted that the jitter on the TX side does not have an impact on any of the results
 (See \cref{fig:results-bursty-65k-16k,fig:results-bursty-65k-2k,fig:results-basic-65k}).
-Jitter having a significant impact can be a problem where the precise timing by the benchmark causes
+Jitter having a significant impact can be a problem where the precise timing of the benchmark causes
 significant changes in performance.
 This was also observed at times during the development of the benchmarks, but disappeared after applying bug fixes.
 
 Furthermore, regarding comparisons to the EQueue paper, three things are of note.
-First, the measurements from the EQueue paper include parts of their measurement code, my measurements do
+First, the measurements from the EQueue paper include parts of their measurement code; my measurements do
 not\cite{EQueueGithub}.
 However, it is not clear to me how significant the impact on their measurements would be.
 Second, I suspect that the measurements with different burst sizes from the EQueue paper were done in their
-cross-cpu configuration,
-which would be a significant difference to my measurements, but the paper does not specify whether or not
-this is the case.
-I suspect this, because the values for burst size 2048 from the graph match the cross-cpu values from their
+cross-cpu configuration, which would be a significant difference from my measurements, but the paper does not
+specify whether or not this is the case.
+I suspect this because the values for burst size $2,048$ from the graph match the cross-cpu values from their
 table better than the same-cpu values.
 Third, the values for the different burst sizes are not directly stated and were therefore discerned from the
 graph included in the paper.
@@ -21,7 +20,7 @@ graph included in the paper.
 In the following subsubsections, I analyse the results from the different benchmarks.
 I first address the two bursty benchmarks and compare the results to the results from the EQueue paper, as
 they also used bursty enqueue timing.
-Lastly, for the Basic benchmark I compare my results to those of the B-Queue and FastForward papers as this
+Lastly, for the Basic benchmark, I compare my results to those of the B-Queue and FastForward papers, as this
 benchmark is, out of mine, most similar to those.
 
 \subsection{Bursty 65k-16k}
@@ -29,14 +28,14 @@ benchmark is, out of mine, most similar to those.
 As mentioned in \autoref{ch:framework}, the components give two options to be varied with each benchmark:
 jitter and whether failed operations are included in the measurements.
 The four variations of this benchmark can be seen in \autoref{fig:results-bursty-65k-16k}.
-The variation in \autoref{fig:results-bursty-65k-16k-b} without jitter and which includes failed operations
-in the measurements is closest to the burst size $16,384$ test from the EQueue paper\cite{EQueue}.
+The variation in \autoref{fig:results-bursty-65k-16k-b}, without jitter and while including failed operations
+in the measurements, is closest to the burst size $16,384$ test from the EQueue paper\cite{EQueue}.
 
 According to the EQueue paper, EQueue reportedly took $\approx 60$ cycles per operation, which is
 $\approx \ns{36}$.
 My measurements show a time per operation for EQueue of $\approx \ns{24.4}$ for enqueue and
 $\approx \ns{25.8}$ for dequeue.
-These results suggest that my EQueue implementation does not exhibit major performance-flaws, because the
+These results suggest that my EQueue implementation does not exhibit major performance flaws, because the
 observed difference can be adequately explained by the known differences between these test setups.
 It also gives credence to the idea that the impact of the differences between the benchmark and the EQueue
 paper's testing is limited.
@@ -48,19 +47,19 @@ and around \ns{26}--\ns{27} per dequeue operation.
 This represents a significant difference between my measurements and those reported in the EQueue paper.
 The reasons for this difference are unclear.
 It could, for example, be explained by differences in parameters for the other queues or by hardware
-differences that specifically favor EQueue on the hardware used in that paper.
+differences that specifically favour EQueue on the hardware used in that paper.
 Another possible explanation is the difference in the rate at which operations are performed;
 however, further research would be required to determine the exact causes with confidence.
 
 It can also be observed that all queues, except for Lamport queue, show a $\approx 50\%$ better dequeue
 operation time when not including failed operations in the measurements.
-This means that a significant portion of the dequeue operations of these queues is failing in this benchmark.
+This means that a significant portion of the dequeue operations of these queues are failing in this benchmark.
 I suspect that this happens during the wait time between bursts and thus would not lead to decreased
-application performance in a real world scenario.
+application performance in a real-world scenario.
 
-Overall, it can be observed that all queues perform similarly in this benchmark, except for Lamport queue
+Overall, it can be observed that all queues perform similarly in this benchmark, except for Lamport queue,
 which performs better than the other queues on the dequeue operations.
-However, it is not clear whether this would lead to a real world performance advantage for Lamport queue.
+However, it is not clear whether this would lead to a real-world performance advantage for Lamport queue.
 
 \subsection{Bursty 65k-2k}
 \input{figures/plots/eq2k-bursty}
@@ -71,50 +70,50 @@ operations in the measurements is the closest to the test from the EQueue paper 
 
 According to the EQueue paper, at a burst size of $2,048$, all queues tested there (EQueue, B-Queue,
 MCRingBuffer, and FastForward Queue) took about $48$ cycles, which is about \ns{29}.
-In my measurements, all queues except for EQueue perform similarly to each other at around \ns{10}-\ns{21}.
-This difference to the EQueue paper is about what we would expect, since it lines up with the one observed
+In my measurements, all queues except for EQueue perform similarly to each other at around \ns{10}--\ns{21}.
+This difference to the EQueue paper is about what would be expected, since it lines up with the one observed
 for EQueue in the previous benchmark and can therefore also be explained by the known differences between the
 benchmarks.
 However, at $\approx \ns{34.4}$ per enqueue operation, EQueue performs significantly worse than the other
 queues in my measurements.
 When not measuring failed operations, this difference can not be seen, which means that it appears due to
 failed enqueue operations.
-On its own this could be explained by there being less than $2,048$ free slots in the queue, leading to some
-of the last elements from each burst not immediately fitting into the queue thus leading to failed enqueue operations.
-However then, this effect would also be expected to be more pronounced with a higher burst size, which can
+On its own, this could be explained by there being fewer than $2,048$ free slots in the queue, leading to some
+of the last elements from each burst not immediately fitting into the queue, thus leading to failed enqueue operations.
+However, this effect would also be expected to be more pronounced with a higher burst size, which can
 not be observed in the previous benchmark.
-It is thus not clear why there is a higher number of failed operation for EQueue here, than there is for the
+It is thus not clear why there is a higher number of failed operations for EQueue here than there is for the
 other queues.
 Lastly, MCRingBuffer also seems to experience an increased number of failed dequeue operations over the other queues.
 It is again not clear why this is the case, as successful queue operations of MCRingBuffer are similarly fast
 to the other queues.
 
-Overall, it can be said that the queues all perform relatively similar in this benchmark with the enqueue
-operation of EQueue as an outlier and the dequeue operation of MCRingBuffer as another, smaller, outlier.
+Overall, it can be said that the queues all perform relatively similarly in this benchmark, with the enqueue
+operation of EQueue as an outlier and the dequeue operation of MCRingBuffer as another, smaller outlier.
 
 \subsection{Basic 65k}
 \input{figures/plots/eq-basic}
-For this benchmark the results of the four variations can be seen in \autoref{fig:results-basic-65k}.
-In the case for the results of the variation without jitter and while measuring failed operations,
-it can be observed that the most of the results are almost identical to those of the Bursty 65k-16k benchmark,
+For this benchmark, the results of the four variations can be seen in \autoref{fig:results-basic-65k}.
+In the case of the results of the variation without jitter and while measuring failed operations,
+it can be observed that most of the results are almost identical to those of the Bursty 65k-16k benchmark,
 with the enqueue operation time of B-Queue, EQueue, and Lamport Queue being outliers,
 which are approximately one order of magnitude worse than in the Bursty 65k-16k benchmark.
-Comparing those results to the variation with neither jitter, nor measuring of failed operations,
+Comparing those results to the variation with neither jitter nor measuring of failed operations,
 this increase in operation time can only be seen for Lamport queue and only to a smaller degree.
 This means that while EQueue and B-Queue are only outliers due to failed operations,
-for Lamport queue the duration of successful enqueue operations is actually higher than in the other benchmarks.
-This could mean that that some difference in timing leads to EQueue, B-Queue, and Lamport queue filling up
+for Lamport queue, the duration of successful enqueue operations is actually higher than in the other benchmarks.
+This could mean that some difference in timing leads to EQueue, B-Queue, and Lamport queue filling up
 early in the benchmark, leading to failed enqueue operations later on because the queues are full.
 As for the increase in duration for Lamport queue's enqueue operations, which isn't present for the other queues,
-this could be due to cache optimisations, as Lamport queue is the first concurrent lock free queue to be presented,
-with the other queues all focusing on optimisations over existing queues which Lamport queue does not
+this could be due to cache optimisations, as Lamport queue is the first concurrent lock-free queue to be presented,
+with the other queues all focusing on optimisations over existing queues, which Lamport queue does not
 have\cite{Lamport}.
 
 This benchmark is also, to a degree, similar to the testing done in the FastForward paper, where FastForward
 queue and Lamport queue were compared.
-However, in the FastForward paper three cores were setup to forward in a circle with each pair of cores being
-connected by a queue, which presents a significant difference to this benchmark\cite{FastForward}.
-Futhermore, in this benchmark the queues are of much larger size, which is another difference to the
+However, in the FastForward paper, three cores were set up to forward in a circle, with each pair of cores being
+connected by a queue, which presents a significant difference from this benchmark\cite{FastForward}.
+Furthermore, in this benchmark, the queues are of much larger size, which is another difference from the
 FastForward paper's testing.
 Despite those differences, my measurements confirm that Lamport queue does indeed perform much worse than
 FastForward queue, both when measuring failed operations and when not doing so, as was found in the FastForward paper.
@@ -126,18 +125,17 @@ with one concurrent queue.
 However, the testing in the B-Queue paper used much smaller queues, so some differences could be expected due to that.
 The B-Queue testing showed operation times of around \ns{8} for B-Queue, MCRingBuffer, and FastForward queue.
 My measurements also show that the operation times for FastForward queue, MCRingBuffer, and the dequeue
-operation of B-Queue are very similar to each other, however,
-the absolute operation times are at around \ns{10}--\ns{11} for dequeue operations and at around \ns{19} for
-enqueue operations.
-Since the B-Queue measurements were obtained by measuring the time, performing all queue operation, and
-measuring the time again, for them the maximum operation time between the enqueue operation time and the
+operation of B-Queue are very similar to each other; however, the absolute operation times are at around
+\ns{10}--\ns{11} for dequeue operations and at around \ns{19} for enqueue operations.
+Since the B-Queue measurements were obtained by measuring the time, performing all queue operations, and
+measuring the time again, for them, the maximum operation time between the enqueue operation time and the
 dequeue operation time is what they measured as the general operation time.
 Applying this to my measurements leads to an effective general operation time of $\approx\ns{19}$, in
 contrast to the $\approx\ns{8}$ from the B-Queue paper, meaning the B-Queue measurements are lower than any
 result from my measurements or the measurements from the EQueue paper for any of the three queues\cite{B-Queue,EQueue}.
 This suggests that the absolute values measured in the B-Queue paper are not comparable to the results from
 my measurements or those from the EQueue paper.
-It is not clear what causes this difference, however, it could be due to hardware differences, as both the
+It is not clear what causes this difference; however, it could be due to hardware differences, as both the
 EQueue paper and I used significantly newer CPUs for the testing than the B-Queue paper did.
 
 Overall, these results suggest that in scenarios with low fluctuation of the enqueue rate, the performance of
